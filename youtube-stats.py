@@ -265,37 +265,40 @@ class YoutubeStats:
         start_time_all = time.time()
         while (len(video_ids_to_query_list) != 0):
             start_time_batch = time.time()
-            pre_for_loop_time_start = time.time()
 
             ids_in_batch = video_ids_to_query_list[0: limit]
             video_ids_to_query_list = video_ids_to_query_list[limit:]
             ids_in_batch_str = ",".join(ids_in_batch)
 
+            api_call_time_start = time.time()
+
             video_details_for_batch = self.api_get_video_details(
                 self, ids_in_batch_str).get("items")
+
+            api_call_time_end = time.time()
+            print(
+                f"api call time: {api_call_time_end - api_call_time_start} s")
+
             api_calls += 1
 
-            pre_for_loop_time_end = time.time()
-            print(
-                f"  PRE for loop time: {pre_for_loop_time_end - pre_for_loop_time_start} s")
-
-            for_loop_time_start = time.time()
+            update_row_total_time = 0
             for video_details in video_details_for_batch:
                 video_id = video_details.get("id")
                 duration = video_details.get("contentDetails").get("duration")
 
-                video_length_to_seconds_time_start = time.time()
                 video_length_str, video_length_seconds = self.video_length_to_seconds(
                     self, duration)
-                video_length_to_seconds_time_end = time.time()
-                # print(f"    for loop time: {video_length_to_seconds_time_end - video_length_to_seconds_time_start} s")
+
+                update_row_time_start = time.time()
 
                 self.update_row(self, select_cursor, conn,
                                 video_length_str, video_id)
 
-            for_loop_time_end = time.time()
+                update_row_time_end = time.time()
+                update_row_total_time += (update_row_time_end -
+                                          update_row_time_start)
             print(
-                f"  for loop time: {for_loop_time_end - for_loop_time_start} s")
+                f"  update_row time: {update_row_total_time} s")
 
             end_time_batch = time.time()
             print(
