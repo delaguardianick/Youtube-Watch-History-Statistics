@@ -16,12 +16,15 @@ class YoutubeStats:
     def youtube_main(self):
         watch_history_takeout = YoutubeApi.get_watch_history()
 
-        # # SETUP AND TAKEOUT
-        self.setup_db(self.dbLocation, self.target_table)
-        self.insert_takeout_to_db(
-            self, watch_history_takeout, self.dbLocation, self.target_table)
+        # CREATE TABLE
+        # self.setup_db(self.dbLocation, self.target_table)
 
-        self.insert_extra_info_to_db(self, watch_history_takeout)
+        # INSERT TAKEOUT
+        # self.insert_takeout_to_db(
+        #     self, watch_history_takeout, self.dbLocation, self.target_table)
+
+        # APPEND NEW VALUES
+        # self.insert_extra_info_to_db(self, watch_history_takeout)
 
     def insert_takeout_to_db(self, watch_history, dbLocation, target_table):
         conn = sqlite3.connect(dbLocation)
@@ -38,7 +41,7 @@ class YoutubeStats:
         print(f"number of videos in takeout: {count}")
         conn.commit()
         conn.close()
-        print("Written to table")
+        print(f"Written to table {target_table}")
 
     def insert_into_table(self, c, video_obj, target_table):
         c.execute("""INSERT INTO watch_history_dev(
@@ -164,21 +167,23 @@ class YoutubeStats:
         print(
             f"Updated table with length - api calls: {api_calls} - Time: {end_time_all - start_time_all}")
 
-    # Todo: make more general?
-
+    # Todo: USE AN INDEX TO SIGNIFICANTLY SPEED IT UP
     def update_row(self, select_cursor, conn, target_watch_id, video_length_str, video_length_secs, description, categoryId, tags, video_id):
 
-        # select_cursor.execute("""EXPLAIN QUERY PLAN UPDATE watch_history_dev
+        # select_cursor.execute("""UPDATE watch_history_dev
         # SET
-        # video_length_str = ?
+        # video_length_str = ?,
+        # video_length_secs = ?,
+        # video_description = ?,
+        # category_id = ?,
+        # tags = ?
         # WHERE
+        # watch_id = ?
+        # AND
         # video_id = ?
-        # """, (new_vid_length, watch_id_to_update)
+        # """, (video_length_str, video_length_secs, description, categoryId, tags, target_watch_id, video_id)
         # )
 
-        # print(target_watch_id, title)
-
-        # set multiple attributes same id
         select_cursor.execute("""UPDATE watch_history_dev
         SET
         video_length_str = ?,
@@ -187,12 +192,9 @@ class YoutubeStats:
         category_id = ?,
         tags = ?
         WHERE
-        watch_id = ? 
-        AND
         video_id = ? 
-        """, (video_length_str, video_length_secs, description, categoryId, tags, target_watch_id, video_id)
+        """, (video_length_str, video_length_secs, description, categoryId, tags, video_id)
         )
-        conn.commit()
 
     def setup_db(dbLocation, table_name):
         conn = sqlite3.connect(dbLocation)
