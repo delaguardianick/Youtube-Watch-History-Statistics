@@ -91,10 +91,10 @@ class DataModifier:
 
         return vid_ids_to_query
 
-    def extra_info_db(self, video_obj, video_extra_details):
-        video_obj = self.add_video_length(self, video_obj, video_extra_details)
-        return video_obj
+    # def extra_info_db(self, video_obj, video_extra_details):
+    #     video_obj = self.add_video_length(self, video_obj, video_extra_details)
+    #     return video_obj
 
-    def extract_extra_video_details(ids_in_batch_str):
-        video_details_for_batch = YoutubeApi.api_get_video_details(
-            self, ids_in_batch_str).get("items")
+    # def extract_extra_video_details(ids_in_batch_str):
+    #     video_details_for_batch = YoutubeApi.api_get_video_details(
+    #         self, ids_in_batch_str).get("items")
