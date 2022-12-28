@@ -54,7 +54,8 @@ class DataModifier:
             video_length, "S")
 
         video_length_str = f"{hours}:{mins}:{secs}"
-        total_secs = (int(hours) * 3600) + (int(mins) * 60) + (int(secs))
+        total_secs = "0" if video_length_str == None else (
+            int(hours) * 3600) + (int(mins) * 60) + (int(secs))
 
         return video_length_str, total_secs
 

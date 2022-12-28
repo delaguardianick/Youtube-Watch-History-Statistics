@@ -1,8 +1,5 @@
 import sqlite3
-import json
-import datetime
 import YoutubeVideo as YoutubeVideo
-import requests
 import time as time
 from youtube_api import YoutubeApi
 from data_modifier import DataModifier
@@ -17,14 +14,14 @@ class YoutubeStats:
         watch_history_takeout = YoutubeApi.get_watch_history()
 
         # CREATE TABLE
-        # self.setup_db(self.dbLocation, self.target_table)
+        self.setup_db(self.dbLocation, self.target_table)
 
         # INSERT TAKEOUT
-        # self.insert_takeout_to_db(
-        #     self, watch_history_takeout, self.dbLocation, self.target_table)
+        self.insert_takeout_to_db(
+            self, watch_history_takeout, self.dbLocation, self.target_table)
 
         # APPEND NEW VALUES
-        # self.insert_extra_info_to_db(self, watch_history_takeout)
+        self.insert_extra_info_to_db(self, watch_history_takeout)
 
     def insert_takeout_to_db(self, watch_history, dbLocation, target_table):
         conn = sqlite3.connect(dbLocation)
@@ -41,10 +38,89 @@ class YoutubeStats:
         print(f"number of videos in takeout: {count}")
         conn.commit()
         conn.close()
-        print(f"Written to table {target_table}")
+        print(f"Written to table")
+
+    def insert_extra_info_to_db(self, watch_history_takeout):
+        print("inserting extra info to db...")
+        conn = sqlite3.connect(self.dbLocation)
+        select_cursor = conn.cursor()
+        select_cursor.execute("BEGIN")
+
+        video_ids_to_query_list = DataModifier.append_videos_id_to_query(self,
+                                                                         watch_history_takeout)
+
+        # make tuple list (watch_id, length) ?
+
+        # UPDATE watch_history_dev SET video_length_str = "LENGTH" WHERE watch_id = 1
+        api_calls = 0
+        limit = 50
+        start_time_all = time.time()
+
+        db_index = 1
+        while (len(video_ids_to_query_list) != 0):
+            start_time_batch = time.time()
+
+            ids_in_batch = video_ids_to_query_list[0: limit]
+            video_ids_to_query_list = video_ids_to_query_list[limit:]
+            ids_in_batch_str = ",".join(ids_in_batch)
+
+            api_call_time_start = time.time()
+
+            video_details_for_batch = YoutubeApi.api_get_video_details(
+                self, ids_in_batch_str).get("items")
+
+            api_call_time_end = time.time()
+
+            api_calls += 1
+
+            id_index = 0
+            update_row_total_time = 0
+            for i in range(len(video_details_for_batch)):
+                video_details = video_details_for_batch[i]
+
+                video_id = video_details.get("id")
+                duration = video_details.get("contentDetails").get("duration")
+                description = video_details.get("snippet").get("description")
+                categoryId = video_details.get("snippet").get("categoryId")
+                tags = repr(video_details.get("snippet").get("tags"))
+
+                video_length_str, video_length_secs = DataModifier.video_length_to_seconds(
+                    duration)
+
+                update_row_time_start = time.time()
+
+                self.update_row(self, select_cursor, conn, db_index, video_length_str,
+                                video_length_secs, description, categoryId, tags, video_id)
+
+                update_row_time_end = time.time()
+                update_row_total_time += (update_row_time_end -
+                                          update_row_time_start)
+
+                db_index += 1
+
+            end_time_batch = time.time()
+
+            # print(select_cursor.fetchall())
+
+            if (api_calls) % 50 == 0:
+                conn.commit()
+                print("commited....")
+
+                print(
+                    f"Batch {api_calls} done: {end_time_batch - start_time_batch} seconds")
+                print(
+                    f"  api call time: {api_call_time_end - api_call_time_start} s")
+                print(
+                    f"  update_row time: {update_row_total_time} s")
+
+        conn.commit()
+        conn.close()
+        end_time_all = time.time()
+        print(
+            f"Updated table with length - api calls: {api_calls} - Time: {end_time_all - start_time_all}")
 
     def insert_into_table(self, c, video_obj, target_table):
-        c.execute("""INSERT INTO watch_history_dev(
+        c.execute("""INSERT or IGNORE INTO watch_history_dev2(
                 video_id,
                 date_time_iso,
                 date_,
@@ -85,106 +161,10 @@ class YoutubeStats:
                   )
                   )
 
-    def insert_extra_info_to_db(self, watch_history_takeout):
-        conn = sqlite3.connect(self.dbLocation)
-        select_cursor = conn.cursor()
-        select_cursor.execute("BEGIN")
-
-        video_ids_to_query_list = DataModifier.append_videos_id_to_query(self,
-                                                                         watch_history_takeout)
-
-        # make tuple list (watch_id, length) ?
-
-        # UPDATE watch_history_dev SET video_length_str = "LENGTH" WHERE watch_id = 1
-        api_calls = 0
-        limit = 50
-        start_time_all = time.time()
-
-        db_index = 1
-        while (len(video_ids_to_query_list) != 0):
-            start_time_batch = time.time()
-
-            ids_in_batch = video_ids_to_query_list[0: limit]
-            video_ids_to_query_list = video_ids_to_query_list[limit:]
-            ids_in_batch_str = ",".join(ids_in_batch)
-
-            api_call_time_start = time.time()
-
-            video_details_for_batch = YoutubeApi.api_get_video_details(
-                self, ids_in_batch_str).get("items")
-
-            api_call_time_end = time.time()
-            print(
-                f"  api call time: {api_call_time_end - api_call_time_start} s")
-
-            api_calls += 1
-
-            id_index = 0
-            update_row_total_time = 0
-            for i in range(len(video_details_for_batch)):
-                video_details = video_details_for_batch[i]
-
-                video_id = video_details.get("id")
-                duration = video_details.get("contentDetails").get("duration")
-                description = video_details.get("snippet").get("description")
-                categoryId = video_details.get("snippet").get("categoryId")
-                tags = repr(video_details.get("snippet").get("tags"))
-
-                video_length_str, video_length_secs = DataModifier.video_length_to_seconds(
-                    duration)
-
-                update_row_time_start = time.time()
-
-                self.update_row(self, select_cursor, conn, db_index, video_length_str,
-                                video_length_secs, description, categoryId, tags, video_id)
-
-                update_row_time_end = time.time()
-                update_row_total_time += (update_row_time_end -
-                                          update_row_time_start)
-
-                db_index += 1
-
-            print(
-                f"  update_row time: {update_row_total_time} s")
-
-            end_time_batch = time.time()
-            print(
-                f"Batch {api_calls} done: {end_time_batch - start_time_batch} seconds")
-
-            # print(select_cursor.fetchall())
-
-            if (api_calls) % 20 == 0:
-                conn.commit()
-                print("commited....")
-                print("commited....")
-                print("commited....")
-                print("commited....")
-                print("commited....")
-
-        conn.commit()
-        conn.close()
-        end_time_all = time.time()
-        print(
-            f"Updated table with length - api calls: {api_calls} - Time: {end_time_all - start_time_all}")
-
     # Todo: USE AN INDEX TO SIGNIFICANTLY SPEED IT UP
     def update_row(self, select_cursor, conn, target_watch_id, video_length_str, video_length_secs, description, categoryId, tags, video_id):
 
-        # select_cursor.execute("""UPDATE watch_history_dev
-        # SET
-        # video_length_str = ?,
-        # video_length_secs = ?,
-        # video_description = ?,
-        # category_id = ?,
-        # tags = ?
-        # WHERE
-        # watch_id = ?
-        # AND
-        # video_id = ?
-        # """, (video_length_str, video_length_secs, description, categoryId, tags, target_watch_id, video_id)
-        # )
-
-        select_cursor.execute("""UPDATE watch_history_dev
+        select_cursor.execute("""UPDATE watch_history_dev2
         SET
         video_length_str = ?,
         video_length_secs = ?,
@@ -200,11 +180,10 @@ class YoutubeStats:
         conn = sqlite3.connect(dbLocation)
         c = conn.cursor()
 
-        c.execute("""DROP TABLE watch_history_dev;""")
+        c.execute("""DROP TABLE watch_history_dev2;""")
         # Create table
-        c.execute("""CREATE TABLE watch_history_dev(
-                watch_id INTEGER PRIMARY KEY,
-                video_id TEXT,
+        c.execute("""CREATE TABLE watch_history_dev2(
+                video_id TEXT PRIMARY KEY,
                 date_time_iso TEXT,
                 date_ TEXT,
                 time_ TEXT,
@@ -226,6 +205,9 @@ class YoutubeStats:
                 tags TEXT
             )
             """)
+
+        c.execute("""CREATE INDEX idx_video_id ON watch_history_dev2(video_id);""")
+
         conn.commit()
         conn.close()
 
