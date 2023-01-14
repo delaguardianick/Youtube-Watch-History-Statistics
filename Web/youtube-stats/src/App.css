@@ -41,6 +41,8 @@
 body {
   background-color: #fff;
   color: #333;
+  min-height: 100vh; margin:0;
+  display:flex; flex-direction:column;
 }
 
 h1,
@@ -175,7 +177,8 @@ span {
   background: #fff;
   z-index: 997;
   transition: all 0.5s ease;
-  padding: 20px 0;
+  padding-top: 10px 0;
+  min-height:50px; 
 }
 
 #header #logo h1 {
@@ -441,6 +444,7 @@ span {
   background-size: 100%;
   position: relative;
   margin-top: 2em;
+  flex :1 
   
 }
 
@@ -449,8 +453,8 @@ span {
   margin-right: auto;
   margin-left: auto;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
-  height: calc(50vh - 40px);
-
+  padding-bottom: 2em;
+  margin-bottom: 6em;
 }
 
 
@@ -749,10 +753,9 @@ section {
 --------------------------------------------------------------*/
 .footer {
   background: #2a2c30;
-  position: fixed;
   bottom: 0;
   width: 100%;
-  height: 60px;   /* Height of the footer */
+  min-height:50px
 }
 
 .footer .footer-logo .navbar-brand {
@@ -794,4 +797,21 @@ section {
   padding-left: 5px;
   text-decoration: none;
   letter-spacing: 0;
+}
+
+.plot-image{
+  padding: 1em;
+  text-align: center;
+}
+
+.plot-image span{
+  font-size: 1.5em;
+  font-weight: 600;
+  color: #000;
+}
+
+.plot-image img{
+  width: 100%;
+  height: auto;
+  /* object-fit: cover; */
 }
