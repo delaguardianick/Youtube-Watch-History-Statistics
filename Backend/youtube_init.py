@@ -13,14 +13,14 @@ class YoutubeStats:
     def youtube_main(self):
         watch_history_takeout = YoutubeApi.get_watch_history()
 
-        # CREATE TABLE
+        # Create database table
         self.setup_db(self.dbLocation, self.target_table)
 
-        # INSERT TAKEOUT
+        # Insert watch history data into database table
         self.insert_takeout_to_db(
             self, watch_history_takeout, self.dbLocation, self.target_table)
 
-        # APPEND NEW VALUES
+        # Add additional information to database table
         self.insert_extra_info_to_db(self, watch_history_takeout)
 
     def insert_takeout_to_db(self, watch_history, dbLocation, target_table):
@@ -32,6 +32,7 @@ class YoutubeStats:
             self.all_video_objects.append(video_obj)
             count += 1
 
+        # Insert video data objects into database table
         for video_obj in self.all_video_objects:
             self.insert_into_table(self, c, video_obj, target_table)
 
@@ -46,6 +47,7 @@ class YoutubeStats:
         select_cursor = conn.cursor()
         select_cursor.execute("BEGIN")
 
+        # Create list of video IDs to query for additional information
         video_ids_to_query_list = DataModifier.append_videos_id_to_query(self,
                                                                          watch_history_takeout)
 
@@ -75,6 +77,8 @@ class YoutubeStats:
 
             id_index = 0
             update_row_total_time = 0
+            
+            # Update corresponding rows in database table with additional information
             for i in range(len(video_details_for_batch)):
                 video_details = video_details_for_batch[i]
 
@@ -120,6 +124,7 @@ class YoutubeStats:
             f"Updated table with length - api calls: {api_calls} - Time: {end_time_all - start_time_all}")
 
     def insert_into_table(self, c, video_obj, target_table):
+         # Insert video data object into database table
         c.execute("""INSERT or IGNORE INTO watch_history_dev2(
                 video_id,
                 date_time_iso,
@@ -161,6 +166,7 @@ class YoutubeStats:
                   )
                   )
 
+    # Update corresponding row in database table with additional information
     # Todo: USE AN INDEX TO SIGNIFICANTLY SPEED IT UP
     def update_row(self, select_cursor, conn, target_watch_id, video_length_str, video_length_secs, description, categoryId, tags, video_id):
 
