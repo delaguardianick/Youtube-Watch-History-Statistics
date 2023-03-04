@@ -2,7 +2,6 @@
 import json
 import requests
 
-
 class YoutubeApi:
 
     def get_watch_history():
