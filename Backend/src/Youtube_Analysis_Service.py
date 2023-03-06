@@ -84,6 +84,9 @@ class PlotsService:
         wh_df, date_ranges = self.analyze_data(self)
         plots = {}
         plots["weekly_avg"] = self.plot_weekly_avg(self, wh_df, date_ranges)
+        plots["hourly_avg"] = self.plot_hourly_avg(self, wh_df, date_ranges)
+        plots["monthly_avg"] = self.plot_monthly_avg(self, wh_df, date_ranges)
+
         # plots.append(Plots.watch_time_hour())
         # plots.append(Plots.watch_time_year())
         # plots.append(Plots.watch_time_month())
@@ -127,8 +130,55 @@ class PlotsService:
 
         return self.__get_plot_url(plot)
 
+    def plot_hourly_avg(self, wh_df, date_ranges) -> dict:
+        wh_df["video_length_secs"] = wh_df["video_length_secs"].astype(int)
+        videos_by_hour = wh_df[["video_length_secs", "hour_time"]]
+        videos_by_hour = videos_by_hour.groupby("hour_time").sum().reset_index()
+        videos_by_hour["minutes_watched_avg"] = videos_by_hour[
+            "video_length_secs"
+        ].apply(lambda x: x / (60 * date_ranges.get("days")))
+        # videos_by_hour
+        # days_diff_date_range
 
-# # In[53]:
+        start_year = date_ranges.get("start_year")
+        end_year = date_ranges.get("end_year")
+        plot = videos_by_hour.plot(
+            x="hour_time",
+            y="minutes_watched_avg",
+            title="Avg Watch Time / Hour",
+            xlabel="Hour",
+            ylabel="Minutes watched on average",
+        ).legend([f"Range: {start_year} - {end_year}"])
+        # weekdays_count_df.plot(x="day_of_week", y="hours_watched_avg", title="Avg Watch Time / Weekday", xlabel = "Weekdays", ylabel="Minutes watched on average").legend([f"Range: {start_year} - {end_year}"])
+
+        return self.__get_plot_url(plot)
+
+    def plot_monthly_avg(self, wh_df, date_ranges) -> dict:
+        # Filter dataframe and group by desired index
+        wh_df["video_length_secs"] = wh_df["video_length_secs"].astype(int)
+        videos_by_month = wh_df[["video_length_secs", "month_date"]]
+        videos_by_month = videos_by_month.groupby("month_date").sum().reset_index()
+
+        # is this correct? secs->mins->hours->hours/year->hours/day
+        videos_by_month["hours_watched_avg"] = videos_by_month[
+            "video_length_secs"
+        ].apply(lambda x: x / (60 * 60 * date_ranges.get("years") * 30))
+        # videos_by_hour
+        # days_diff_date_range
+
+        start_year = date_ranges.get("start_year")
+        end_year = date_ranges.get("end_year")
+
+        plot = videos_by_month.plot(
+            x="month_date",
+            y="hours_watched_avg",
+            title="Daily avg Watch Time / Month",
+            xlabel="Month",
+            ylabel="Hours watched on average",
+        ).legend([f"Range: {start_year} - {end_year}"])
+        # weekdays_count_df.plot(x="day_of_week", y="hours_watched_avg", title="Avg Watch Time / Weekday", xlabel = "Weekdays", ylabel="Minutes watched on average").legend([f"Range: {start_year} - {end_year}"])
+
+        return self.__get_plot_url(plot)
 
 
 # # wh_df[wh_df.channel_name == 'Lofi Girl']

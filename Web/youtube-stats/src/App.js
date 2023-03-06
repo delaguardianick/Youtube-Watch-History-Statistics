@@ -70,17 +70,19 @@ function App() {
         <section id="plots">
           <div className="plots-container">
             <div className="div1 plot-image">
-              <span>Plot1</span>
+              <span>Weekly</span>
               {console.log(plots)}
-              {plots && <img src={plots.weekly_avg} alt="Watch time by weekday" />}
+              {plots && <img src={plots.weekly_avg} alt="Avg watch time by weekly" />}
             </div>
             <div className="div2 plot-image">
-              <span>Plot2</span>
-              <img src="https://www.bankrate.com/2022/04/19101010/Tesla-stock-chart.jpg"></img>
+              <span>Daily</span>
+              {console.log(plots)}
+              {plots && <img src={plots.hourly_avg} alt="Avg watch time hourly" />}
             </div>
             <div className="div3 plot-image">
               <span>Plot3</span>
-              <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img>
+              {plots && <img src={plots.monthly_avg} alt="Avg watch time monthly" />}
+
             </div>
             <div className="div4 plot-image">
               <span>Plot4</span>
