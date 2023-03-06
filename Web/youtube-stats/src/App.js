@@ -1,7 +1,22 @@
 import logo from './logo.svg';
 import './App.css';
+import { useState } from 'react';
+import {useEffect} from 'react';
+
 
 function App() {
+  const [plotUrl, setPlotUrl] = useState('');
+
+  const getPlotUrl = async () => {
+    const response = await fetch('http://localhost:8000/plot');
+    const data = await response.json();
+    setPlotUrl(data.plot_url);
+  };
+
+  useEffect(() => {
+    getPlotUrl();
+  }, []);
+
   return (
   
   <div class="root">
@@ -49,7 +64,9 @@ function App() {
           <div class="plots-container">
             <div class="div1 plot-image">
               <span>Plot1</span>
-              <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img>
+              {/* <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img> */}
+              {console.log(plotUrl)}
+              {plotUrl && <img src={plotUrl} alt="Watch time by weekday" />}
             </div>
             <div class="div2 plot-image">
               <span>Plot2</span>
