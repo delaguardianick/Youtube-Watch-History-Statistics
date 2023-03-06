@@ -9,19 +9,22 @@ from dateutil import parser
 import json
 from matplotlib.figure import Figure
 import base64
-from io import BytesIO
+import io
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 
-class Plots:
+class PlotsService:
     last_video_date = None
     first_video_date = None
 
     # Get weeks diff betweendate first and last video in df
-    def calculate_time_difference(wh_df):
+    def __calculate_time_difference(wh_df, year_range):
         last_video_date = parser.parse(wh_df["date_time_iso"].iloc[0])
         first_video_date = parser.parse(wh_df["date_time_iso"].iloc[-1])
         difference = last_video_date - first_video_date
         date_ranges = {
+            "start_year": year_range[0],
+            "end_year": year_range[1],
             "years": difference.days // 365,
             "weeks": difference.days // 7,
             "days": difference.days,
@@ -31,46 +34,64 @@ class Plots:
 
         return date_ranges
 
-    def analyze_data(self):
-        con = sqlite3.connect("../SQLite/YoutubeStats.sqlite")
-        watch_history_all_df = pd.read_sql_query("SELECT * from watch_history_v1", con)
-        wh_df = watch_history_all_df[watch_history_all_df.is_available == 1]
+    def __get_plot_url(plot) -> str:
+        # Render the plot as an image
+        fig = plot.get_figure()
+        canvas = FigureCanvas(fig)
+        png_output = io.BytesIO()
+        canvas.print_png(png_output)
 
+        # Convert the binary data to a base64-encoded string
+        png_output.seek(0)
+        png_base64 = base64.b64encode(png_output.getvalue()).decode("utf-8")
+        return f"data:image/png;base64,{png_base64}"
+
+    def __filter_df_year_range(wh_df, year_range):
         # Data for year range
-        start_year = 2016
-        end_year = 2021
-        year_range = (start_year, end_year)
+
         year_range_string = (
             str(year_range[0])
             if year_range[0] == year_range[1]
             else f"{year_range[0]} - {year_range[1]}"
         )
-        label_videos_over_range = f"# of videos watched ({year_range_string})"
+        # label_videos_over_range = f"# of videos watched ({year_range_string})"
         # range(year_range[0], year_range[1]+1):
         wh_df = wh_df[
             (year_range[0] <= wh_df.year_date) & (wh_df.year_date <= year_range[1])
         ]
-        video_count_in_df = len(wh_df.watch_id)
 
-        # Calculate time range
-        date_ranges = self.calculate_time_difference(wh_df)
+        return wh_df
+
+    def analyze_data(self):
+        con = sqlite3.connect("../SQLite/YoutubeStats.sqlite")
+        watch_history_all_df = pd.read_sql_query("SELECT * from watch_history_v1", con)
+        wh_df = watch_history_all_df[watch_history_all_df.is_available == 1]
+
+        # filter df by year range and get ranges
+        start_year, end_year = 2016, 2021
+        wh_df = self.__filter_df_year_range(wh_df, (start_year, end_year))
+        date_ranges = self.__calculate_time_difference(wh_df, (start_year, end_year))
+
+        # Get total video count
+        # video_count_in_df = len(wh_df.watch_id)
 
         # Change string to int
         wh_df["video_length_secs"] = wh_df["video_length_secs"].astype(int)
 
         return wh_df, date_ranges
 
-    def getAllPlots(self):
+    def get_all_plots(self) -> dict:
         wh_df, date_ranges = self.analyze_data(self)
-        plots = []
-        plots.append(Plots.watch_time_weekday(wh_df, date_ranges.get("weeks")))
-        plots.append(Plots.watch_time_hour())
-        plots.append(Plots.watch_time_year())
-        plots.append(Plots.watch_time_month())
-        plots.append(Plots.watch_time_day())
-        return plots
+        plots = {}
+        plots["weekly_avg"] = self.plot_weekly_avg(self, wh_df, date_ranges)
+        # plots.append(Plots.watch_time_hour())
+        # plots.append(Plots.watch_time_year())
+        # plots.append(Plots.watch_time_month())
+        # plots.append(Plots.watch_time_day())
 
-    def watch_time_weekday(wh_df, weeks_diff_date_range):
+        return plots  # {"plot_name" : "plot_url"}
+
+    def plot_weekly_avg(self, wh_df, date_ranges) -> dict:
         # Filter dataframe and group by desired index
         weekdays_count_df = wh_df[["video_length_secs", "day_of_week"]]
         weekdays_count_df = weekdays_count_df.groupby("day_of_week").sum().reset_index()
@@ -78,7 +99,7 @@ class Plots:
         # Data manipulation. total secs for a sunday into hours watched on average on a sunday
         weekdays_count_df["hours_watched_avg"] = weekdays_count_df[
             "video_length_secs"
-        ].apply(lambda x: x / (60 * 60 * weeks_diff_date_range))
+        ].apply(lambda x: x / (60 * 60 * date_ranges.get("weeks")))
 
         # label mapping
         weekdays_map = {
@@ -93,14 +114,18 @@ class Plots:
         weekdays_count_df["day_of_week"] = weekdays_count_df["day_of_week"].map(
             weekdays_map
         )
+        start_year = date_ranges.get("start_year")
+        end_year = date_ranges.get("end_year")
 
-        return weekdays_count_df.plot(
+        plot = weekdays_count_df.plot(
             x="day_of_week",
             y="hours_watched_avg",
             title="Avg Watch Time / Weekday",
             xlabel="Weekdays",
             ylabel="Hours watched on average",
         ).legend([f"Range: {start_year} - {end_year}"])
+
+        return self.__get_plot_url(plot)
 
 
 # # In[53]:

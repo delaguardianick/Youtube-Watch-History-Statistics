@@ -6,6 +6,7 @@ import {useEffect} from 'react';
 
 function App() {
   const [plotUrl, setPlotUrl] = useState('');
+  const [plots, setPlots] = useState({});
 
   const getPlotUrl = async () => {
     const response = await fetch('http://localhost:8000/plot');
@@ -13,8 +14,15 @@ function App() {
     setPlotUrl(data.plot_url);
   };
 
+  const getAllPlotsUrl = async () => {
+    const response = await fetch('http://localhost:8000/plots/all');
+    const data = await response.json();
+    setPlots(data);
+  };
+
   useEffect(() => {
-    getPlotUrl();
+    // getPlotUrl();
+    getAllPlotsUrl();
   }, []);
 
   return (
@@ -58,13 +66,13 @@ function App() {
         </section>
 
         {/* <!-- ======= Plots Section ======= --> */}
+
         <section id="plots">
           <div className="plots-container">
             <div className="div1 plot-image">
               <span>Plot1</span>
-              {/* <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img> */}
-              {console.log(plotUrl)}
-              {plotUrl && <img src={plotUrl} alt="Watch time by weekday" />}
+              {console.log(plots)}
+              {plots && <img src={plots.weekly_avg} alt="Watch time by weekday" />}
             </div>
             <div className="div2 plot-image">
               <span>Plot2</span>
