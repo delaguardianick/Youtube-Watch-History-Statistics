@@ -80,7 +80,7 @@ function App() {
               {plots && <img src={plots.hourly_avg} alt="Avg watch time hourly" />}
             </div>
             <div className="div3 plot-image">
-              <span>Plot3</span>
+              <span>Monthly</span>
               {plots && <img src={plots.monthly_avg} alt="Avg watch time monthly" />}
 
             </div>
