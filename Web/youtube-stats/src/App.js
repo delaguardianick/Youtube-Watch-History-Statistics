@@ -74,7 +74,6 @@ function App() {
                 Upload Takeout
                 <input name="" type="file" id="formId" hidden />
             </label>
-            <button onClick={calcExtraInfo} className="btn">Process Data</button>
           </div>
         </section>
 
