@@ -13,6 +13,8 @@ from fastapi.responses import StreamingResponse
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+import json
+from pydantic import BaseSettings
 
 app = FastAPI()
 
@@ -32,19 +34,33 @@ def root():
     return {"message": "Hello World"}
 
 
+class Settings(BaseSettings):
+    processing_service: Processing = None
+
+
+settings = Settings()
+
+
 @app.post("/upload")
 async def process_upload(file: UploadFile = File(...)):
     contents = await file.read()
     print("Processing takeout...")
-    processing_service = Processing(contents)
-    processing_service.youtube_main()
+    settings.processing_service = Processing(json.loads(contents))
+    settings.processing_service.insert_takeout_to_db()
+    return {"takeout": "Basic takeout uploaded successfully"}
 
-    return {"takeout": "File processed successfully"}
+
+@app.get("/upload/advanced")
+async def process_upload():
+    print("Fetching extra information about the videos...")
+    settings.processing_service.insert_extra_info_to_db()
+    return {"takeout": "Extra info added to db"}
 
 
 @app.get("/plots/all")
 async def get_all_plots():
     plots_service = Analysis()
+    plots_service.fetch_watch_history()
     plots = plots_service.get_all_plots()
     return JSONResponse(content=plots)
 

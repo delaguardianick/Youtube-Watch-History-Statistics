@@ -22,6 +22,12 @@ function App() {
     const data = await response.json();
     console.log(data);
     // TODO: Display the plots
+    calcExtraInfo()
+  };
+
+  const calcExtraInfo = async () => {
+    const response = await fetch('http://localhost:8000/upload/advanced');
+    const data = await response.json();
   };
 
   useEffect(() => {
@@ -68,6 +74,7 @@ function App() {
                 Upload Takeout
                 <input name="" type="file" id="formId" hidden />
             </label>
+            <button onClick={calcExtraInfo} className="btn">Process Data</button>
           </div>
         </section>
 

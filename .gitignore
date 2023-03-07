@@ -8,3 +8,5 @@ Backend/src/.ipynb_checkpoints/
 Backend/SQlite/
 Backend/SQLite/watch_history_202211261819.csv
 Backend/SQLite/YoutubeStats.sqlite
+Backend/src/SQLite/watch_history_202211261819.csv
+Backend/experiments/ex.json

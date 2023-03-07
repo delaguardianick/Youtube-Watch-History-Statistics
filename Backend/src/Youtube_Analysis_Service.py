@@ -7,10 +7,14 @@ import pandas as pd
 
 
 class PlotsService:
-    def __init__(self):
+    watch_history_df = None
+
+    def fetch_watch_history(self):
         self.watch_history_df = pd.read_sql_query(
-            "SELECT * from watch_history_v1 WHERE is_available = 1",
-            sqlite3.connect("../SQLite/YoutubeStats.sqlite"),
+            "SELECT * from watch_history_dev_takeout_id WHERE is_available = 1",
+            sqlite3.connect(
+                "C:/Users/Gordak/Documents/Nick/Projects/Coding/youtube-stats/Backend/src/SQLite/YoutubeStats.sqlite"
+            ),
         )
 
     def get_all_plots(self):
