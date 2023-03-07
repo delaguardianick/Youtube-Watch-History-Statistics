@@ -13,33 +13,13 @@ class PlotsService:
             sqlite3.connect("../SQLite/YoutubeStats.sqlite"),
         )
 
-    # Get weeks diff between date first and last video in df
-    def __calculate_time_difference(self, year_range):
-        last_video_date = parser.parse(self.watch_history_df["date_time_iso"].iloc[0])
-        first_video_date = parser.parse(self.watch_history_df["date_time_iso"].iloc[-1])
-        difference = last_video_date - first_video_date
-        date_ranges = {
-            "start_year": year_range[0],
-            "end_year": year_range[1],
-            "years": difference.days // 365,
-            "weeks": difference.days // 7,
-            "days": difference.days,
-            "hours": difference.days * 24,
-            "minutes": difference.days * 60,
-        }
-        return date_ranges
-
-    def __get_plot_url(self, plot):
-        # Render the plot as an image
-        fig = plot.get_figure()
-        canvas = FigureCanvas(fig)
-        png_output = io.BytesIO()
-        canvas.print_png(png_output)
-
-        # Convert the binary data to a base64-encoded string
-        png_output.seek(0)
-        png_base64 = base64.b64encode(png_output.getvalue()).decode("utf-8")
-        return f"data:image/png;base64,{png_base64}"
+    def get_all_plots(self):
+        wh_df, date_ranges = self.analyze_data()
+        plots = {}
+        plots["weekly_avg"] = self.plot_weekly_avg(wh_df, date_ranges)
+        plots["hourly_avg"] = self.plot_hourly_avg(wh_df, date_ranges)
+        plots["monthly_avg"] = self.plot_monthly_avg(wh_df, date_ranges)
+        return plots  # {"plot_name" : "plot_url"}
 
     def __filter_df_year_range(self, watch_history_df, year_range):
         return watch_history_df[
@@ -61,14 +41,6 @@ class PlotsService:
         wh_df["video_length_secs"] = wh_df["video_length_secs"].astype(int)
 
         return wh_df, date_ranges
-
-    def get_all_plots(self):
-        wh_df, date_ranges = self.analyze_data()
-        plots = {}
-        plots["weekly_avg"] = self.plot_weekly_avg(wh_df, date_ranges)
-        plots["hourly_avg"] = self.plot_hourly_avg(wh_df, date_ranges)
-        plots["monthly_avg"] = self.plot_monthly_avg(wh_df, date_ranges)
-        return plots  # {"plot_name" : "plot_url"}
 
     def plot_weekly_avg(self, wh_df, date_ranges):
         # Filter dataframe and group by desired index
@@ -142,3 +114,31 @@ class PlotsService:
         )
 
         return self.__get_plot_url(plot)
+
+    # Get weeks diff between date first and last video in df
+    def __calculate_time_difference(self, year_range):
+        last_video_date = parser.parse(self.watch_history_df["date_time_iso"].iloc[0])
+        first_video_date = parser.parse(self.watch_history_df["date_time_iso"].iloc[-1])
+        difference = last_video_date - first_video_date
+        date_ranges = {
+            "start_year": year_range[0],
+            "end_year": year_range[1],
+            "years": difference.days // 365,
+            "weeks": difference.days // 7,
+            "days": difference.days,
+            "hours": difference.days * 24,
+            "minutes": difference.days * 60,
+        }
+        return date_ranges
+
+    def __get_plot_url(self, plot):
+        # Render the plot as an image
+        fig = plot.get_figure()
+        canvas = FigureCanvas(fig)
+        png_output = io.BytesIO()
+        canvas.print_png(png_output)
+
+        # Convert the binary data to a base64-encoded string
+        png_output.seek(0)
+        png_base64 = base64.b64encode(png_output.getvalue()).decode("utf-8")
+        return f"data:image/png;base64,{png_base64}"

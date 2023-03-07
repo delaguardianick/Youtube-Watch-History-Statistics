@@ -37,6 +37,10 @@
   }
 }
 
+input[type="file"] { 
+  opacity: 1; /* make transparent */
+}
+
 
 .body {
   background-color: #fff;

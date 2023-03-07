@@ -1,18 +1,9 @@
-import logo from './logo.svg';
 import './App.css';
-import { useState } from 'react';
-import {useEffect} from 'react';
-
+import { useState, useEffect, useRef} from 'react';
 
 function App() {
-  const [plotUrl, setPlotUrl] = useState('');
   const [plots, setPlots] = useState({});
-
-  const getPlotUrl = async () => {
-    const response = await fetch('http://localhost:8000/plot');
-    const data = await response.json();
-    setPlotUrl(data.plot_url);
-  };
+  const inputTakeoutRef = useRef(null);
 
   const getAllPlotsUrl = async () => {
     const response = await fetch('http://localhost:8000/plots/all');
@@ -20,10 +11,25 @@ function App() {
     setPlots(data);
   };
 
+  const handleFileSelect = async (event) => {
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch('http://localhost:8000/upload', {
+      method: 'POST',
+      body: formData,
+    });
+    const data = await response.json();
+    console.log(data);
+    // TODO: Display the plots
+  };
+
   useEffect(() => {
     // getPlotUrl();
     getAllPlotsUrl();
   }, []);
+
+  
 
   return (
   
@@ -50,8 +56,6 @@ function App() {
       </div>
     </header>
 
-
-
     <main id="main">
       <div className="main-container">
 
@@ -60,8 +64,10 @@ function App() {
           <div className="hero-container" data-aos="fade-in">
             <h1>Watch History Analysis</h1>
             <h2>Analyze your youtube watch trends</h2>
-            {/* <img src="assets/img/hero-img.png" alt="Hero Imgs" data-aos="zoom-out" data-aos-delay="100"> */}
-            <a href="#get-started" className="btn-get-started scrollto">Upload Takeout</a>
+            <label onChange={handleFileSelect} htmlFor="formId" className="btn-get-started scrollto">
+                Upload Takeout
+                <input name="" type="file" id="formId" hidden />
+            </label>
           </div>
         </section>
 
