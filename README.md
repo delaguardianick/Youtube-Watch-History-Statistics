@@ -1,5 +1,5 @@
 # Youtube Stats Plus
-### Analyze your youtube statistics
+###### Analyze your youtube statistics.
 
 #### Dependencies
 - Create a new virtual env and run
