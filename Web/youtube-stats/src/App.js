@@ -4,6 +4,7 @@ import { useState, useEffect, useRef} from 'react';
 function App() {
   const [plots, setPlots] = useState({});
   const inputTakeoutRef = useRef(null);
+  const [takeoutStats, setDataFrameStats] = useState({});
 
   const getAllPlotsUrl = async () => {
     const response = await fetch('http://localhost:8000/plots/all');
@@ -29,13 +30,17 @@ function App() {
     const response = await fetch('http://localhost:8000/upload/advanced');
     const data = await response.json();
   };
+  
+  const getDataFrameStats = async () => {
+    const response = await fetch('http://localhost:8000/stats');
+    const data = await response.json();
+    setDataFrameStats(data)
+  };
 
   useEffect(() => {
-    // getPlotUrl();
     getAllPlotsUrl();
+    getDataFrameStats()
   }, []);
-
-  
 
   return (
   
@@ -74,6 +79,18 @@ function App() {
                 Upload Takeout
                 <input name="" type="file" id="formId" hidden />
             </label>
+            {/* <span>{takeoutStats.}</span> */}
+            <label for="start">Start date:</label>
+              <input type="date" id="start" name="trip-start"
+                  value={takeoutStats.start_date}
+                  min={takeoutStats.start_date} max={takeoutStats.end_date}>
+              </input>
+            <label for="end">End date:</label>
+              <input type="date" id="end" name="trip-end"
+                  value={takeoutStats.end_date}
+                  min={takeoutStats.start_date} max={takeoutStats.end_date}>
+            </input>
+
           </div>
         </section>
 

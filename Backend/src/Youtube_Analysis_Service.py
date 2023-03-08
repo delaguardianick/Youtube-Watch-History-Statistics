@@ -3,11 +3,19 @@ import io
 import base64
 from dateutil import parser
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+import matplotlib.pyplot as plt
 import pandas as pd
 
 
 class PlotsService:
     watch_history_df = None
+
+    def get_df_stats(self):
+        stats = {}
+        stats["start_date"] = self.watch_history_df["date_"].min()
+        stats["end_date"] = self.watch_history_df["date_"].max()
+
+        return stats
 
     def fetch_watch_history(self):
         self.watch_history_df = pd.read_sql_query(
@@ -145,4 +153,5 @@ class PlotsService:
         # Convert the binary data to a base64-encoded string
         png_output.seek(0)
         png_base64 = base64.b64encode(png_output.getvalue()).decode("utf-8")
+        plt.close(fig)
         return f"data:image/png;base64,{png_base64}"
