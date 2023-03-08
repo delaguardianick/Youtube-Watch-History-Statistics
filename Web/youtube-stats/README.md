@@ -1,6 +1,6 @@
 ## Web Component - React and FastAPI
 
-#### Setup environment
+#### Setup environment if you haven't already
 Create a new virtual env and run 
 
 `pip install -r requirements.txt`
