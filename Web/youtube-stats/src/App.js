@@ -77,7 +77,7 @@ function App() {
             <h1>Watch History Analysis</h1>
             <h2>Analyze your youtube watch trends</h2>
           </div>
-          <div class="hero-container hero-right" data-aos="fade-in">
+          <div className="hero-container hero-right" data-aos="fade-in">
           <label onChange={handleFileSelect} htmlFor="formId" className="btn-get-started scrollto">
                 Upload Takeout
                 <input name="" type="file" id="formId" hidden />
