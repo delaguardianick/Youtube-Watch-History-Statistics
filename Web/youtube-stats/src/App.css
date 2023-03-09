@@ -467,9 +467,11 @@ span {
 
 .hero-section {
   display: flex;
-  margin-bottom: 2em;
+  margin-bottom: 0.5em;
   width: 95%;
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .hero-left {
@@ -614,7 +616,7 @@ span {
   display: flex;
   justify-content: center;
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-  width: 90%;
+  width: 95%;
   margin-left: auto;
   margin-right: auto;
 }
