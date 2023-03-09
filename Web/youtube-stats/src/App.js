@@ -1,4 +1,5 @@
 import './App.css';
+// import './dist/output.css';
 import { useState, useEffect, useRef} from 'react';
 
 function App() {
@@ -71,26 +72,28 @@ function App() {
       <div className="main-container">
 
         {/* <!-- ======= Hero Section ======= --> */}
-        <section id="hero">
-          <div className="hero-container" data-aos="fade-in">
+        <section id="hero" className='hero-section'>
+          <div className="hero-container hero-left" data-aos="fade-in">
             <h1>Watch History Analysis</h1>
             <h2>Analyze your youtube watch trends</h2>
-            <label onChange={handleFileSelect} htmlFor="formId" className="btn-get-started scrollto">
+          </div>
+          <div class="hero-container hero-right" data-aos="fade-in">
+          <label onChange={handleFileSelect} htmlFor="formId" className="btn-get-started scrollto">
                 Upload Takeout
                 <input name="" type="file" id="formId" hidden />
             </label>
-            {/* <span>{takeoutStats.}</span> */}
-            <label for="start">Start date:</label>
-              <input type="date" id="start" name="trip-start"
-                  value={takeoutStats.start_date}
-                  min={takeoutStats.start_date} max={takeoutStats.end_date}>
+            <div className='date-picker' >
+              <label for="start" className='date-start'>Start date:</label>
+                <input type="date" id="start" name="trip-start"
+                    value={takeoutStats.start_date}
+                    min={takeoutStats.start_date} max={takeoutStats.end_date}>
+                </input>
+              <label for="end" className='date-end'>End date:</label>
+                <input type="date" id="end" name="trip-end"
+                    value={takeoutStats.end_date}
+                    min={takeoutStats.start_date} max={takeoutStats.end_date}>
               </input>
-            <label for="end">End date:</label>
-              <input type="date" id="end" name="trip-end"
-                  value={takeoutStats.end_date}
-                  min={takeoutStats.start_date} max={takeoutStats.end_date}>
-            </input>
-
+            </div>
           </div>
         </section>
 
@@ -100,17 +103,15 @@ function App() {
           <div className="plots-container">
             <div className="div1 plot-image">
               <span>Weekly</span>
-              {console.log(plots)}
-              {plots && <img src={plots.weekly_avg} alt="Avg watch time by weekly" />}
+              {plots && <img src={plots.weekly_avg} alt="" />}
             </div>
             <div className="div2 plot-image">
               <span>Daily</span>
-              {console.log(plots)}
-              {plots && <img src={plots.hourly_avg} alt="Avg watch time hourly" />}
+              {plots && <img src={plots.hourly_avg} alt="" />}
             </div>
             <div className="div3 plot-image">
               <span>Monthly</span>
-              {plots && <img src={plots.monthly_avg} alt="Avg watch time monthly" />}
+              {plots && <img src={plots.monthly_avg} alt="" />}
 
             </div>
             <div className="div4 plot-image">
