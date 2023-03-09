@@ -15,3 +15,8 @@
 - `cd \Backend\src`
 
 - `uvicorn api-fast:app --reload`
+
+
+#### Jupyter notebook
+- `cd \Backend\src`
+- `jupyter notebook .`
