@@ -233,7 +233,7 @@ span {
   padding: 0;
   display: flex;
   list-style: none;
-  align-items: center;
+  justify-content: center;
 }
 
 .navbar li {
@@ -451,7 +451,7 @@ span {
   background: url(img/hero-bg.png) center bottom no-repeat;
   background-size: 100%;
   position: relative;
-  margin-top: 2em;
+  margin-top: 0.1em;
   flex :1 
   
 }
@@ -467,7 +467,6 @@ span {
 
 .hero-section {
   display: flex;
-  align-items: center;
   margin-bottom: 2em;
   width: 95%;
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
