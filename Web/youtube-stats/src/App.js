@@ -1,11 +1,14 @@
 import './App.css';
 // import './dist/output.css';
 import { useState, useEffect, useRef} from 'react';
+import DatePicker from 'react-datepicker';
 
 function App() {
   const [plots, setPlots] = useState({});
   const inputTakeoutRef = useRef(null);
   const [takeoutStats, setDataFrameStats] = useState({});
+  const [datestartRange, setDateStartRange] = useState(new Date());
+  const [dateEndRange, setDateEndRange] = useState(new Date());
 
   const getAllPlotsUrl = async () => {
     const response = await fetch('http://localhost:8000/plots/all');
@@ -35,7 +38,10 @@ function App() {
   const getDataFrameStats = async () => {
     const response = await fetch('http://localhost:8000/stats');
     const data = await response.json();
-    setDataFrameStats(data)
+    console.log(data.start_date, data.end_date);
+    setDateStartRange(parseISO(data.start_date, 1));
+    setDateEndRange(parseISO(data.end_date, 1));
+    setDataFrameStats(data);
   };
 
   useEffect(() => {
@@ -83,7 +89,7 @@ function App() {
                 <input name="" type="file" id="formId" hidden />
             </label>
             <div className='date-picker' >
-              <label for="start" className='date-start'>Start date:</label>
+              {/* <label for="start" className='date-start'>Start date:</label>
                 <input type="date" id="start" name="trip-start"
                     value={takeoutStats.start_date}
                     min={takeoutStats.start_date} max={takeoutStats.end_date}>
@@ -93,6 +99,15 @@ function App() {
                     value={takeoutStats.end_date}
                     min={takeoutStats.start_date} max={takeoutStats.end_date}>
               </input>
+              <button></button> */}
+              <DatePicker
+                selected={takeoutStats.start_date}
+                onChange={date => setDateStartRange(date)}
+                />
+              <DatePicker
+                selected={takeoutStats.end_date}
+                onChange={date => setDateEndRange(date)}
+                />
             </div>
           </div>
         </section>
