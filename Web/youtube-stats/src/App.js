@@ -2,6 +2,7 @@ import './App.css';
 // import './dist/output.css';
 import { useState, useEffect, useRef} from 'react';
 import DatePicker from 'react-datepicker';
+import {format,parseISO} from 'date-fns';
 
 function App() {
   const [plots, setPlots] = useState({});
@@ -38,9 +39,9 @@ function App() {
   const getDataFrameStats = async () => {
     const response = await fetch('http://localhost:8000/stats');
     const data = await response.json();
-    console.log(data.start_date, data.end_date);
-    setDateStartRange(parseISO(data.start_date, 1));
-    setDateEndRange(parseISO(data.end_date, 1));
+    console.log(parseISO(data.start_date), parseISO(data.end_date));
+    setDateStartRange(parseISO("2016-06-24 00:00:00"));
+    setDateEndRange(parseISO("2022-10-31 00:00:00"));
     setDataFrameStats(data);
   };
 
@@ -101,11 +102,11 @@ function App() {
               </input>
               <button></button> */}
               <DatePicker
-                selected={takeoutStats.start_date}
+                selected={parseISO("2016-06-24 00:00:00")}
                 onChange={date => setDateStartRange(date)}
                 />
               <DatePicker
-                selected={takeoutStats.end_date}
+                selected={parseISO("2022-10-31 00:00:00")}
                 onChange={date => setDateEndRange(date)}
                 />
             </div>
