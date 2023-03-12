@@ -99,12 +99,13 @@ function App() {
                 <input type="date" id="end" name="trip-end"
                     value={takeoutStats.end_date}
                     min={takeoutStats.start_date} max={takeoutStats.end_date}>
-              </input>
-              <button></button> */}
+              </input> */}
+              <label for="start" className='date-start'>Start date:</label>
               <DatePicker
                 selected={parseISO("2016-06-24 00:00:00")}
                 onChange={date => setDateStartRange(date)}
                 />
+              <label for="end" className='date-end'>End date:</label>
               <DatePicker
                 selected={parseISO("2022-10-31 00:00:00")}
                 onChange={date => setDateEndRange(date)}
