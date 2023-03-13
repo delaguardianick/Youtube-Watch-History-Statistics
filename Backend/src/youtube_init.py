@@ -7,11 +7,13 @@ import json
 from pathlib import Path
 import os
 import uuid
+from youtube_transcript_api import YouTubeTranscriptApi
 
 
 class YoutubeStats:
-    target_table = "watch_history_dev"
     dbLocation = "C:/Users/Gordak/Documents/Nick/Projects/Coding/youtube-stats/Backend/src/SQLite/YoutubeStats.sqlite"
+
+    target_table = "watch_history_dev"
     all_video_objects = []
     takeout = None
     takeoutId = None
@@ -78,43 +80,14 @@ class YoutubeStats:
             id_index = 0
             update_row_total_time = 0
 
-            # Update corresponding rows in database table with additional information
-            for i in range(len(video_details_for_batch)):
-                videos_processed += 1
-                video_details = video_details_for_batch[i]
-
-                video_id = video_details.get("id")
-                duration = video_details.get("contentDetails").get("duration")
-                description = video_details.get("snippet").get("description")
-                categoryId = video_details.get("snippet").get("categoryId")
-                tags = repr(video_details.get("snippet").get("tags"))
-
-                (
-                    video_length_str,
-                    video_length_secs,
-                ) = DataModifier.video_length_to_seconds(duration)
-
-                update_row_time_start = time.time()
-
-                self.dbActions.update_row(
-                    select_cursor,
-                    conn,
-                    db_index,
-                    video_length_str,
-                    video_length_secs,
-                    description,
-                    categoryId,
-                    tags,
-                    video_id,
-                )
-
-                update_row_time_end = time.time()
-                update_row_total_time += update_row_time_end - update_row_time_start
-
-                db_index += 1
+            # Actually updated DB with new fields
+            self.update_rows_with_new_fields(
+                video_details_for_batch, db_index, select_cursor, conn
+            )
 
             end_time_batch = time.time()
 
+            # ----------------------------------- debugging -----------------------------------
             # print(select_cursor.fetchall())
             # 50 api calls meaning ~~50*50 = 2500 videos. ~35560 videos in total. 35560/2500 = 14.22 batches
             # takes around 14 seconds per batch. 14*14 = 196 seconds. 196/60 = 3.27 minutes
@@ -135,14 +108,61 @@ class YoutubeStats:
 
         conn.commit()
         conn.close()
-        end_time_all = time.time()
-        print(
-            f"Updated table with length - api calls: {api_calls} - Time: {end_time_all - start_time_all} / 60"
-        )
+        # end_time_all = time.time()
+        # print(
+        #     f"Updated table with length - api calls: {api_calls} - Time: {end_time_all - start_time_all} / 60"
+        # )
 
+    def update_rows_with_new_fields(
+        self, video_details_for_batch: list, db_index: int, select_cursor, conn
+    ):
+        # Update corresponding rows in database table with additional information
+        for i in range(len(video_details_for_batch)):
+            video_details = video_details_for_batch[i]
 
-# def youtube_main(self):
-#     YoutubeStats.setup_db(self.dbLocation, "")
+            video_id = video_details.get("id")
+            duration = video_details.get("contentDetails").get("duration")
+            description = video_details.get("snippet").get("description")
+            categoryId = video_details.get("snippet").get("categoryId")
+            tags = repr(video_details.get("snippet").get("tags"))
+            transcript = self.get_video_transcript(video_id)
+
+            (
+                video_length_str,
+                video_length_secs,
+            ) = DataModifier.video_length_to_seconds(duration)
+
+            # update_row_time_start = time.time()
+
+            self.dbActions.update_row(
+                select_cursor,
+                conn,
+                db_index,
+                video_length_str,
+                video_length_secs,
+                description,
+                categoryId,
+                tags,
+                transcript,
+                video_id,
+            )
+
+            # update_row_time_end = time.time()
+            # update_row_total_time += update_row_time_end - update_row_time_start
+
+            db_index += 1
+
+    def get_video_transcript(self, video_id: str):
+        transcriptJson = YouTubeTranscriptApi.get_transcript(video_id)
+
+        transcript = self._transcript_scrape_text(transcriptJson)
+        return transcript
+
+    def _transcript_scrape_text(self, transcriptJson: list):
+        transcript = ""
+        for item in transcriptJson:
+            transcript += item["text"] + " "
+        return transcript.strip()
 
 
 class DatabaseActions:
@@ -174,7 +194,8 @@ class DatabaseActions:
                 video_length_secs TEXT,
                 video_description TEXT,
                 category_id INTEGER,
-                tags TEXT
+                tags TEXT,
+                transcript TEXT
             )
             """
         )
@@ -198,6 +219,7 @@ class DatabaseActions:
         description,
         categoryId,
         tags,
+        transcript,
         video_id,
     ):
         select_cursor.execute(
@@ -207,7 +229,8 @@ class DatabaseActions:
         video_length_secs = ?,
         video_description = ?,
         category_id = ?,
-        tags = ?
+        tags = ?,
+        transcript = ?
         WHERE
         video_id = ? 
         """,
@@ -217,6 +240,7 @@ class DatabaseActions:
                 description,
                 categoryId,
                 tags,
+                transcript,
                 video_id,
             ),
         )
@@ -268,5 +292,11 @@ class DatabaseActions:
         )
 
 
+def youtube_main(self):
+    dbLocation = "C:/Users/Gordak/Documents/Nick/Projects/Coding/youtube-stats/Backend/src/SQLite/YoutubeStats.sqlite"
+
+    DatabaseActions.setup_db(dbLocation, "")
+
+
 # if __name__ == "__main__":
-#     youtube_main(YoutubeStats)
+#     youtube_main(DatabaseActions)
