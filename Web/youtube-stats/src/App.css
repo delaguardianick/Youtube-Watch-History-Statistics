@@ -794,3 +794,27 @@ section {
   height: auto;
   /* object-fit: cover; */
 }
+
+/* Dark mode */
+/* html {
+  background-color: #202121 !important;
+}
+html {
+  color-scheme: dark !important;
+}
+html, body, input, textarea, select, button, dialog {
+  background-color: #202121;
+}
+html, body, input, textarea, select, button {
+  border-color: #676155;
+  color: #c5c1b9;
+}
+a {
+  color: #3e7dc6;
+}
+table {
+  border-color: #505454;
+}
+::placeholder {
+  color: #999388;
+} */

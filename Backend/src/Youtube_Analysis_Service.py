@@ -10,6 +10,7 @@ import pandas as pd
 class PlotsService:
     watch_history_df = None
 
+    # Get datestats from watch history
     def get_df_stats(self):
         stats = {}
         stats["start_date"] = self.watch_history_df["date_"].min()
