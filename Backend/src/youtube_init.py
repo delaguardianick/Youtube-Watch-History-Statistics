@@ -153,9 +153,13 @@ class YoutubeStats:
             db_index += 1
 
     def get_video_transcript(self, video_id: str):
-        transcriptJson = YouTubeTranscriptApi.get_transcript(video_id)
+        transcript = ""
+        try:
+            transcriptJson = YouTubeTranscriptApi.get_transcript(video_id)
+            transcript = self._transcript_scrape_text(transcriptJson)
+        except:
+            print("video transcript not found id: " + video_id)
 
-        transcript = self._transcript_scrape_text(transcriptJson)
         return transcript
 
     def _transcript_scrape_text(self, transcriptJson: list):
