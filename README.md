@@ -24,3 +24,7 @@
 - `cd \Backend\src`
 - `jupyter notebook .`
 - Open file `Youtube_Analysis.ipynb` 
+
+
+Setting up apache superset
+https://superset.apache.org/docs/installation/installing-superset-using-docker-compose/ 
