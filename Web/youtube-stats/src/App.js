@@ -3,12 +3,13 @@ import './App.css';
 import { useState, useEffect, useRef} from 'react';
 import DatePicker from 'react-datepicker';
 import {format,parseISO} from 'date-fns';
+import "react-datepicker/dist/react-datepicker.css";
 
 function App() {
   const [plots, setPlots] = useState({});
   const inputTakeoutRef = useRef(null);
   const [takeoutStats, setDataFrameStats] = useState({});
-  const [datestartRange, setDateStartRange] = useState(new Date());
+  const [dateStartRange, setDateStartRange] = useState(new Date());
   const [dateEndRange, setDateEndRange] = useState(new Date());
 
   const getAllPlotsUrl = async () => {
@@ -40,8 +41,14 @@ function App() {
     const response = await fetch('http://localhost:8000/stats');
     const data = await response.json();
     console.log(parseISO(data.start_date), parseISO(data.end_date));
-    setDateStartRange(parseISO("2016-06-24 00:00:00"));
-    setDateEndRange(parseISO("2022-10-31 00:00:00"));
+    if (data.start_date === null || data.end_date === null) 
+      {
+      setDateStartRange(parseISO("2020-06-24 00:00:00"));
+      setDateEndRange(parseISO("2022-10-31 00:00:00"));
+    } else {
+      setDateStartRange(parseISO(data.start_date));
+      setDateEndRange(parseISO(data.end_date));
+    }
     setDataFrameStats(data);
   };
 
@@ -102,14 +109,25 @@ function App() {
               </input> */}
               <label for="start" className='date-start'>Start date:</label>
               <DatePicker
-                selected={parseISO("2016-06-24 00:00:00")}
-                onChange={date => setDateStartRange(date)}
+                showIcon
+                selected={dateStartRange}
+                onChange={date => setDateStartRange(date.getFullYear())}
+                minDate={dateStartRange}
+                maxDate={dateEndRange}
+                dateFormat="yyyy"
+                showYearPicker
                 />
               <label for="end" className='date-end'>End date:</label>
               <DatePicker
-                selected={parseISO("2022-10-31 00:00:00")}
-                onChange={date => setDateEndRange(date)}
+                showIcon
+                selected={dateEndRange}
+                onChange={date => setDateEndRange(date.getFullYear())}
+                minDate={dateStartRange}
+                maxDate={dateEndRange}
+                dateFormat="yyyy"
+                showYearPicker
                 />
+
             </div>
           </div>
         </section>
