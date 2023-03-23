@@ -1,5 +1,8 @@
-# Youtube Stats Plus
+# WIP - Youtube Stats Plus
 ###### Analyze your youtube statistics.
+
+### MVP3 
+![image](https://user-images.githubusercontent.com/52568848/227387764-eba443fa-f6cd-461d-99e4-0f6ffb470bdc.png)
 
 #### Dependencies
 - Virtual Environment
