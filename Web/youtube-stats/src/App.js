@@ -114,8 +114,8 @@ function App() {
                 onChange={date => setDateStartRange(date.getFullYear())}
                 minDate={dateStartRange}
                 maxDate={dateEndRange}
-                dateFormat="yyyy"
-                showYearPicker
+                // dateFormat="yyyy"
+                // showYearPicker
                 />
               <label for="end" className='date-end'>End date:</label>
               <DatePicker
@@ -124,8 +124,8 @@ function App() {
                 onChange={date => setDateEndRange(date.getFullYear())}
                 minDate={dateStartRange}
                 maxDate={dateEndRange}
-                dateFormat="yyyy"
-                showYearPicker
+                // dateFormat="yyyy"
+                // showYearPicker
                 />
 
             </div>
@@ -147,15 +147,14 @@ function App() {
             <div className="div3 plot-image">
               <span>Monthly</span>
               {plots && <img src={plots.monthly_avg} alt="" />}
-
             </div>
             <div className="div4 plot-image">
-              <span>Plot4</span>
-              <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img>
+              <span>Top Channels</span>
+              {plots && <img src={plots.top_channels} alt="" />}
             </div>
             <div className="div5 plot-image">
-              <span>Plot5</span>
-              <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img>
+              <span>Top Genres</span>
+              {plots && <img src={plots.top_genres} alt="" />}
             </div>
             <div className="div6 plot-image">
               <span>Plot6</span>
