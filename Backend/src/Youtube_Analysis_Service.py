@@ -5,6 +5,7 @@ from dateutil import parser
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
 
 
 class PlotsService:
@@ -30,7 +31,7 @@ class PlotsService:
         wh_df, date_ranges = self.analyze_data()
         plots = {}
         plots["weekly_avg"] = self.plot_weekly_avg(wh_df, date_ranges)
-        plots["hourly_avg"] = self.plot_hourly_avg(wh_df, date_ranges)
+        plots["hourly_avg"] = self.plot_avg_per_hour(wh_df, date_ranges)
         plots["monthly_avg"] = self.plot_monthly_avg(wh_df, date_ranges)
         plots["top_channels"] = self.plot_top_viewed_channels(wh_df, date_ranges)
         plots["top_genres"] = self.plot_top_genres(wh_df, date_ranges)
@@ -80,36 +81,56 @@ class PlotsService:
             weekdays_map
         )
 
-        plot = weekdays_count_df.plot(
-            x="day_of_week",
-            y="hours_watched_avg",
-            title="Avg Watch Time / Weekday",
-            xlabel="Weekdays",
-            ylabel="Hours watched on average",
-        ).legend(
-            [f"Range: {date_ranges.get('start_year')} - {date_ranges.get('end_year')}"]
-        )
+        with sns.axes_style("darkgrid"):
+            fig, ax = plt.subplots()
+            ax.plot(
+                weekdays_count_df["day_of_week"],
+                weekdays_count_df["hours_watched_avg"],
+                color="dodgerblue",
+                marker="o",
+                linestyle="-",
+            )
+            ax.set_title("Avg Watch Time / Weekday")
+            ax.set_xlabel("Weekdays")
+            ax.set_ylabel("Hours watched on average")
+            ax.legend(
+                [
+                    f"Range: {date_ranges.get('start_year')} - {date_ranges.get('end_year')}"
+                ],
+                loc="upper left",
+            )
+            ax.grid(True)
 
-        return self.__get_plot_url(plot)
+        return self.__get_plot_url(ax)
 
-    def plot_hourly_avg(self, wh_df, date_ranges):
+    def plot_avg_per_hour(self, wh_df, date_ranges):
         videos_by_hour = wh_df[["video_length_secs", "hour_time"]]
         videos_by_hour = videos_by_hour.groupby("hour_time").sum().reset_index()
         videos_by_hour["minutes_watched_avg"] = videos_by_hour[
             "video_length_secs"
         ].apply(lambda x: x / (60 * date_ranges.get("days")))
 
-        plot = videos_by_hour.plot(
-            x="hour_time",
-            y="minutes_watched_avg",
-            title="Avg Watch Time / Hour",
-            xlabel="Hour",
-            ylabel="Minutes watched on average",
-        ).legend(
-            [f"Range: {date_ranges.get('start_year')} - {date_ranges.get('end_year')}"]
-        )
+        with sns.axes_style("darkgrid"):
+            fig, ax = plt.subplots()
+            ax.plot(
+                videos_by_hour["hour_time"],
+                videos_by_hour["minutes_watched_avg"],
+                color="dodgerblue",
+                marker="o",
+                linestyle="-",
+            )
+            ax.set_title("Avg Watch Time / Hour")
+            ax.set_xlabel("Hour")
+            ax.set_ylabel("Hours watched on average")
+            ax.legend(
+                [
+                    f"Range: {date_ranges.get('start_year')} - {date_ranges.get('end_year')}"
+                ],
+                loc="upper left",
+            )
+            ax.grid(True)
 
-        return self.__get_plot_url(plot)
+        return self.__get_plot_url(ax)
 
     def plot_monthly_avg(self, wh_df, date_ranges):
         videos_by_month = wh_df[["video_length_secs", "month_date"]]
