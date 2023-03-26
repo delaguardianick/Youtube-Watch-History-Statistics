@@ -68,15 +68,8 @@ class PlotsService:
         ].apply(lambda x: x / (60 * 60 * date_ranges.get("weeks")))
 
         # label mapping
-        weekdays_map = {
-            0: "Mon",
-            1: "Tues",
-            2: "Wed",
-            3: "Thurs",
-            4: "Fri",
-            5: "Sat",
-            6: "Sun",
-        }
+
+        weekdays_map = self.get_mappings("weekdays")
         weekdays_count_df["day_of_week"] = weekdays_count_df["day_of_week"].map(
             weekdays_map
         )
@@ -110,6 +103,9 @@ class PlotsService:
             "video_length_secs"
         ].apply(lambda x: x / (60 * date_ranges.get("days")))
 
+        hour_time_map = self.get_mappings("hours")
+        videos_by_hour["hour_time"] = videos_by_hour["hour_time"].map(hour_time_map)
+
         with sns.axes_style("darkgrid"):
             fig, ax = plt.subplots()
             ax.plot(
@@ -121,7 +117,7 @@ class PlotsService:
             )
             ax.set_title("Avg Watch Time / Hour")
             ax.set_xlabel("Hour")
-            ax.set_ylabel("Hours watched on average")
+            ax.set_ylabel("Minutes watched on average")
             ax.legend(
                 [
                     f"Range: {date_ranges.get('start_year')} - {date_ranges.get('end_year')}"
@@ -129,6 +125,9 @@ class PlotsService:
                 loc="upper left",
             )
             ax.grid(True)
+
+            # Rotate the x-axis labels
+            plt.xticks(rotation=45)
 
         return self.__get_plot_url(ax)
 
@@ -139,17 +138,35 @@ class PlotsService:
             "video_length_secs"
         ].apply(lambda x: x / (60 * 60 * date_ranges.get("years") * 12))
 
-        plot = videos_by_month.plot(
-            x="month_date",
-            y="hours_watched_avg",
-            title="Daily avg Watch Time / Month",
-            xlabel="Month",
-            ylabel="Hours watched on average",
-        ).legend(
-            [f"Range: {date_ranges.get('start_year')} - {date_ranges.get('end_year')}"]
-        )
+        months_map = self.get_mappings("months")
+        videos_by_month["month_date"] = videos_by_month["month_date"].map(months_map)
+        # Convert the month_date column to strings
+        videos_by_month["month_date"] = videos_by_month["month_date"].astype(str)
 
-        return self.__get_plot_url(plot)
+        with sns.axes_style("darkgrid"):
+            fig, ax = plt.subplots()
+            ax.plot(
+                videos_by_month["month_date"],
+                videos_by_month["hours_watched_avg"],
+                color="dodgerblue",
+                marker="o",
+                linestyle="-",
+            )
+            ax.set_title("Avg Watch Time / Month")
+            ax.set_xlabel("Month")
+            ax.set_ylabel("Minutes watched on average")
+            ax.legend(
+                [
+                    f"Range: {date_ranges.get('start_year')} - {date_ranges.get('end_year')}"
+                ],
+                loc="upper left",
+            )
+            ax.grid(True)
+
+            # Rotate the x-axis labels
+            plt.xticks(rotation=45)
+
+        return self.__get_plot_url(ax)
 
     def plot_top_viewed_channels(self, wh_df, date_ranges):
         # Filter dataframe and group by desired index
@@ -243,7 +260,7 @@ class PlotsService:
 
         # Map the genre names to the category_id
         genres_count_df["genre"] = genres_count_df["category_id"].map(
-            self.get_genre_mapping()
+            self.get_mappings("genres")
         )
 
         # Sort the DataFrame by total hours watched in descending order and select the top 10 most watched genres
@@ -340,9 +357,9 @@ class PlotsService:
         }
         return date_ranges
 
-    def get_genre_mapping(self):
+    def get_mappings(self, mapping):
         # Create a mapping dictionary for the genre names based on category_id
-        return {
+        genre_map = {
             2: "Autos & Vehicles",
             1: "Film & Animation",
             10: "Music",
@@ -376,6 +393,65 @@ class PlotsService:
             43: "Shows",
             44: "Trailers",
         }
+        months_map = {
+            1: "January",
+            2: "February",
+            3: "March",
+            4: "April",
+            5: "May",
+            6: "June",
+            7: "July",
+            8: "August",
+            9: "September",
+            10: "October",
+            11: "November",
+            12: "December",
+        }
+        weekdays_map = {
+            0: "Mon",
+            1: "Tues",
+            2: "Wed",
+            3: "Thurs",
+            4: "Fri",
+            5: "Sat",
+            6: "Sun",
+        }
+        hour_time_map = {
+            0: "12PM",
+            1: "1AM",
+            2: "2AM",
+            3: "3AM",
+            4: "4AM",
+            5: "5AM",
+            6: "6AM",
+            7: "7AM",
+            8: "8AM",
+            9: "9AM",
+            10: "10AM",
+            11: "11AM",
+            12: "12AM",
+            13: "1PM",
+            14: "2PM",
+            15: "3PM",
+            16: "4PM",
+            17: "5PM",
+            18: "6PM",
+            19: "7PM",
+            20: "8PM",
+            21: "9PM",
+            22: "10PM",
+            23: "11PM",
+        }
+
+        match mapping:
+            case "genres":
+                return genre_map
+            case "months":
+                return months_map
+            case "weekdays":
+                return weekdays_map
+            case "hours":
+                return hour_time_map
 
     def __get_plot_url(self, plot):
         # Render the plot as an image
