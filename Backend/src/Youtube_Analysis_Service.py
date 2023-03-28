@@ -6,6 +6,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from datetime import timedelta
 
 
 class PlotsService:
@@ -35,19 +36,30 @@ class PlotsService:
         plots["monthly_avg"] = self.plot_monthly_avg(wh_df, date_ranges)
         plots["top_channels"] = self.plot_top_viewed_channels(wh_df, date_ranges)
         plots["top_genres"] = self.plot_top_genres(wh_df, date_ranges)
+        plots["top_videos"] = self.plot_top_videos(wh_df, date_ranges)
         return plots  # {"plot_name" : "plot_url"}
 
-    def __filter_df_year_range(self, watch_history_df, year_range):
-        return watch_history_df[
-            (year_range[0] <= watch_history_df.year_date)
-            & (watch_history_df.year_date <= year_range[1])
-        ]
+    def __filter_df_year_range(self, wh_df, beginning_date):
+        wh_df["date_timestamp"] = pd.to_datetime(wh_df["date_"])
+        filtered_df = wh_df.loc[wh_df["date_timestamp"] >= beginning_date]
+        return filtered_df
+        # return watch_history_df[
+        #     (year_range[0] <= watch_history_df.year_date)
+        #     & (watch_history_df.year_date <= year_range[1])
+        # ]
+
+    def __get_last_12_months_dates(self, wh_df):
+        last_video_in_range = parser.parse(wh_df["date_time_iso"].iloc[0])
+        twelve_months_timedelta = timedelta(days=365)
+        first_video_in_range = last_video_in_range - twelve_months_timedelta
+        return (first_video_in_range, last_video_in_range)
 
     def analyze_data(self):
+        wh_df = self.watch_history_df
         # filter df by year range and get ranges
-        year_range = (2016, 2021)
-        wh_df = self.__filter_df_year_range(self.watch_history_df, year_range)
-        date_ranges = self.__calculate_time_difference(year_range)
+        dates_in_range = self.__get_last_12_months_dates(wh_df)
+        wh_df = self.__filter_df_year_range(wh_df, dates_in_range[0])
+        date_ranges = self.__calculate_time_difference(dates_in_range)
 
         # Get total video count
         # video_count_in_df = len(wh_df.watch_id)
@@ -157,7 +169,7 @@ class PlotsService:
             ax.set_ylabel("Minutes watched on average")
             ax.legend(
                 [
-                    f"Range: {date_ranges.get('start_year')} - {date_ranges.get('end_year')}"
+                    f"Range: {date_ranges.get('start_date')} - {date_ranges.get('end_date')}"
                 ],
                 loc="upper left",
             )
@@ -341,14 +353,52 @@ class PlotsService:
 
         return self.__get_plot_url(ax)
 
+    def plot_top_videos(self, wh_df, date_ranges):
+        # Group the DataFrame by video title and channel and count the occurrences
+        top_videos_df = wh_df[["title", "channel_name"]]
+        top_videos_df = (
+            top_videos_df.groupby(["title", "channel_name"])
+            .size()
+            .reset_index(name="watch_count")
+        )
+
+        # Sort the DataFrame by watch count in descending order and select the top 10 most-watched videos
+        top_videos_df = top_videos_df.sort_values(
+            by="watch_count", ascending=False
+        ).head(10)
+
+        # Combine video title and channel name into a single column
+        top_videos_df["video_and_channel"] = (
+            top_videos_df["title"] + " (" + top_videos_df["channel_name"] + ")"
+        )
+
+        # Create the vertical bar graph
+        with sns.axes_style("darkgrid"):
+            fig, ax = plt.subplots()
+            ax.bar(
+                top_videos_df["video_and_channel"],
+                top_videos_df["watch_count"],
+                color="dodgerblue",
+                alpha=0.6,
+            )
+            ax.set_xlabel("Video title and channel")
+            ax.set_ylabel("Number of times watched")
+            ax.set_title("Top 10 Most-Watched Videos")
+            ax.grid(True)
+
+            # Rotate the X-axis labels to avoid overlapping
+            plt.xticks(rotation=45, ha="right")
+
+        return self.__get_plot_url(ax)
+
     # Get weeks diff between date first and last video in df
-    def __calculate_time_difference(self, year_range):
-        last_video_date = parser.parse(self.watch_history_df["date_time_iso"].iloc[0])
-        first_video_date = parser.parse(self.watch_history_df["date_time_iso"].iloc[-1])
-        difference = last_video_date - first_video_date
+    def __calculate_time_difference(self, date_range):
+        difference = date_range[1] - date_range[0]
         date_ranges = {
-            "start_year": year_range[0],
-            "end_year": year_range[1],
+            "start_date": date_range[0].strftime('%b %dst, %Y'),
+            "end_date": date_range[1].strftime('%b %dst, %Y'),
+            "start_year": date_range[0].year,
+            "end_year": date_range[1].year,
             "years": difference.days // 365,
             "weeks": difference.days // 7,
             "days": difference.days,
