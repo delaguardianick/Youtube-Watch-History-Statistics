@@ -157,8 +157,8 @@ function App() {
               {plots && <img src={plots.top_genres} alt="" />}
             </div>
             <div className="div6 plot-image">
-              <span>Plot6</span>
-              <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img>
+              <span>Top Videos</span>
+              {plots && <img src={plots.top_videos} alt="" />}
             </div>
             <div className="div7 plot-image">
               <span>Plot7</span>
