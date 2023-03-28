@@ -100,7 +100,7 @@ class PlotsService:
             ax.set_ylabel("Hours watched on average")
             ax.legend(
                 [
-                    f"Range: {date_ranges.get('start_year')} - {date_ranges.get('end_year')}"
+                    f"Range: {date_ranges.get('start_date')} - {date_ranges.get('end_date')}"
                 ],
                 loc="upper left",
             )
@@ -132,7 +132,7 @@ class PlotsService:
             ax.set_ylabel("Minutes watched on average")
             ax.legend(
                 [
-                    f"Range: {date_ranges.get('start_year')} - {date_ranges.get('end_year')}"
+                    f"Range: {date_ranges.get('start_date')} - {date_ranges.get('end_date')}"
                 ],
                 loc="upper left",
             )
@@ -251,7 +251,7 @@ class PlotsService:
             [bar_plot, line_plot],
             ["Total videos watched", line_plot.get_label()],
             loc="lower right",
-            title=f"Range: {date_ranges.get('start_year')} - {date_ranges.get('end_year')}",
+            title=f"Range: {date_ranges.get('start_date')} - {date_ranges.get('end_date')}",
         )
 
         # Show the plot
@@ -345,7 +345,7 @@ class PlotsService:
         plt.title("Top 10 Most Watched Genres with Top Channel")
         ax.legend(
             [bar_plot],
-            [f"Range: {date_ranges.get('start_year')} - {date_ranges.get('end_year')}"],
+            [f"Range: {date_ranges.get('start_date')} - {date_ranges.get('end_date')}"],
         )
 
         # Show the plot
@@ -395,8 +395,8 @@ class PlotsService:
     def __calculate_time_difference(self, date_range):
         difference = date_range[1] - date_range[0]
         date_ranges = {
-            "start_date": date_range[0].strftime('%b %dst, %Y'),
-            "end_date": date_range[1].strftime('%b %dst, %Y'),
+            "start_date": date_range[0].strftime("%b %dst, %Y"),
+            "end_date": date_range[1].strftime("%b %dst, %Y"),
             "start_year": date_range[0].year,
             "end_year": date_range[1].year,
             "years": difference.days // 365,
