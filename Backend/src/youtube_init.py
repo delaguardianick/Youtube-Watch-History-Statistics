@@ -8,34 +8,45 @@ from pathlib import Path
 import os
 import uuid
 from youtube_transcript_api import YouTubeTranscriptApi
+from config import config
+from database.DBHandler import DBHandler
+import sys
+
+# Get the absolute path of the current script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Add the parent directory to sys.path
+sys.path.append(os.path.join(script_dir, ".."))
 
 
 class YoutubeStats:
-    dbLocation = "C:/Users/Gordak/Documents/Nick/Projects/Coding/youtube-stats/Backend/src/SQLite/YoutubeStats.sqlite"
-
-    target_table = "watch_history_dev"
     all_video_objects = []
     takeout = None
     takeoutId = None
     dbActions = None
+    db_handler = None
 
     def __init__(self, takeout: json):
         self.takeout = takeout
         self.takeoutId = str(uuid.uuid4())
         self.dbActions = DatabaseActions()
+        self.db_handler = DBHandler()
 
     def insert_takeout_to_db(self):
-        conn = sqlite3.connect(self.dbLocation)
-        c = conn.cursor()
+        conn = self.db_handler.connect()
         count = 0
         for video in self.takeout:
             video_obj = DataModifier.clean_data(video)
+            if not (video_obj.video_id):
+                continue
             self.all_video_objects.append(video_obj)
             count += 1
-
-        # Insert video data objects into database table
-        for video_obj in self.all_video_objects:
-            self.dbActions.insert_into_table(self.takeoutId, c, video_obj)
+            if count % 1000 == 0:
+                self.dbActions.insert_many_records(
+                    self.takeoutId, conn, self.all_video_objects
+                )
+                self.all_video_objects = []
+                print(f"Inserted batch {count // 1000}")
 
         print(f"number of videos in takeout: {count}")
         conn.commit()
@@ -44,7 +55,7 @@ class YoutubeStats:
 
     def insert_extra_info_to_db(self):
         print("inserting extra info to db...")
-        conn = sqlite3.connect(self.dbLocation)
+        conn = self.db_handler.connect()
         select_cursor = conn.cursor()
         select_cursor.execute("BEGIN")
 
@@ -170,8 +181,13 @@ class YoutubeStats:
 
 
 class DatabaseActions:
-    def setup_db(dbLocation, table_name):
-        conn = sqlite3.connect(dbLocation)
+    db_handler = None
+
+    def __init__(self):
+        self.db_handler = DBHandler()
+
+    def setup_db(self):
+        conn = self.db_handler.connect()
         c = conn.cursor()
 
         c.execute("""DROP TABLE watch_history_dev_takeout_id;""")
@@ -210,6 +226,7 @@ class DatabaseActions:
 
         conn.commit()
         conn.close()
+        print("Database setup")
 
     # Update corresponding row in database table with additional information
     # Todo: USE AN INDEX TO SIGNIFICANTLY SPEED IT UP
@@ -249,30 +266,10 @@ class DatabaseActions:
             ),
         )
 
-    def insert_into_table(self, takeoutId, c, video_obj):
-        # Insert video data object into database table
-        c.execute(
-            """INSERT or IGNORE INTO watch_history_dev_takeout_id(
-                video_id,
-                takeout_id,
-                date_time_iso,
-                date_,
-                time_,
-                year_date,
-                month_date,
-                day_date,
-                hour_time,
-                day_of_week,
-                title,
-                video_URL,
-                channel_name,
-                channel_url,
-                video_status,
-                is_available,
-                video_length_str,
-                video_length_secs
-                )
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """,
+    def insert_many_records(self, takeoutId, conn, video_objs):
+        print(f"Num of records: {len(video_objs)}")
+        # Prepare data for insertion
+        data = [
             (
                 video_obj.get_video_id(),
                 takeoutId,
@@ -292,15 +289,95 @@ class DatabaseActions:
                 video_obj.get_is_available(),
                 video_obj.get_video_length_str(),
                 video_obj.get_video_length_secs(),
-            ),
-        )
+            )
+            for video_obj in video_objs
+        ]
+
+        # Insert data into the database table using multi-row insert syntax
+        with conn.cursor() as c:
+            values_str = ",".join(["%s"] * len(data))
+            query = f"""INSERT INTO watch_history_dev_takeout_id(
+                    video_id,
+                    takeout_id,
+                    date_time_iso,
+                    date_,
+                    time_,
+                    year_date,
+                    month_date,
+                    day_date,
+                    hour_time,
+                    day_of_week,
+                    title,
+                    video_URL,
+                    channel_name,
+                    channel_url,
+                    video_status,
+                    is_available,
+                    video_length_str,
+                    video_length_secs
+                )
+                VALUES {values_str}
+                ON CONFLICT (video_id) DO NOTHING"""
+            c.execute(query, data)
+            conn.commit()
+        print("Inserted all records into database table")
+
+    # def insert_into_table(self, takeoutId, conn, video_obj):
+    #     # Insert video data object into database table
+    #     with conn.cursor() as c:
+    #         c.execute(
+    #             """INSERT INTO watch_history_dev_takeout_id(
+    #                 video_id,
+    #                 takeout_id,
+    #                 date_time_iso,
+    #                 date_,
+    #                 time_,
+    #                 year_date,
+    #                 month_date,
+    #                 day_date,
+    #                 hour_time,
+    #                 day_of_week,
+    #                 title,
+    #                 video_URL,
+    #                 channel_name,
+    #                 channel_url,
+    #                 video_status,
+    #                 is_available,
+    #                 video_length_str,
+    #                 video_length_secs
+    #                 )
+    #             VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    #             ON CONFLICT (video_id) DO NOTHING""",
+    #             (
+    #                 video_obj.get_video_id(),
+    #                 takeoutId,
+    #                 video_obj.get_watch_date_time_iso(),
+    #                 video_obj.get_watch_date(),
+    #                 video_obj.get_watch_time(),
+    #                 video_obj.get_watch_year(),
+    #                 video_obj.get_watch_month(),
+    #                 video_obj.get_watch_day(),
+    #                 video_obj.get_watch_hour(),
+    #                 video_obj.get_watch_weekday(),
+    #                 video_obj.get_title(),
+    #                 video_obj.get_video_URL(),
+    #                 video_obj.get_channel_name(),
+    #                 video_obj.get_channel_url(),
+    #                 video_obj.get_video_status(),
+    #                 video_obj.get_is_available(),
+    #                 video_obj.get_video_length_str(),
+    #                 video_obj.get_video_length_secs(),
+    #             ),
+    #         )
+    #         conn.commit()
 
 
-def youtube_main(self):
-    dbLocation = "C:/Users/Gordak/Documents/Nick/Projects/Coding/youtube-stats/Backend/src/SQLite/YoutubeStats.sqlite"
+# def youtube_main(self):
+#     dbLocation = "C:/Users/Gordak/Documents/Nick/Projects/Coding/youtube-stats/Backend/src/SQLite/YoutubeStats.sqlite"
 
-    DatabaseActions.setup_db(dbLocation, "")
+#     DatabaseActions.setup_db(dbLocation, "")
 
 
-# if __name__ == "__main__":
-#     youtube_main(DatabaseActions)
+if __name__ == "__main__":
+    db_actions = DatabaseActions()
+    db_actions.setup_db()
