@@ -18,21 +18,21 @@ from pydantic import BaseSettings
 
 app = FastAPI()
 
-# origins = [
-#     "http://localhost",
-#     "http://localhost:8000",
-#     "https://yt-watch-history-stats-production.up.railway.app/",
-#     "https://fastapi-production-0dec.up.railway.app/",
-#     "https://o413082.ingest.sentry.io/api/6520676/envelope/?sentry_key=84bf6d1a437a48ea822d66c72bc407ca&sentry_version=7&sentry_client=sentry.javascript.nextjs%2F7.41.0",
-#     "*",
-# ]
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=origins,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+    "https://yt-watch-history-stats-production.up.railway.app/",
+    "https://fastapi-production-0dec.up.railway.app/",
+    "https://o413082.ingest.sentry.io/api/6520676/envelope/?sentry_key=84bf6d1a437a48ea822d66c72bc407ca&sentry_version=7&sentry_client=sentry.javascript.nextjs%2F7.41.0",
+    "*",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 plots = None
 
 
@@ -52,17 +52,17 @@ s = Settings()
 @app.post("/upload")
 async def process_upload(file: UploadFile = File(...)):
     contents = await file.read()
-    print("Processing takeout...")
+    # print("Processing takeout...")
     s.processing_service = Processing(json.loads(contents))
-    s.processing_service.insert_takeout_to_db()
+    s.processing_service.process_takeout(enhanced=True, transcript_flag=False)
     return {"takeout": "Basic takeout uploaded successfully"}
 
 
-@app.get("/upload/advanced")
-async def process_upload():
-    print("Fetching extra information about the videos...")
-    s.processing_service.insert_extra_info_to_db()
-    return {"takeout": "Extra info added to db"}
+# @app.get("/upload/advanced")
+# async def process_upload():
+#     print("Fetching extra information about the videos...")
+#     s.processing_service.update_rows_extra_info()
+#     return {"takeout": "Extra info added to db"}
 
 
 @app.get("/plots/all")
