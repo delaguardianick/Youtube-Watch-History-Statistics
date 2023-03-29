@@ -54,7 +54,7 @@ async def process_upload(file: UploadFile = File(...)):
     contents = await file.read()
     # print("Processing takeout...")
     s.processing_service = Processing(json.loads(contents))
-    s.processing_service.process_takeout(enhanced=True, get_transcript=False)
+    s.processing_service.process_takeout(enhanced=True, transcript_flag=False)
     return {"takeout": "Basic takeout uploaded successfully"}
 
 
