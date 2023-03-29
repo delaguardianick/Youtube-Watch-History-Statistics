@@ -32,7 +32,13 @@ class YoutubeStats:
         self.dbActions = DatabaseActions()
         self.db_handler = DBHandler()
 
-    def insert_takeout_to_db(self):
+    def process_takeout(self, enhanced: bool = True, get_transcript: bool = False):
+        print("Processing takeout...")
+        self.add_takeout()
+        if enhanced:
+            self.update_rows_extra_info(get_transcript)
+
+    def add_takeout(self):
         conn = self.db_handler.connect()
         count = 0
         for video in self.takeout:
@@ -46,15 +52,14 @@ class YoutubeStats:
                     self.takeoutId, conn, self.all_video_objects
                 )
                 self.all_video_objects = []
-                print(f"Inserted batch {count // 1000}")
+                # print(f"Inserted batch {count // 1000}")
 
-        print(f"number of videos in takeout: {count}")
         conn.commit()
         conn.close()
-        print(f"Written to table")
+        print(f"Inserted {count} videos to table")
 
-    def insert_extra_info_to_db(self):
-        print("inserting extra info to db...")
+    def update_rows_extra_info(self, get_transcript: bool = False):
+        print("Getting additional video information")
         conn = self.db_handler.connect()
         select_cursor = conn.cursor()
         select_cursor.execute("BEGIN")
@@ -71,6 +76,8 @@ class YoutubeStats:
 
         db_index = 1
         fifty_calls_time = time.time()
+        0
+        extra_video_details_for_all = []
 
         while len(video_ids_to_query_list) != 0:
             start_time_batch = time.time()
@@ -81,19 +88,18 @@ class YoutubeStats:
 
             api_call_time_start = time.time()
 
-            video_details_for_batch = YoutubeApi.api_get_video_details(
+            extra_video_details_for_batch = YoutubeApi.api_get_video_details(
                 self, ids_in_batch_str
             ).get("items")
 
             api_call_time_end = time.time()
             api_calls += 1
 
-            id_index = 0
             update_row_total_time = 0
 
             # Actually updated DB with new fields
             self.update_rows_with_new_fields(
-                video_details_for_batch, db_index, select_cursor, conn
+                extra_video_details_for_batch, db_index, conn, get_transcript
             )
 
             end_time_batch = time.time()
@@ -125,7 +131,7 @@ class YoutubeStats:
         # )
 
     def update_rows_with_new_fields(
-        self, video_details_for_batch: list, db_index: int, select_cursor, conn
+        self, video_details_for_batch: list, db_index: int, conn, get_transcript: bool
     ):
         # Update corresponding rows in database table with additional information
         for i in range(len(video_details_for_batch)):
@@ -136,7 +142,7 @@ class YoutubeStats:
             description = video_details.get("snippet").get("description")
             categoryId = video_details.get("snippet").get("categoryId")
             tags = repr(video_details.get("snippet").get("tags"))
-            transcript = self.get_video_transcript(video_id)
+            transcript = self.get_video_transcript(video_id) if get_transcript else None
 
             (
                 video_length_str,
@@ -146,9 +152,7 @@ class YoutubeStats:
             # update_row_time_start = time.time()
 
             self.dbActions.update_row(
-                select_cursor,
                 conn,
-                db_index,
                 video_length_str,
                 video_length_secs,
                 description,
@@ -232,9 +236,7 @@ class DatabaseActions:
     # Todo: USE AN INDEX TO SIGNIFICANTLY SPEED IT UP
     def update_row(
         self,
-        select_cursor,
         conn,
-        target_watch_id,
         video_length_str,
         video_length_secs,
         description,
@@ -243,31 +245,33 @@ class DatabaseActions:
         transcript,
         video_id,
     ):
-        select_cursor.execute(
-            """UPDATE watch_history_dev_takeout_id
-        SET
-        video_length_str = ?,
-        video_length_secs = ?,
-        video_description = ?,
-        category_id = ?,
-        tags = ?,
-        transcript = ?
-        WHERE
-        video_id = ? 
-        """,
-            (
-                video_length_str,
-                video_length_secs,
-                description,
-                categoryId,
-                tags,
-                transcript,
-                video_id,
-            ),
-        )
+        with conn.cursor() as select_cursor:
+            select_cursor.execute(
+                """UPDATE watch_history_dev_takeout_id
+                SET
+                video_length_str = %s,
+                video_length_secs = %s,
+                video_description = %s,
+                category_id = %s,
+                tags = %s,
+                transcript = %s
+                WHERE
+                video_id = %s
+                """,
+                (
+                    video_length_str,
+                    video_length_secs,
+                    description,
+                    categoryId,
+                    tags,
+                    transcript,
+                    video_id,
+                ),
+            )
+            conn.commit()
 
     def insert_many_records(self, takeoutId, conn, video_objs):
-        print(f"Num of records: {len(video_objs)}")
+        # print(f"Num of records: {len(video_objs)}")
         # Prepare data for insertion
         data = [
             (
@@ -320,7 +324,7 @@ class DatabaseActions:
                 ON CONFLICT (video_id) DO NOTHING"""
             c.execute(query, data)
             conn.commit()
-        print("Inserted all records into database table")
+        # print("Inserted all records into database table")
 
     # def insert_into_table(self, takeoutId, conn, video_obj):
     #     # Insert video data object into database table

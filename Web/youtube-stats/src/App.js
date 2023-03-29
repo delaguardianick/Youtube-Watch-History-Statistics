@@ -29,13 +29,13 @@ function App() {
     const data = await response.json();
     console.log(data);
     // TODO: Display the plots
-    calcExtraInfo()
+    // calcExtraInfo()
   };
 
-  const calcExtraInfo = async () => {
-    const response = await fetch('http://localhost:8000/upload/advanced');
-    const data = await response.json();
-  };
+  // const calcExtraInfo = async () => {
+  //   const response = await fetch('http://localhost:8000/upload/advanced');
+  //   const data = await response.json();
+  // };
   
   const getDataFrameStats = async () => {
     const response = await fetch('http://localhost:8000/stats');
