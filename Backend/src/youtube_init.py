@@ -41,7 +41,7 @@ class YoutubeStats:
 
         self.db_actions.insert_many_records(self.takeoutId, all_videos_dict.values())
 
-        print(f"enhance time: {time.time() - time_enhance_s}")
+        print(f"Total time: {time.time() - time_enhance_s}")
 
     def takeout_to_objects(self, takeout: json) -> list:
         all_videos = []
@@ -67,8 +67,6 @@ class YoutubeStats:
         batch_size = 50
         for i in range(0, len(all_video_ids), batch_size):
             batch_videos_ids = all_video_ids[i : i + batch_size]
-
-            time_api_s = time.time()
 
             extra_info_for_batch = (
                 self.youtube_api.api_get_video_details(batch_videos_ids)
@@ -100,7 +98,7 @@ class YoutubeStats:
             (
                 video_length_str,
                 video_length_secs,
-            ) = DataModifier.video_length_to_seconds(duration)
+            ) = self.data_modifier.video_length_to_seconds(duration)
 
             video: YoutubeVideo = all_videos_dict[video_id]
             video.set_duration(duration)
@@ -109,6 +107,7 @@ class YoutubeStats:
             video.set_tags(repr(video_details.get("snippet").get("tags")))
             video.set_transcript(transcript)
             video.set_video_length(video_length_str, video_length_secs)
+            all_videos_dict[video_id] = video
 
         return all_videos_dict
 
