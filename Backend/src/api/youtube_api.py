@@ -1,7 +1,6 @@
 import json
 import requests
 import os
-import sys
 
 
 class YoutubeApi:
@@ -14,9 +13,8 @@ class YoutubeApi:
 
     def get_api_key():
         # Construct the path to the API key file
-        script_dir = os.path.dirname(os.path.abspath(__file__))
         api_key_file = "youtube_api_key.txt"
-        file_path = script_dir + "\\" + api_key_file
+        file_path = os.path.dirname(os.path.abspath(__file__)) + "\\" + api_key_file
 
         # Read the API key from the file
         try:
