@@ -28,7 +28,8 @@ class PlotsService:
         conn = self.db_handler.connect()
 
         self.watch_history_df = pd.read_sql_query(
-            "SELECT * from watch_history_dev_takeout_id WHERE is_available = 1", conn
+            "SELECT * from watch_history_dev_takeout_id WHERE is_available is true",
+            conn,
         )
 
         return self.watch_history_df
@@ -233,6 +234,7 @@ class PlotsService:
         ax1.set_ylabel("Total videos watched")
         ax1.tick_params(axis="y")
 
+        ax1.set_xticks(top_channels_agg_df.index)
         # Rotate the x-axis labels
         ax1.set_xticklabels(
             top_channels_agg_df["channel_name"], rotation=45, ha="right"
@@ -261,7 +263,6 @@ class PlotsService:
 
         # Show the plot
         plt.tight_layout()
-        # plt.show()
 
         return self.__get_plot_url(ax1)
 
