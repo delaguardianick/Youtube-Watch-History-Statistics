@@ -1,8 +1,7 @@
 import './App.css';
 // import './dist/output.css';
 import { useState, useEffect, useRef} from 'react';
-import DatePicker from 'react-datepicker';
-import {format,parseISO} from 'date-fns';
+import {parseISO} from 'date-fns';
 import "react-datepicker/dist/react-datepicker.css";
 
 function App() {
@@ -28,15 +27,8 @@ function App() {
     });
     const data = await response.json();
     console.log(data);
-    // TODO: Display the plots
-    // calcExtraInfo()
   };
 
-  // const calcExtraInfo = async () => {
-  //   const response = await fetch('http://localhost:8000/upload/advanced');
-  //   const data = await response.json();
-  // };
-  
   const getDataFrameStats = async () => {
     const response = await fetch('http://localhost:8000/stats');
     const data = await response.json();
@@ -50,6 +42,17 @@ function App() {
       setDateEndRange(parseISO(data.end_date));
     }
     setDataFrameStats(data);
+  };
+
+  const dateObjToString = (dateObj) => {
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const year = dateObj.getFullYear();
+    const month = dateObj.getMonth() + 1;
+    const day = dateObj.getDate();
+    return `${monthNames[month]} ${day}, ${year}`;
   };
 
   useEffect(() => {
@@ -96,39 +99,13 @@ function App() {
                 Upload Takeout
                 <input name="" type="file" id="formId" hidden />
             </label>
-            <div className='date-picker' >
-              {/* <label for="start" className='date-start'>Start date:</label>
-                <input type="date" id="start" name="trip-start"
-                    value={takeoutStats.start_date}
-                    min={takeoutStats.start_date} max={takeoutStats.end_date}>
-                </input>
-              <label for="end" className='date-end'>End date:</label>
-                <input type="date" id="end" name="trip-end"
-                    value={takeoutStats.end_date}
-                    min={takeoutStats.start_date} max={takeoutStats.end_date}>
-              </input> */}
-              <label for="start" className='date-start'>Start date:</label>
-              <DatePicker
-                showIcon
-                selected={dateStartRange}
-                onChange={date => setDateStartRange(date.getFullYear())}
-                minDate={dateStartRange}
-                maxDate={dateEndRange}
-                // dateFormat="yyyy"
-                // showYearPicker
-                />
-              <label for="end" className='date-end'>End date:</label>
-              <DatePicker
-                showIcon
-                selected={dateEndRange}
-                onChange={date => setDateEndRange(date.getFullYear())}
-                minDate={dateStartRange}
-                maxDate={dateEndRange}
-                // dateFormat="yyyy"
-                // showYearPicker
-                />
-
+            <h4>Date range:</h4>
+            <div className='date-picker'>
+              <div>{dateObjToString(dateStartRange) }- </div>
+              <div>{dateObjToString(dateEndRange)}</div> 
             </div>
+              
+
           </div>
         </section>
 
