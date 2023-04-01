@@ -42,7 +42,9 @@ class YoutubeStats:
         if enhanced:
             all_videos_dict = self.enhance_video_data(all_videos_dict, transcript_flag)
 
-        self.db_actions.insert_many_records(self.takeoutId, all_videos_dict.values())
+        self.db_actions.insert_many_records(
+            self.takeoutId, list(all_videos_dict.values())
+        )
 
         print(
             f"Total time for {len(all_videos_dict)} records: {format(time.time() - time_enhance_s, '.1f')}"
@@ -89,7 +91,7 @@ class YoutubeStats:
         all_video_ids = list(all_videos_dict.keys())
 
         time_enhance_s = time.time()
-        batch_size = 50
+        batch_size = 49
         for i in range(0, len(all_video_ids), batch_size):
             batch_videos_ids = all_video_ids[i : i + batch_size]
 
@@ -267,7 +269,7 @@ class DatabaseActions:
             conn.commit()
         conn.close()
         print(
-            f"Inserted all records into database table in {format(time.time() - insert_time_s, '1.f')}"
+            f"Inserted all records into database table in {format(time.time() - insert_time_s, '.1f')}"
         )
 
 

@@ -34,7 +34,7 @@ class DataModifier:
         )
         return video_obj
 
-    def video_length_to_seconds(video_length_iso):
+    def video_length_to_seconds(self, video_length_iso):
         video_length = video_length_iso[2:]
 
         # Get days
