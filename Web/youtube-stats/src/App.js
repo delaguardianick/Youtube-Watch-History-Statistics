@@ -26,7 +26,6 @@ function App() {
       body: formData,
     });
     const data = await response.json();
-    console.log(data);
   };
 
   const getDataFrameStats = async () => {
@@ -35,8 +34,8 @@ function App() {
     console.log(parseISO(data.start_date), parseISO(data.end_date));
     if (data.start_date === null || data.end_date === null) 
       {
-      setDateStartRange(parseISO("2020-06-24 00:00:00"));
-      setDateEndRange(parseISO("2022-10-31 00:00:00"));
+      setDateStartRange(Date.now());
+      setDateEndRange(Date.now());
     } else {
       setDateStartRange(parseISO(data.start_date));
       setDateEndRange(parseISO(data.end_date));
@@ -50,7 +49,7 @@ function App() {
       'July', 'August', 'September', 'October', 'November', 'December'
     ];
     const year = dateObj.getFullYear();
-    const month = dateObj.getMonth() + 1;
+    const month = dateObj.getMonth();
     const day = dateObj.getDate();
     return `${monthNames[month]} ${day}, ${year}`;
   };
