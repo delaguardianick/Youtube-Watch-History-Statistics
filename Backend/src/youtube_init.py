@@ -9,6 +9,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from config import config
 from database.DBHandler import DBHandler
 import sys
+from datetime import datetime, timedelta
 
 # Get the absolute path of the current script
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -33,28 +34,54 @@ class YoutubeStats:
 
     def process_takeout(self, enhanced: bool = True, transcript_flag: bool = False):
         print("Processing takeout...")
-        all_videos_dict = self.takeout_to_objects(self.takeout)
+        all_videos_dict, (first_video_date, last_video_date) = self.takeout_to_objects(
+            self.takeout
+        )
 
         time_enhance_s = time.time()
         if enhanced:
             all_videos_dict = self.enhance_video_data(all_videos_dict, transcript_flag)
 
-        self.db_actions.insert_many_records(self.takeoutId, all_videos_dict.values())
+        self.db_actions.insert_many_records(
+            self.takeoutId, list(all_videos_dict.values())
+        )
 
-        print(f"Total time: {time.time() - time_enhance_s}")
+        print(
+            f"Total time for {len(all_videos_dict)} records: {format(time.time() - time_enhance_s, '.1f')}"
+        )
 
     def takeout_to_objects(self, takeout: json) -> list:
         all_videos = []
+        first_video_date = None
+        last_video_date = None
 
-        for video in takeout:
+        for i, video in enumerate(takeout):
             video_obj: YoutubeVideo = self.data_modifier.clean_data(video)
+            if i == 0:
+                first_video_date = datetime.fromisoformat(video_obj.get_watch_date())
+
+            curr_video_date = datetime.fromisoformat(video_obj.get_watch_date())
+            if self._is_more_than_12_months_apart(first_video_date, curr_video_date):
+                last_video_date = curr_video_date
+                break
+
             if video_obj.video_id:
                 all_videos.append(video_obj)
 
         # Create a dictionary with video_id as key and video object as value
         all_videos_dict = {video.get_video_id(): video for video in all_videos}
 
-        return all_videos_dict
+        return all_videos_dict, (first_video_date, last_video_date)
+
+    def _is_more_than_12_months_apart(self, date1: datetime, date2: datetime) -> bool:
+        # Calculate the time difference between the two dates
+        time_difference = abs(date1 - date2)
+
+        # Check if the time difference is greater than 12 months (365 days)
+        if time_difference > timedelta(days=365):
+            return True
+        else:
+            return False
 
     def enhance_video_data(
         self, all_videos_dict: dict[str, any], transcript_flag: bool = False
@@ -64,7 +91,7 @@ class YoutubeStats:
         all_video_ids = list(all_videos_dict.keys())
 
         time_enhance_s = time.time()
-        batch_size = 50
+        batch_size = 49
         for i in range(0, len(all_video_ids), batch_size):
             batch_videos_ids = all_video_ids[i : i + batch_size]
 
@@ -73,16 +100,14 @@ class YoutubeStats:
             ).get("items")
 
             # Update video objects with the information from the API response
-            all_videos_dict = self.update_rows_with_new_fields(
+            all_videos_dict = self.update_videos_with_api_info(
                 extra_info_for_batch, all_videos_dict, transcript_flag
             )
 
-        print(
-            f"Finished getting additional video information in {time.time() - time_enhance_s}"
-        )
+        print(f"API calls took {format(time.time() - time_enhance_s, '.1f')}")
         return all_videos_dict
 
-    def update_rows_with_new_fields(
+    def update_videos_with_api_info(
         self,
         video_details_for_batch: list,
         all_videos_dict: dict,
@@ -177,7 +202,6 @@ class DatabaseActions:
         print("Database setup")
 
     def insert_many_records(self, takeoutId: str, video_objs: list):
-        print(f"Inserting {len(video_objs)} records")
         # Prepare data for insertion
         data = [
             (
@@ -243,12 +267,10 @@ class DatabaseActions:
                     ON CONFLICT (video_id) DO NOTHING"""
                 c.execute(query, data)
             conn.commit()
-            print(
-                f"Time taken to insert batch {i//batch_size}: {time.time() - insert_time_s}"
-            )
-
         conn.close()
-        print("Inserted all records into database table")
+        print(
+            f"Inserted all records into database table in {format(time.time() - insert_time_s, '.1f')}"
+        )
 
 
 if __name__ == "__main__":

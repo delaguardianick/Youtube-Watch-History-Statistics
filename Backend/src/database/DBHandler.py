@@ -25,8 +25,3 @@ class DBHandler:
 
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
-
-
-# if __name__ == "__main__":
-#     db_handler = DBHandler()
-#     db_handler.connect()

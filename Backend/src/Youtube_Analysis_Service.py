@@ -7,10 +7,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from datetime import timedelta
+from database.DBHandler import DBHandler
 
 
 class PlotsService:
     watch_history_df = None
+
+    def __init__(self):
+        self.db_handler = DBHandler()
 
     # Get datestats from watch history
     def get_df_stats(self):
@@ -21,12 +25,14 @@ class PlotsService:
         return stats
 
     def fetch_watch_history(self):
+        conn = self.db_handler.connect()
+
         self.watch_history_df = pd.read_sql_query(
-            "SELECT * from watch_history_dev_takeout_id WHERE is_available = 1",
-            sqlite3.connect(
-                "C:/Users/Gordak/Documents/Nick/Projects/Coding/youtube-stats/Backend/src/SQLite/YoutubeStats.sqlite"
-            ),
+            "SELECT * from watch_history_dev_takeout_id WHERE is_available is true",
+            conn,
         )
+
+        return self.watch_history_df
 
     def get_all_plots(self):
         wh_df, date_ranges = self.analyze_data()
@@ -228,6 +234,7 @@ class PlotsService:
         ax1.set_ylabel("Total videos watched")
         ax1.tick_params(axis="y")
 
+        ax1.set_xticks(top_channels_agg_df.index)
         # Rotate the x-axis labels
         ax1.set_xticklabels(
             top_channels_agg_df["channel_name"], rotation=45, ha="right"
@@ -256,7 +263,6 @@ class PlotsService:
 
         # Show the plot
         plt.tight_layout()
-        # plt.show()
 
         return self.__get_plot_url(ax1)
 

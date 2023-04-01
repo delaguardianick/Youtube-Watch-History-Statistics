@@ -6,10 +6,6 @@ from youtube_init import YoutubeStats as Processing
 
 # from matplotlib.figure import Figure
 from fastapi import FastAPI, File, UploadFile
-import matplotlib.pyplot as plt
-import base64
-import io
-from fastapi.responses import StreamingResponse
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn

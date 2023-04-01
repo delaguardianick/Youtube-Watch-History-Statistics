@@ -1,22 +1,24 @@
 import json
 import requests
 import os
-import sys
 
 
 class YoutubeApi:
     def api_get_video_details(self, video_ids_to_query) -> json:
-        api_key = YoutubeApi.get_api_key()
-        request_url = f"https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id={video_ids_to_query}&key={api_key}"
+        api_key = self.get_api_key()
+        video_ids_to_query_str = ",".join(video_ids_to_query)
+        request_url = f"https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id={video_ids_to_query_str}&key={api_key}"
         video_details = requests.get(request_url).json()
+
+        if video_details["items"] == []:
+            return "API call returned no results."
 
         return video_details
 
-    def get_api_key():
+    def get_api_key(self):
         # Construct the path to the API key file
-        script_dir = os.path.dirname(os.path.abspath(__file__))
         api_key_file = "youtube_api_key.txt"
-        file_path = script_dir + "\\" + api_key_file
+        file_path = os.path.dirname(os.path.abspath(__file__)) + "\\" + api_key_file
 
         # Read the API key from the file
         try:
