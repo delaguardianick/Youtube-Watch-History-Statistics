@@ -4,6 +4,7 @@ import base64
 from dateutil import parser
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FixedLocator, FixedFormatter
 import pandas as pd
 import seaborn as sns
 from datetime import timedelta
@@ -40,9 +41,9 @@ class PlotsService:
         plots["weekly_avg"] = self.plot_weekly_avg(wh_df, date_ranges)
         plots["hourly_avg"] = self.plot_avg_per_hour(wh_df, date_ranges)
         plots["monthly_avg"] = self.plot_monthly_avg(wh_df, date_ranges)
-        plots["top_channels"] = self.plot_top_viewed_channels(wh_df, date_ranges)
-        plots["top_genres"] = self.plot_top_genres(wh_df, date_ranges)
-        plots["top_videos"] = self.plot_top_videos(wh_df, date_ranges)
+        plots["top_channels"] = self.plot_top_viewed_channels(wh_df)
+        plots["top_genres"] = self.plot_top_genres(wh_df)
+        plots["top_videos"] = self.plot_top_videos(wh_df)
         return plots  # {"plot_name" : "plot_url"}
 
     def __filter_df_year_range(self, wh_df, beginning_date):
@@ -104,12 +105,6 @@ class PlotsService:
             ax.set_title("Avg Watch Time / Weekday")
             ax.set_xlabel("Weekdays")
             ax.set_ylabel("Hours watched on average")
-            ax.legend(
-                [
-                    f"Range: {date_ranges.get('start_date')} - {date_ranges.get('end_date')}"
-                ],
-                loc="upper left",
-            )
             ax.grid(True)
 
         return self.__get_plot_url(ax)
@@ -136,12 +131,6 @@ class PlotsService:
             ax.set_title("Avg Watch Time / Hour")
             ax.set_xlabel("Hour")
             ax.set_ylabel("Minutes watched on average")
-            ax.legend(
-                [
-                    f"Range: {date_ranges.get('start_date')} - {date_ranges.get('end_date')}"
-                ],
-                loc="upper left",
-            )
             ax.grid(True)
 
             # Rotate the x-axis labels
@@ -173,12 +162,6 @@ class PlotsService:
             ax.set_title("Avg Watch Time / Month")
             ax.set_xlabel("Month")
             ax.set_ylabel("Minutes watched on average")
-            ax.legend(
-                [
-                    f"Range: {date_ranges.get('start_date')} - {date_ranges.get('end_date')}"
-                ],
-                loc="upper left",
-            )
             ax.grid(True)
 
             # Rotate the x-axis labels
@@ -186,7 +169,7 @@ class PlotsService:
 
         return self.__get_plot_url(ax)
 
-    def plot_top_viewed_channels(self, wh_df, date_ranges):
+    def plot_top_viewed_channels(self, wh_df):
         # Filter dataframe and group by desired index
         channels_count_df = wh_df[["channel_name", "video_length_secs"]]
         channels_agg_df = (
@@ -234,10 +217,9 @@ class PlotsService:
         ax1.set_ylabel("Total videos watched")
         ax1.tick_params(axis="y")
 
-        ax1.set_xticks(top_channels_agg_df.index)
         # Rotate the x-axis labels
         ax1.set_xticklabels(
-            top_channels_agg_df["channel_name"], rotation=45, ha="right"
+            labels=top_channels_agg_df["channel_name"], rotation=45, ha="right"
         )
 
         # Create a second y-axis for the total hours watched
@@ -258,7 +240,7 @@ class PlotsService:
             [bar_plot, line_plot],
             ["Total videos watched", line_plot.get_label()],
             loc="lower right",
-            title=f"Range: {date_ranges.get('start_date')} - {date_ranges.get('end_date')}",
+            title=f"Range:",
         )
 
         # Show the plot
@@ -266,7 +248,7 @@ class PlotsService:
 
         return self.__get_plot_url(ax1)
 
-    def plot_top_genres(self, wh_df, date_ranges):
+    def plot_top_genres(self, wh_df):
         # Filter dataframe and group by desired index
         genres_count_df = wh_df[["category_id", "video_length_secs"]]
         genres_count_df = genres_count_df.groupby("category_id").sum().reset_index()
@@ -281,10 +263,10 @@ class PlotsService:
             self.get_mappings("genres")
         )
 
-        # Sort the DataFrame by total hours watched in descending order and select the top 10 most watched genres
+        # Sort the DataFrame by total hours watched in descending order and select the top 7 most watched genres
         top_genres_count_df = genres_count_df.sort_values(
             by="hours_watched", ascending=False
-        ).head(10)
+        ).head(7)
 
         # Group the DataFrame by category_id and channel_name to get the count of videos for each channel in each genre
         channel_genre_count = (
@@ -348,18 +330,14 @@ class PlotsService:
         ax.set_ylabel("Total hours watched")
 
         # Add title and legend
-        plt.title("Top 10 Most Watched Genres with Top Channel")
-        ax.legend(
-            [bar_plot],
-            [f"Range: {date_ranges.get('start_date')} - {date_ranges.get('end_date')}"],
-        )
+        plt.title("Top 7 Most Watched Genres with Top Channel")
 
         # Show the plot
         plt.tight_layout()
 
         return self.__get_plot_url(ax)
 
-    def plot_top_videos(self, wh_df, date_ranges):
+    def plot_top_videos(self, wh_df):
         # Group the DataFrame by video title and channel and count the occurrences
         top_videos_df = wh_df[["title", "channel_name"]]
         top_videos_df = (

@@ -34,8 +34,8 @@ function App() {
     console.log(parseISO(data.start_date), parseISO(data.end_date));
     if (data.start_date === null || data.end_date === null) 
       {
-      setDateStartRange(Date.now());
-      setDateEndRange(Date.now());
+      // setDateStartRange(Date.now());
+      // setDateEndRange(Date.now());
     } else {
       setDateStartRange(parseISO(data.start_date));
       setDateEndRange(parseISO(data.end_date));
@@ -136,7 +136,7 @@ function App() {
               <span>Top Videos</span>
               {plots && <img src={plots.top_videos} alt="" />}
             </div>
-            <div className="div7 plot-image">
+            {/* <div className="div7 plot-image">
               <span>Plot7</span>
               <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img>
             </div>
@@ -147,7 +147,7 @@ function App() {
             <div className="div9 plot-image">
               <span>Plot9</span>
               <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img>
-            </div>
+            </div> */}
           </div>
         </section>
       </div>
