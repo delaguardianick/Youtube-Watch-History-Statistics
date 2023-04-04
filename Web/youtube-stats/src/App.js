@@ -4,6 +4,8 @@ import './App.css';
 import { useState, useEffect, useRef} from 'react';
 import {parseISO} from 'date-fns';
 import "react-datepicker/dist/react-datepicker.css";
+import { Container, Row, Col, Card, Dropdown } from "react-bootstrap";
+import Chart from 'react-apexcharts';
 
 function App() {
   const [plots, setPlots] = useState({});
@@ -11,12 +13,28 @@ function App() {
   const [takeoutStats, setDataFrameStats] = useState({});
   const [dateStartRange, setDateStartRange] = useState(new Date());
   const [dateEndRange, setDateEndRange] = useState(new Date());
+  const [leftPlot, setLeftPlot] = useState("weekly_avg");
+  const [rightPlot, setRightPlot] = useState("top_channels");
 
   const getAllPlotsUrl = async () => {
     const response = await fetch('http://localhost:8000/plots/all');
     const data = await response.json();
-    setPlots(data);
+    console.log("data: ")
+    console.log(data)
+    const charts = setChartsData(data);
+    setPlots(charts);
   };
+
+  const setChartsData = (chartsData) => {
+      // for every plot in chartsData, create a new chart
+      const charts = {};
+      for (let [key, value] of Object.entries(chartsData)) {
+        let plot = JSON.parse(value);
+        let options = chartOptionsForPlot(plot);
+        charts[key] = {options, plot};
+      }
+      return charts;
+  }
 
   const handleFileSelect = async (event) => {
     const file = event.target.files[0];
@@ -55,6 +73,21 @@ function App() {
     return `${monthNames[month]} ${day}, ${year}`;
   };
 
+  const chartOptionsForPlot = (plot) => {
+    var options = {
+      chart: {
+      type: 'line',
+      height: 'auto',
+      width: '100%',
+    },
+    xaxis: {
+      categories: plot?.categories || [],
+    },
+  };
+
+  return options;
+};
+
   useEffect(() => {
     getAllPlotsUrl();
     getDataFrameStats()
@@ -67,11 +100,6 @@ function App() {
       <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
       <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
       <title>Dashboard - Tabler - Premium and Open Source dashboard template with responsive and high quality UI.</title>
-      <link href="./dist/css/tabler.min.css?1674944402" rel="stylesheet"/>
-      <link href="./dist/css/tabler-flags.min.css?1674944402" rel="stylesheet"/>
-      <link href="./dist/css/tabler-payments.min.css?1674944402" rel="stylesheet"/>
-      <link href="./dist/css/tabler-vendors.min.css?1674944402" rel="stylesheet"/>
-      <link href="./dist/css/demo.min.css?1674944402" rel="stylesheet"/>
     </head>
   
   <div className="body">
@@ -237,45 +265,71 @@ function App() {
         {/* <!-- ======= Plots Section ======= --> */}
 
         <section id="plots">
-          <div className="plots-container">
-            <div className="div1 plot-image card">
-              <span>Weekly</span>
-              {plots && <img src={plots.weekly_avg} alt="" />}
-            </div>
-            <div className="div2 plot-image card">
-              <span>Daily</span>
-              {plots && <img src={plots.hourly_avg} alt="" />}
-            </div>
-            <div className="div3 plot-image card">
-              <span>Monthly</span>
-              {plots && <img src={plots.monthly_avg} alt="" />}
-            </div>
-            <div className="div4 plot-image card">
-              <span>Top Channels</span>
-              {plots && <img src={plots.top_channels} alt="" />}
-            </div>
-            <div className="div5 plot-image card">
-              <span>Top Genres</span>
-              {plots && <img src={plots.top_genres} alt="" />}
-            </div>
-            <div className="div6 plot-image card">
-              <span>Top Videos</span>
-              {plots && <img src={plots.top_videos} alt="" />}
-            </div>
-            {/* <div className="div7 plot-image">
-              <span>Plot7</span>
-              <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img>
-            </div>
-            <div className="div8 plot-image">
-              <span>Plot8</span>
-              <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img>
-            </div>
-            <div className="div9 plot-image">
-              <span>Plot9</span>
-              <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img>
-            </div> */}
-          </div>
+          <Container>
+            <Row>
+              <Col sm={6} className="mb-3">
+                <Card className="plot-image">
+                  <Dropdown>
+                    <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+                      {leftPlot === "weekly_avg"
+                        ? "Weekly"
+                        : leftPlot === "hourly_avg"
+                        ? "Daily"
+                        : "Monthly"}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item onClick={() => setLeftPlot("weekly_avg")}>
+                        Weekly
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => setLeftPlot("hourly_avg")}>
+                        Daily
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => setLeftPlot("monthly_avg")}>
+                        Monthly
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                  {plots && <img src={plots[leftPlot]} alt="" />}
+                 {plots && plots[leftPlot] && <Chart options={plots[leftPlot].options} series={plots[leftPlot].plot.series} type="line" />}
+
+                </Card>
+              </Col>
+              <Col sm={6}>
+                <Card className="plot-image">
+                  <Dropdown>
+                    <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+                      {rightPlot === "top_channels"           
+                          ? "Top Channels"
+                        : rightPlot === "top_genres"
+                        ? "Top Genres"
+                        : "Top Videos"}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item onClick={() => setRightPlot("top_channels")}>
+                        Top Channels
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => setRightPlot("top_genres")}>
+                        Top Genres
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => setRightPlot("top_videos")}>
+                        Top Videos
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                  {plots && <img src={plots[rightPlot]} alt="" />}
+                </Card>
+              </Col>
+            </Row>
+          </Container>
         </section>
+
+
+        {/* <div>
+            <div id="chart1">
+             { plots && plots["weekly_avg"] && console.log(chartOptionsForPlot(plots["weekly_avg"]))}
+             {plots && plots["weekly_avg"] && <Chart options={plots["weekly_avg"].options} series={plots["weekly_avg"].plot.series} type="line" />}
+          </div>
+        </div> */}
       </div>
     </main>
 
