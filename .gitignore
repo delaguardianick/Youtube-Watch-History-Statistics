@@ -13,3 +13,11 @@ Backend/experiments/ex.json
 
 # Local Netlify folder
 .netlify
+Backend/experiments/Youtube_Analysis.ipynb
+Backend/experiments/.ipynb_checkpoints/Youtube_Analysis-checkpoint.ipynb
+Backend/resources/private.json
+Backend/src/database/database.ini
+Backend/src/database/__pycache__
+Backend/src/api/__pycache__/youtube_api.cpython-310.pyc
+Backend/src/api/youtube_api_key.txt
+Web/experiments/
