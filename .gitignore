@@ -20,3 +20,4 @@ Backend/src/database/database.ini
 Backend/src/database/__pycache__
 Backend/src/api/__pycache__/youtube_api.cpython-310.pyc
 Backend/src/api/youtube_api_key.txt
+Web/experiments/
