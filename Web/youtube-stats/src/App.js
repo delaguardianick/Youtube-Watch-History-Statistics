@@ -324,20 +324,7 @@ function App() {
               <span>Top Videos</span>
               {plots && <img src={plots.top_videos} alt="" />}
             </div>
-            {/* <div className="div7 plot-image">
-              <span>Plot7</span>
-              <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img>
-            </div>
-            <div className="div8 plot-image">
-              <span>Plot8</span>
-              <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img>
-            </div>
-            <div className="div9 plot-image">
-              <span>Plot9</span>
-              <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img>
-            </div> */}
-          </div>
-        </section> */}
+        </section>  */}
       </div>
     </main>
 
