@@ -4,6 +4,7 @@ import { useState, useEffect, useRef} from 'react';
 import DatePicker from 'react-datepicker';
 import {format,parseISO} from 'date-fns';
 import "react-datepicker/dist/react-datepicker.css";
+import { Container, Row, Col, Card, Dropdown } from "react-bootstrap";
 
 function App() {
   const [plots, setPlots] = useState({});
@@ -11,6 +12,8 @@ function App() {
   const [takeoutStats, setDataFrameStats] = useState({});
   const [dateStartRange, setDateStartRange] = useState(new Date());
   const [dateEndRange, setDateEndRange] = useState(new Date());
+  const [leftPlot, setLeftPlot] = useState("weekly_avg");
+  const [rightPlot, setRightPlot] = useState("top_channels");
 
   const getAllPlotsUrl = async () => {
     const response = await fetch('http://localhost:8000/plots/all');
@@ -135,6 +138,65 @@ function App() {
         {/* <!-- ======= Plots Section ======= --> */}
 
         <section id="plots">
+          <Container>
+            <Row>
+              <Col sm={6} className="mb-3">
+                <Card className="plot-image">
+                  <Dropdown>
+                    <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+                      {leftPlot === "weekly_avg"
+                        ? "Weekly"
+                        : leftPlot === "hourly_avg"
+                        ? "Daily"
+                        : "Monthly"}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item onClick={() => setLeftPlot("weekly_avg")}>
+                        Weekly
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => setLeftPlot("hourly_avg")}>
+                        Daily
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => setLeftPlot("monthly_avg")}>
+                        Monthly
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                  {plots && <img src={plots[leftPlot]} alt="" />}
+                 {plots && plots[leftPlot] && <Chart options={plots[leftPlot].options} series={plots[leftPlot].plot.series} type="line" />}
+
+                </Card>
+              </Col>
+              <Col sm={6}>
+                <Card className="plot-image">
+                  <Dropdown>
+                    <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+                      {rightPlot === "top_channels"           
+                          ? "Top Channels"
+                        : rightPlot === "top_genres"
+                        ? "Top Genres"
+                        : "Top Videos"}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item onClick={() => setRightPlot("top_channels")}>
+                        Top Channels
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => setRightPlot("top_genres")}>
+                        Top Genres
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => setRightPlot("top_videos")}>
+                        Top Videos
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                  {plots && <img src={plots[rightPlot]} alt="" />}
+                </Card>
+              </Col>
+            </Row>
+          </Container>
+        </section>
+
+        {/* <section id="plots">
           <div className="plots-container">
             <div className="div1 plot-image">
               <span>Weekly</span>
@@ -173,7 +235,7 @@ function App() {
               <img src="https://www.amcharts.com/wp-content/uploads/2019/10/demo_14593_none-7.png"></img>
             </div>
           </div>
-        </section>
+        </section> */}
       </div>
     </main>
 
