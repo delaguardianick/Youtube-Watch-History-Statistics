@@ -1,3 +1,4 @@
+import 'bootstrap/dist/css/bootstrap.css';
 import './App.css';
 // import './dist/output.css';
 import { useState, useEffect, useRef} from 'react';
@@ -60,29 +61,47 @@ function App() {
   }, []);
 
   return (
+  <html lang="en">
+    <head>
+      <meta charset="utf-8"/>
+      <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+      <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+      <title>Dashboard - Tabler - Premium and Open Source dashboard template with responsive and high quality UI.</title>
+      <link href="./dist/css/tabler.min.css?1674944402" rel="stylesheet"/>
+      <link href="./dist/css/tabler-flags.min.css?1674944402" rel="stylesheet"/>
+      <link href="./dist/css/tabler-payments.min.css?1674944402" rel="stylesheet"/>
+      <link href="./dist/css/tabler-vendors.min.css?1674944402" rel="stylesheet"/>
+      <link href="./dist/css/demo.min.css?1674944402" rel="stylesheet"/>
+    </head>
   
   <div className="body">
 
-    {/* <!-- ======= Header ======= --> */}
-    <header id="header" className="header fixed-top d-flex align-items-center">
-      <div className="container d-flex align-items-center justify-content-between">
+      {/* <!-- ======= Header ======= --> */}
+      <header id="header" className="header fixed-top d-flex align-items-center">
+        <div className="container d-flex align-items-center justify-content-between">
 
-        <nav id="navbar" className="navbar">
-          <ul>
-          <div id="logo">
-            <h1><a href=""><span>Youtube</span>Stats </a></h1>
-            {/* <!-- Uncomment below if you prefer to use an image logo --> */}
-            {/* <!-- <a href="index.html"><img src="assets/img/logo.png" alt="" title="" /></a>--> */}
-          </div>
-            <li><a className="nav-link scrollto active" href="">Home</a></li>
-            <li><a className="nav-link scrollto" href="#help">Help</a></li>
-            <li><a className="nav-link scrollto" href="#contact">Github</a></li>
-          </ul>
-          <i className="bi bi-list mobile-nav-toggle"></i>
-        </nav>
+          <nav id="navbar" className="navbar">
+            <ul>
+            <div id="logo">
+              <h1><a href=""><span>Youtube</span>Stats </a></h1>
+              {/* <!-- Uncomment below if you prefer to use an image logo --> */}
+              {/* <!-- <a href="index.html"><img src="assets/img/logo.png" alt="" title="" /></a>--> */}
+            </div>
+              <li><a className="nav-link scrollto active" href="">Home</a></li>
+              <li><a className="nav-link scrollto" href="#help">Help</a></li>
+              <li><a className="nav-link scrollto" href="#contact">Github</a></li>
+              <li>
+              <label onChange={handleFileSelect} htmlFor="formId" className="btn-get-started scrollto">
+                Upload Takeout
+                <input name="" type="file" id="formId" hidden />
+              </label>
+            </li>
+            </ul>
+            <i className="bi bi-list mobile-nav-toggle"></i>
+          </nav>
 
-      </div>
-    </header>
+        </div>
+      </header>
 
     <main id="main">
       <div className="main-container">
@@ -101,38 +120,145 @@ function App() {
             <h4>Date range:</h4>
             <div className='date-picker'>
               <div>{dateObjToString(dateStartRange) }- </div>
-              <div>{dateObjToString(dateEndRange)}</div> 
-            </div>
+                  <div>{dateObjToString(dateEndRange)}</div> 
+                </div>
               
 
           </div>
         </section>
 
+        <div className='solo-facts'>
+          <div className='solo-facts-container'>
+            <div className='row row-deck row-cards'>
+            <div className="col-12">
+                <div className="row row-cards">
+                  <div className="col-sm-6 col-lg-3">
+                    <div className="card card-sm">
+                      <div className="card-body solo-fact-card">
+                        <div className="row align-items-center">
+                          <div className="col-auto">
+                            <span className="bg-primary text-white avatar">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="icon" width="24" height="24" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" /><path d="M12 3v3m0 12v3" /></svg>
+                            </span>
+                          </div>
+                          <div className="col">
+                            <div className="font-weight-bold solo-fact-header">
+                            Number of Hours:
+                            </div>
+                          </div>
+                          <div className="col">
+                            <div className="text-muted">
+                              640 Videos Watched
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-sm-6 col-lg-3">
+                    <div className="card card-sm">
+                      <div className="card-body solo-fact-card">
+                        <div className="row align-items-center">
+                          <div className="col-auto">
+                            <span className="bg-green text-white avatar">
+                              {/* <!-- Download SVG icon from http://tabler-icons.io/i/shopping-cart --> */}
+                              <svg xmlns="http://www.w3.org/2000/svg" className="icon" width="24" height="24" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" /><path d="M12 3v3m0 12v3" /></svg>
+                            </span>
+                          </div>
+                          <div className="col">
+                            <div className="font-weight-bold solo-fact-header">
+                            Number of videos:
+                            </div>
+                          </div>
+                          <div className="col">
+                            <div className="text-muted">
+                              640 Videos Watched
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-sm-6 col-lg-3">
+                    <div className="card card-sm">
+                      <div className="card-body solo-fact-card">
+                        <div className="row align-items-center">
+                          <div className="col-auto">
+                            <span className="bg-twitter text-white avatar">
+                              {/* <!-- Download SVG icon from http://tabler-icons.io/i/brand-twitter --> */}
+                              <svg xmlns="http://www.w3.org/2000/svg" className="icon" width="24" height="24" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" /><path d="M12 3v3m0 12v3" /></svg>
+                            </span>
+                          </div>
+                          <div className="col">
+                            <div className="font-weight-bold solo-fact-header">
+                            Number of videos:
+                            </div>
+                          </div>
+                          <div className="col">
+                            <div className="text-muted">
+                              640 Videos Watched
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-sm-6 col-lg-3">
+                    <div className="card card-sm">
+                      <div className="card-body solo-fact-card">
+                        <div className="row align-items-center">
+                          <div className="col-auto">
+                            <span className="bg-facebook text-white avatar">
+                              {/* <!-- Download SVG icon from http://tabler-icons.io/i/brand-facebook --> */}
+                              <svg xmlns="http://www.w3.org/2000/svg" className="icon" width="24" height="24" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" /><path d="M12 3v3m0 12v3" /></svg>
+                            </span>
+                          </div>
+                          <div className="col">
+                            <div className="font-weight-bold solo-fact-header">
+                            Number of videos:
+                            </div>
+                          </div>
+                          <div className="col">
+                            <div className="text-muted">
+                              640 Videos Watched
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        
         {/* <!-- ======= Plots Section ======= --> */}
 
         <section id="plots">
           <div className="plots-container">
-            <div className="div1 plot-image">
+            <div className="div1 plot-image card">
               <span>Weekly</span>
               {plots && <img src={plots.weekly_avg} alt="" />}
             </div>
-            <div className="div2 plot-image">
+            <div className="div2 plot-image card">
               <span>Daily</span>
               {plots && <img src={plots.hourly_avg} alt="" />}
             </div>
-            <div className="div3 plot-image">
+            <div className="div3 plot-image card">
               <span>Monthly</span>
               {plots && <img src={plots.monthly_avg} alt="" />}
             </div>
-            <div className="div4 plot-image">
+            <div className="div4 plot-image card">
               <span>Top Channels</span>
               {plots && <img src={plots.top_channels} alt="" />}
             </div>
-            <div className="div5 plot-image">
+            <div className="div5 plot-image card">
               <span>Top Genres</span>
               {plots && <img src={plots.top_genres} alt="" />}
             </div>
-            <div className="div6 plot-image">
+            <div className="div6 plot-image card">
               <span>Top Videos</span>
               {plots && <img src={plots.top_videos} alt="" />}
             </div>
@@ -191,6 +317,7 @@ function App() {
     <script src="assets/js/main.js"></script>
 
   </div>
+</html>
 
   );
 }
