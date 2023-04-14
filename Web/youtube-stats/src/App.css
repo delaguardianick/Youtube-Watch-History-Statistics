@@ -43,7 +43,7 @@ input[type="file"] {
 
 
 .body {
-  background-color: #fff;
+  background-color: #f1f5f9;
   color: #333;
   min-height: 100vh; margin:0;
   display:flex; flex-direction:column;
@@ -142,39 +142,6 @@ span {
 }
 
 /*--------------------------------------------------------------
-# Back to top button
---------------------------------------------------------------*/
-.back-to-top {
-  position: fixed;
-  visibility: hidden;
-  opacity: 0;
-  right: 15px;
-  bottom: 15px;
-  z-index: 996;
-  background: #71c55d;
-  width: 40px;
-  height: 40px;
-  border-radius: 4px;
-  transition: all 0.4s;
-}
-
-.back-to-top i {
-  font-size: 28px;
-  color: #fff;
-  line-height: 0;
-}
-
-.back-to-top:hover {
-  background: #8bd07b;
-  color: #fff;
-}
-
-.back-to-top.active {
-  visibility: visible;
-  opacity: 1;
-}
-
-/*--------------------------------------------------------------
 # Header
 --------------------------------------------------------------*/
 #header {
@@ -213,10 +180,6 @@ span {
   box-shadow: 0 3px 7px rgba(0, 0, 0, 0.1);
   padding: 12px 0;
 }
-
-/*--------------------------------------------------------------
-# Navigation Menu
---------------------------------------------------------------*/
 /**
 * Desktop Navigation 
 */
@@ -442,14 +405,15 @@ span {
 # Hero Section
 --------------------------------------------------------------*/
 #main {
-  width: 100%;
+  width: 90%;
   height: calc(100vh - 40px);
-  background: url(img/hero-bg.png) center bottom no-repeat;
+  /* background: url(img/hero-bg.png) center bottom no-repeat; */
   background-size: 100%;
   position: relative;
   margin-top: 3.5em;
-  flex :1 
-  
+  flex :1 ;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #main .main-container{
@@ -466,6 +430,7 @@ span {
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
   margin-right: auto;
   margin-left: auto;
+  background-color: #ffff;
 }
 
 .hero-row{
@@ -627,7 +592,7 @@ span {
 /*--------------------------------------------------------------
 # Plots
 --------------------------------------------------------------*/
-
+/* 
 #main #plots{
   display: flex;
   justify-content: center;
@@ -644,19 +609,27 @@ span {
   grid-column-gap: 0px;
   grid-row-gap: 0px; 
   width: 100%;
-  /* box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; */
-}
-.div1 { grid-area: 1 / 1 / 2 / 2; }
-.div2 { grid-area: 1 / 2 / 2 / 3; }
-.div3 { grid-area: 1 / 3 / 2 / 4; } 
-.div4 { grid-area: 2 / 1 / 3 / 2; }
-.div5 { grid-area: 2 / 2 / 3 / 3; }
-.div6 { grid-area: 2 / 3 / 3 / 4; }
-.div7 { grid-area: 3 / 1 / 4 / 2; }
-.div8 { grid-area: 3 / 2 / 4 / 3; }
-.div9 { grid-area: 3 / 3 / 4 / 4; } 
+  /* box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; } */
 
+  .plot-image {
+    position: relative;
+    padding: 1rem;
+  }
+  
+  .plot-image img {
+    max-width: 100%;
+    height: auto;
+  }
 
+  .plot-image .left-plot-div{
+    padding-top: 1.5rem
+  }
+  
+  .dropdown {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
 
 
 /*--------------------------------------------------------------

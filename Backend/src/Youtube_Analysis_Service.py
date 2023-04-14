@@ -9,6 +9,7 @@ import pandas as pd
 import seaborn as sns
 from datetime import timedelta
 from database.DBHandler import DBHandler
+import json
 
 
 class PlotsService:
@@ -25,13 +26,21 @@ class PlotsService:
 
         return stats
 
-    def fetch_watch_history(self):
-        conn = self.db_handler.connect()
-
-        self.watch_history_df = pd.read_sql_query(
-            "SELECT * from watch_history_dev_takeout_id WHERE is_available is true",
-            conn,
-        )
+    def fetch_watch_history(self, local=False):
+        local = True
+        if local:
+            self.watch_history_df = pd.read_sql_query(
+                "SELECT * from watch_history_dev_takeout_id WHERE is_available = 1",
+                sqlite3.connect(
+                    "C:/Users/Gordak/Documents/Nick/Projects/Coding/youtube-stats/Backend/src/SQLite/YoutubeStats.sqlite"
+                ),
+            )
+        else:
+            conn = self.db_handler.connect()
+            self.watch_history_df = pd.read_sql_query(
+                "SELECT * from watch_history_dev_takeout_id WHERE is_available is true",
+                conn,
+            )
 
         return self.watch_history_df
 
@@ -41,9 +50,9 @@ class PlotsService:
         plots["weekly_avg"] = self.plot_weekly_avg(wh_df, date_ranges)
         plots["hourly_avg"] = self.plot_avg_per_hour(wh_df, date_ranges)
         plots["monthly_avg"] = self.plot_monthly_avg(wh_df, date_ranges)
-        plots["top_channels"] = self.plot_top_viewed_channels(wh_df)
-        plots["top_genres"] = self.plot_top_genres(wh_df)
-        plots["top_videos"] = self.plot_top_videos(wh_df)
+        # plots["top_channels"] = self.plot_top_viewed_channels(wh_df)
+        # plots["top_genres"] = self.plot_top_genres(wh_df)
+        # plots["top_videos"] = self.plot_top_videos(wh_df)
         return plots  # {"plot_name" : "plot_url"}
 
     def __filter_df_year_range(self, wh_df, beginning_date):
@@ -107,7 +116,26 @@ class PlotsService:
             ax.set_ylabel("Hours watched on average")
             ax.grid(True)
 
-        return self.__get_plot_url(ax)
+        # # Create JSON object
+        # chart_data = {
+        #     "categories": list(weekdays_count_df["day_of_week"]),
+        #     "series": [
+        #         {
+        #             "name": "Avg Watch Time / Weekday",
+        #             "data": list(weekdays_count_df["hours_watched_avg"]),
+        #         }
+        #     ],
+        # }
+
+        chart_data = self.plots_to_json(
+            weekdays_count_df,
+            "day_of_week",
+            "hours_watched_avg",
+            "Average / Weekday",
+        )
+
+        return json.dumps(chart_data)
+        # return self.__get_plot_url(ax)
 
     def plot_avg_per_hour(self, wh_df, date_ranges):
         videos_by_hour = wh_df[["video_length_secs", "hour_time"]]
@@ -136,7 +164,14 @@ class PlotsService:
             # Rotate the x-axis labels
             plt.xticks(rotation=45)
 
-        return self.__get_plot_url(ax)
+        chart_data = self.plots_to_json(
+            videos_by_hour,
+            "hour_time",
+            "minutes_watched_avg",
+            "Average / Hour",
+        )
+
+        return json.dumps(chart_data)
 
     def plot_monthly_avg(self, wh_df, date_ranges):
         videos_by_month = wh_df[["video_length_secs", "month_date"]]
@@ -167,7 +202,14 @@ class PlotsService:
             # Rotate the x-axis labels
             plt.xticks(rotation=45)
 
-        return self.__get_plot_url(ax)
+        chart_data = self.plots_to_json(
+            videos_by_month,
+            "month_date",
+            "hours_watched_avg",
+            "Average / Month",
+        )
+
+        return json.dumps(chart_data)
 
     def plot_top_viewed_channels(self, wh_df):
         # Filter dataframe and group by desired index
@@ -499,3 +541,16 @@ class PlotsService:
         png_base64 = base64.b64encode(png_output.getvalue()).decode("utf-8")
         plt.close(fig)
         return f"data:image/png;base64,{png_base64}"
+
+    def plots_to_json(self, df, x: str, y: str, title: str):  # Create JSON object
+        chart_data = {
+            "categories": list(df[x]),
+            "series": [
+                {
+                    "name": title,
+                    "data": list(df[y]),
+                }
+            ],
+        }
+
+        return chart_data

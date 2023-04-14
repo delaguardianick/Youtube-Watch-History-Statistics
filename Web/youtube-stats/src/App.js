@@ -5,6 +5,7 @@ import { useState, useEffect, useRef} from 'react';
 import {parseISO} from 'date-fns';
 import "react-datepicker/dist/react-datepicker.css";
 import { Container, Row, Col, Card, Dropdown } from "react-bootstrap";
+import Chart from 'react-apexcharts';
 
 function App() {
   const [plots, setPlots] = useState({});
@@ -18,8 +19,22 @@ function App() {
   const getAllPlotsUrl = async () => {
     const response = await fetch('http://localhost:8000/plots/all');
     const data = await response.json();
-    setPlots(data);
+    console.log("data: ")
+    console.log(data)
+    const charts = setChartsData(data);
+    setPlots(charts);
   };
+
+  const setChartsData = (chartsData) => {
+      // for every plot in chartsData, create a new chart
+      const charts = {};
+      for (let [key, value] of Object.entries(chartsData)) {
+        let plot = JSON.parse(value);
+        let options = chartOptionsForPlot(plot);
+        charts[key] = {options, plot};
+      }
+      return charts;
+  }
 
   const handleFileSelect = async (event) => {
     const file = event.target.files[0];
@@ -58,6 +73,33 @@ function App() {
     return `${monthNames[month]} ${day}, ${year}`;
   };
 
+  const chartOptionsForPlot = (plot) => {
+    console.log()
+    var options = {
+      chart: {
+      type: 'line',
+      height: 'auto',
+      width: '100%',
+      toolbar: {
+        show: false,
+        offsetX: -500,
+        offsetY: 0,
+      },
+      theme:{
+        mode: 'dark',
+      },
+      title: {
+        text : "AA"
+      }
+    },
+    xaxis: {
+      categories: plot?.categories || [],
+    },
+  };
+
+  return options;
+};
+
   useEffect(() => {
     getAllPlotsUrl();
     getDataFrameStats()
@@ -70,11 +112,6 @@ function App() {
       <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
       <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
       <title>Dashboard - Tabler - Premium and Open Source dashboard template with responsive and high quality UI.</title>
-      <link href="./dist/css/tabler.min.css?1674944402" rel="stylesheet"/>
-      <link href="./dist/css/tabler-flags.min.css?1674944402" rel="stylesheet"/>
-      <link href="./dist/css/tabler-payments.min.css?1674944402" rel="stylesheet"/>
-      <link href="./dist/css/tabler-vendors.min.css?1674944402" rel="stylesheet"/>
-      <link href="./dist/css/demo.min.css?1674944402" rel="stylesheet"/>
     </head>
   
   <div className="body">
@@ -264,8 +301,10 @@ function App() {
                       </Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
-                  {plots && <img src={plots[leftPlot]} alt="" />}
-                 {plots && plots[leftPlot] && <Chart options={plots[leftPlot].options} series={plots[leftPlot].plot.series} type="line" />}
+                  {/* {plots && <img src={plots[leftPlot]} alt="" />} */}
+                  <div className='left-plot-div'>
+                    {plots && plots[leftPlot] && <Chart options={plots[leftPlot].options} series={plots[leftPlot].plot.series} type="line" />}
+                  </div>
 
                 </Card>
               </Col>
