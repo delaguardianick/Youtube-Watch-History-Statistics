@@ -142,39 +142,6 @@ span {
 }
 
 /*--------------------------------------------------------------
-# Back to top button
---------------------------------------------------------------*/
-.back-to-top {
-  position: fixed;
-  visibility: hidden;
-  opacity: 0;
-  right: 15px;
-  bottom: 15px;
-  z-index: 996;
-  background: #71c55d;
-  width: 40px;
-  height: 40px;
-  border-radius: 4px;
-  transition: all 0.4s;
-}
-
-.back-to-top i {
-  font-size: 28px;
-  color: #fff;
-  line-height: 0;
-}
-
-.back-to-top:hover {
-  background: #8bd07b;
-  color: #fff;
-}
-
-.back-to-top.active {
-  visibility: visible;
-  opacity: 1;
-}
-
-/*--------------------------------------------------------------
 # Header
 --------------------------------------------------------------*/
 #header {
@@ -213,10 +180,6 @@ span {
   box-shadow: 0 3px 7px rgba(0, 0, 0, 0.1);
   padding: 12px 0;
 }
-
-/*--------------------------------------------------------------
-# Navigation Menu
---------------------------------------------------------------*/
 /**
 * Desktop Navigation 
 */
@@ -656,6 +619,10 @@ span {
   .plot-image img {
     max-width: 100%;
     height: auto;
+  }
+
+  .plot-image .left-plot-div{
+    padding-top: 1.5rem
   }
   
   .dropdown {

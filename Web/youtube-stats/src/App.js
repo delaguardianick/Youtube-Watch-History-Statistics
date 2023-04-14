@@ -74,11 +74,23 @@ function App() {
   };
 
   const chartOptionsForPlot = (plot) => {
+    console.log()
     var options = {
       chart: {
       type: 'line',
       height: 'auto',
       width: '100%',
+      toolbar: {
+        show: false,
+        offsetX: -500,
+        offsetY: 0,
+      },
+      theme:{
+        mode: 'dark',
+      },
+      title: {
+        text : "AA"
+      }
     },
     xaxis: {
       categories: plot?.categories || [],
@@ -289,8 +301,10 @@ function App() {
                       </Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
-                  {plots && <img src={plots[leftPlot]} alt="" />}
-                 {plots && plots[leftPlot] && <Chart options={plots[leftPlot].options} series={plots[leftPlot].plot.series} type="line" />}
+                  {/* {plots && <img src={plots[leftPlot]} alt="" />} */}
+                  <div className='left-plot-div'>
+                    {plots && plots[leftPlot] && <Chart options={plots[leftPlot].options} series={plots[leftPlot].plot.series} type="line" />}
+                  </div>
 
                 </Card>
               </Col>
