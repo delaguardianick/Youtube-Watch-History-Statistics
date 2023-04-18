@@ -337,13 +337,33 @@ function App() {
           </Container>
         </section>
 
-
-        {/* <div>
-            <div id="chart1">
-             { plots && plots["weekly_avg"] && console.log(chartOptionsForPlot(plots["weekly_avg"]))}
-             {plots && plots["weekly_avg"] && <Chart options={plots["weekly_avg"].options} series={plots["weekly_avg"].plot.series} type="line" />}
-          </div>
-        </div> */}
+        {/* <section id="plots">
+          <div className="plots-container">
+            <div className="div1 plot-image card">
+              <span>Weekly</span>
+              {plots && <img src={plots.weekly_avg} alt="" />}
+            </div>
+            <div className="div2 plot-image card">
+              <span>Daily</span>
+              {plots && <img src={plots.hourly_avg} alt="" />}
+            </div>
+            <div className="div3 plot-image card">
+              <span>Monthly</span>
+              {plots && <img src={plots.monthly_avg} alt="" />}
+            </div>
+            <div className="div4 plot-image card">
+              <span>Top Channels</span>
+              {plots && <img src={plots.top_channels} alt="" />}
+            </div>
+            <div className="div5 plot-image card">
+              <span>Top Genres</span>
+              {plots && <img src={plots.top_genres} alt="" />}
+            </div>
+            <div className="div6 plot-image card">
+              <span>Top Videos</span>
+              {plots && <img src={plots.top_videos} alt="" />}
+            </div>
+        </section>  */}
       </div>
     </main>
 
