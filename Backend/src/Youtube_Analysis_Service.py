@@ -27,7 +27,7 @@ class PlotsService:
         return stats
 
     def fetch_watch_history(self, local=False):
-        local = True
+        # local = False
         if local:
             self.watch_history_df = pd.read_sql_query(
                 "SELECT * from watch_history_dev_takeout_id WHERE is_available = 1",
