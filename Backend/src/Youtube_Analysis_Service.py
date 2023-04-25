@@ -12,6 +12,16 @@ from database.DBHandler import DBHandler
 import json
 
 
+class Plot:
+    def __init__(self, plot_name, plot_url, plot_json):
+        self.plot_name = plot_name
+        self.plot_url = plot_url
+        self.plot_json = plot_json
+
+    def __repr__(self):
+        return f"Plot({self.plot_name}, {self.plot_url, {self.plot_json}})"
+
+
 class PlotsService:
     watch_history_df = None
 
@@ -47,12 +57,13 @@ class PlotsService:
     def get_all_plots(self):
         wh_df, date_ranges = self.analyze_data()
         plots = {}
-        plots["weekly_avg"] = self.plot_weekly_avg(wh_df, date_ranges)
-        plots["hourly_avg"] = self.plot_avg_per_hour(wh_df, date_ranges)
-        plots["monthly_avg"] = self.plot_monthly_avg(wh_df, date_ranges)
-        # plots["top_channels"] = self.plot_top_viewed_channels(wh_df)
-        # plots["top_genres"] = self.plot_top_genres(wh_df)
-        # plots["top_videos"] = self.plot_top_videos(wh_df)
+        plots["weekly_avg"] = self.plot_weekly_avg(wh_df, date_ranges).plot_url
+        plots["hourly_avg"] = self.plot_avg_per_hour(wh_df, date_ranges).plot_url
+        plots["monthly_avg"] = self.plot_monthly_avg(wh_df, date_ranges).plot_url
+        plots["top_channels"] = self.plot_top_viewed_channels(wh_df).plot_url
+        plots["top_genres"] = self.plot_top_genres(wh_df).plot_url
+        # plots["top_videos"] = self.plot_top_videos(wh_df).plot_url
+
         return plots  # {"plot_name" : "plot_url"}
 
     def __filter_df_year_range(self, wh_df, beginning_date):
@@ -134,8 +145,7 @@ class PlotsService:
             "Average / Weekday",
         )
 
-        return json.dumps(chart_data)
-        # return self.__get_plot_url(ax)
+        return Plot("weekly_avg", self.__get_plot_url(ax), json.dumps(chart_data))
 
     def plot_avg_per_hour(self, wh_df, date_ranges):
         videos_by_hour = wh_df[["video_length_secs", "hour_time"]]
@@ -171,7 +181,7 @@ class PlotsService:
             "Average / Hour",
         )
 
-        return json.dumps(chart_data)
+        return Plot("hourly_avg", self.__get_plot_url(ax), json.dumps(chart_data))
 
     def plot_monthly_avg(self, wh_df, date_ranges):
         videos_by_month = wh_df[["video_length_secs", "month_date"]]
@@ -209,7 +219,7 @@ class PlotsService:
             "Average / Month",
         )
 
-        return json.dumps(chart_data)
+        return Plot("monthly_avg", self.__get_plot_url(ax), json.dumps(chart_data))
 
     def plot_top_viewed_channels(self, wh_df):
         # Filter dataframe and group by desired index
@@ -288,7 +298,7 @@ class PlotsService:
         # Show the plot
         plt.tight_layout()
 
-        return self.__get_plot_url(ax1)
+        return Plot("top_channels", self.__get_plot_url(ax1), None)
 
     def plot_top_genres(self, wh_df):
         # Filter dataframe and group by desired index
@@ -377,7 +387,7 @@ class PlotsService:
         # Show the plot
         plt.tight_layout()
 
-        return self.__get_plot_url(ax)
+        return Plot("top_genres", self.__get_plot_url(ax), None)
 
     def plot_top_videos(self, wh_df):
         # Group the DataFrame by video title and channel and count the occurrences
@@ -415,7 +425,7 @@ class PlotsService:
             # Rotate the X-axis labels to avoid overlapping
             plt.xticks(rotation=45, ha="right")
 
-        return self.__get_plot_url(ax)
+        return Plot("top_videos", self.__get_plot_url(ax), None)
 
     # Get weeks diff between date first and last video in df
     def __calculate_time_difference(self, date_range):

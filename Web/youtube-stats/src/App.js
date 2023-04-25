@@ -5,7 +5,6 @@ import { useState, useEffect, useRef} from 'react';
 import {parseISO} from 'date-fns';
 import "react-datepicker/dist/react-datepicker.css";
 import { Container, Row, Col, Card, Dropdown } from "react-bootstrap";
-import Chart from 'react-apexcharts';
 
 function App() {
   const [plots, setPlots] = useState({});
@@ -21,20 +20,22 @@ function App() {
     const data = await response.json();
     console.log("data: ")
     console.log(data)
-    const charts = setChartsData(data);
-    setPlots(charts);
+    // const charts = setChartsData(data);
+    // setPlots(charts);
+    setPlots(data);
   };
 
-  const setChartsData = (chartsData) => {
-      // for every plot in chartsData, create a new chart
-      const charts = {};
-      for (let [key, value] of Object.entries(chartsData)) {
-        let plot = JSON.parse(value);
-        let options = chartOptionsForPlot(plot);
-        charts[key] = {options, plot};
-      }
-      return charts;
-  }
+  // const setChartsData = (chartsData) => {
+  //     // for every plot in chartsData, create a new chart
+  //     const charts = {};
+  //     for (let [key, value] of Object.entries(chartsData)) {
+  //       console.log(value)
+  //       let plot = JSON.parse(value);
+  //       let options = chartOptionsForPlot(plot);
+  //       charts[key] = {options, plot};
+  //     }
+  //     return charts;
+  // }
 
   const handleFileSelect = async (event) => {
     const file = event.target.files[0];
@@ -73,33 +74,6 @@ function App() {
     return `${monthNames[month]} ${day}, ${year}`;
   };
 
-  const chartOptionsForPlot = (plot) => {
-    console.log()
-    var options = {
-      chart: {
-      type: 'line',
-      height: 'auto',
-      width: '100%',
-      toolbar: {
-        show: false,
-        offsetX: -500,
-        offsetY: 0,
-      },
-      theme:{
-        mode: 'dark',
-      },
-      title: {
-        text : "AA"
-      }
-    },
-    xaxis: {
-      categories: plot?.categories || [],
-    },
-  };
-
-  return options;
-};
-
   useEffect(() => {
     getAllPlotsUrl();
     getDataFrameStats()
@@ -132,7 +106,6 @@ function App() {
               <li><a className="nav-link scrollto" href="#contact">Github</a></li>
               <li>
               <label onChange={handleFileSelect} htmlFor="formId" className="btn-get-started scrollto">
-                Upload Takeout
                 <input name="" type="file" id="formId" hidden />
               </label>
             </li>
@@ -303,7 +276,8 @@ function App() {
                   </Dropdown>
                   {/* {plots && <img src={plots[leftPlot]} alt="" />} */}
                   <div className='left-plot-div'>
-                    {plots && plots[leftPlot] && <Chart options={plots[leftPlot].options} series={plots[leftPlot].plot.series} type="line" />}
+                    {/* {plots && plots[leftPlot] && <Chart options={plots[leftPlot].options} series={plots[leftPlot].plot.series} type="line" />} */}
+                    {plots && <img src={plots[leftPlot]} alt="" />}
                   </div>
 
                 </Card>
@@ -325,12 +299,16 @@ function App() {
                       <Dropdown.Item onClick={() => setRightPlot("top_genres")}>
                         Top Genres
                       </Dropdown.Item>
-                      <Dropdown.Item onClick={() => setRightPlot("top_videos")}>
+                      {/* <Dropdown.Item onClick={() => setRightPlot("top_videos")}>
                         Top Videos
-                      </Dropdown.Item>
+                      </Dropdown.Item> */}
                     </Dropdown.Menu>
                   </Dropdown>
-                  {plots && <img src={plots[rightPlot]} alt="" />}
+                  <div className='right-plot-div'>
+                    {plots && <img src={plots[rightPlot]} alt="" />}
+
+                    {/* {plots && plots[rightPlot] && <Chart options={plots[rightPlot].options} series={plots[rightPlot].plot.series} type="line" />} */}
+                  </div>
                 </Card>
               </Col>
             </Row>
