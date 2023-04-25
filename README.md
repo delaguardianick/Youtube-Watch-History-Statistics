@@ -2,8 +2,7 @@
 ###### Analyze your youtube statistics.
 
 ### MVP (updated 3/28/2023)
-![image](https://user-images.githubusercontent.com/52568848/228353571-a4cbe072-5bf6-4226-a156-03f5dd25782d.png)
-
+![image](https://user-images.githubusercontent.com/52568848/234400566-1036182f-537d-491d-9caa-e350854a3432.png)
 
 #### Dependencies
 - Virtual Environment
