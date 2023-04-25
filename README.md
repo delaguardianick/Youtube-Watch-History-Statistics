@@ -1,7 +1,7 @@
 # WIP - Youtube Stats Plus
 ###### Analyze your youtube statistics.
 
-### MVP (updated 3/28/2023)3
+### MVP (updated 3/28/2023)
 ![image](https://user-images.githubusercontent.com/52568848/228353571-a4cbe072-5bf6-4226-a156-03f5dd25782d.png)
 
 
