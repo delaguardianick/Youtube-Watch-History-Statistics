@@ -10,6 +10,7 @@ import seaborn as sns
 from datetime import timedelta
 from database.DBHandler import DBHandler
 import json
+import numpy as np
 
 
 class Plot:
@@ -29,14 +30,6 @@ class PlotsService:
 
     def __init__(self):
         self.db_handler = DBHandler()
-
-    # Get datestats from watch history
-    def get_df_stats(self):
-        stats = {}
-        stats["start_date"] = self.watch_history_df["date_"].min()
-        stats["end_date"] = self.watch_history_df["date_"].max()
-        stats = self.get_general_stats(stats)
-        return stats
 
     def fetch_watch_history(self, local=False):
         # local = False
@@ -71,20 +64,28 @@ class PlotsService:
 
         return wh_df, date_ranges
 
-    def get_general_stats(self, gen_stats={}) -> dict:
+    # Get datestats from watch history
+    def get_df_stats(self) -> dict:
         df = self.filtered_watch_history_df
-        gen_stats["total_watch_time_in_hours"] = df["video_length_secs"].sum() / 3600
-        gen_stats["total_videos_watched"] = df.shape[0]
-        gen_stats["most_viewed_month"] = self._most_viewed_month(df)
-        gen_stats["fav_creator_by_videos"] = self._fav_creator_by_videos(df)
+        stats = {}
+        stats["start_date"] = df["date_"].min()
+        stats["end_date"] = df["date_"].max()
 
-        return gen_stats
+        stats["watch_time_in_hours"] = round(df["video_length_secs"].sum() / 3600, 1)
+        stats["videos_watched"] = df.shape[0]
+        stats["most_viewed_month"] = self._most_viewed_month(df)
+        stats["fav_creator_by_videos"] = self._fav_creator_by_videos(df)
+
+        return json.dumps(stats, default=self.default_serialization)
 
     def _most_viewed_month(self, df) -> tuple:
         monthly_hours = df.groupby("month_date")["video_length_secs"].sum() / 3600
 
+        # Map to month number to name
+        monthly_hours.index = monthly_hours.index.map(self.get_mappings("months"))
+
         most_watched_month = monthly_hours.idxmax()
-        most_watched_month_count = monthly_hours.max()
+        most_watched_month_count = round(monthly_hours.max(), 1)
 
         return (most_watched_month, most_watched_month_count)
 
@@ -92,7 +93,7 @@ class PlotsService:
         channel_counts = df.groupby("channel_name").size()
 
         most_viewed_channel = channel_counts.idxmax()
-        most_viewed_channel_count = channel_counts.max()
+        most_viewed_channel_count = round(channel_counts.max(), 1)
 
         return (most_viewed_channel, most_viewed_channel_count)
 
@@ -590,3 +591,9 @@ class PlotsService:
         }
 
         return chart_data
+
+    # function to convert np.int64 to int
+    def default_serialization(self, o):
+        if isinstance(o, np.int64):
+            return int(o)
+        raise TypeError
