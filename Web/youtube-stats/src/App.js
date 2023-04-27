@@ -149,7 +149,7 @@ function App() {
                           </div>
                           <div className="col">
                             <div className="text-muted">
-                            {/* {takeoutStats && takeoutStats["videos_watched"] && <span> {takeoutStats["videos_watched"]} </span>} */}
+                            {!isLoading && takeoutStats && takeoutStats.watch_time_in_hours && <span>{takeoutStats.watch_time_in_hours}</span>}
                             </div>
                           </div>
                         </div>
@@ -174,7 +174,6 @@ function App() {
                           <div className="col">
                             <div className="text-muted">
                             {!isLoading && takeoutStats && takeoutStats.videos_watched && <span>{takeoutStats.videos_watched}</span>}
-                            {console.log(takeoutStats.videos_watched)}
                             </div>
                           </div>
                         </div>
@@ -193,12 +192,12 @@ function App() {
                           </div>
                           <div className="col">
                             <div className="font-weight-bold solo-fact-header">
-                            Number of videos:
+                            Favorite creator:
                             </div>
                           </div>
                           <div className="col">
                             <div className="text-muted">
-                              {/* {takeoutStats && takeoutStats[total_videos_watched] && <span> {takeoutStats[videos_watched]} </span>} */}
+                              {!isLoading && takeoutStats && takeoutStats.fav_creator_by_videos && <span>{takeoutStats.fav_creator_by_videos[0]} {takeoutStats.fav_creator_by_videos[1]} </span>}
                             </div>
                           </div>
                         </div>
@@ -217,12 +216,12 @@ function App() {
                           </div>
                           <div className="col">
                             <div className="font-weight-bold solo-fact-header">
-                            Number of videos:
+                            Most Watched Month:
                             </div>
                           </div>
                           <div className="col">
                             <div className="text-muted">
-                              640 Videos Watched
+                              {!isLoading && takeoutStats && takeoutStats.most_viewed_month && <span>{takeoutStats.most_viewed_month[0]} {takeoutStats.most_viewed_month[1]} </span>}
                             </div>
                           </div>
                         </div>
