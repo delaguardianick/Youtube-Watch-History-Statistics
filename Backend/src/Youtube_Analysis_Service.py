@@ -10,6 +10,7 @@ import seaborn as sns
 from datetime import timedelta
 from database.DBHandler import DBHandler
 import json
+import numpy as np
 
 
 class Plot:
@@ -24,17 +25,11 @@ class Plot:
 
 class PlotsService:
     watch_history_df = None
+    filtered_watch_history_df = None
+    date_ranges = None
 
     def __init__(self):
         self.db_handler = DBHandler()
-
-    # Get datestats from watch history
-    def get_df_stats(self):
-        stats = {}
-        stats["start_date"] = self.watch_history_df["date_"].min()
-        stats["end_date"] = self.watch_history_df["date_"].max()
-
-        return stats
 
     def fetch_watch_history(self, local=False):
         # local = False
@@ -52,10 +47,58 @@ class PlotsService:
                 conn,
             )
 
+        self.filtered_watch_history_df, self.date_ranges = self.analyze_data()
+
         return self.watch_history_df
 
+    def analyze_data(self):
+        # filter df by year range and get ranges
+        wh_df = self.watch_history_df
+        dates_in_range = self.__get_last_12_months_dates(wh_df)
+        wh_df = self.__filter_df_year_range(wh_df, dates_in_range[0])
+        date_ranges = self.__calculate_time_difference(dates_in_range)
+
+        # Change string to int
+        wh_df = wh_df[wh_df["video_length_secs"].notnull()].copy()
+        wh_df["video_length_secs"] = wh_df["video_length_secs"].astype(int)
+
+        return wh_df, date_ranges
+
+    # Get datestats from watch history
+    def get_df_stats(self) -> dict:
+        df = self.filtered_watch_history_df
+        stats = {}
+        stats["start_date"] = df["date_"].min()
+        stats["end_date"] = df["date_"].max()
+
+        stats["watch_time_in_hours"] = round(df["video_length_secs"].sum() / 3600, 1)
+        stats["videos_watched"] = df.shape[0]
+        stats["most_viewed_month"] = self._most_viewed_month(df)
+        stats["fav_creator_by_videos"] = self._fav_creator_by_videos(df)
+
+        return json.dumps(stats, default=self.default_serialization)
+
+    def _most_viewed_month(self, df) -> tuple:
+        monthly_hours = df.groupby("month_date")["video_length_secs"].sum() / 3600
+
+        # Map to month number to name
+        monthly_hours.index = monthly_hours.index.map(self.get_mappings("months"))
+
+        most_watched_month = monthly_hours.idxmax()
+        most_watched_month_count = round(monthly_hours.max(), 1)
+
+        return (most_watched_month, most_watched_month_count)
+
+    def _fav_creator_by_videos(self, df) -> tuple:
+        channel_counts = df.groupby("channel_name").size()
+
+        most_viewed_channel = channel_counts.idxmax()
+        most_viewed_channel_count = round(channel_counts.max(), 1)
+
+        return (most_viewed_channel, most_viewed_channel_count)
+
     def get_all_plots(self):
-        wh_df, date_ranges = self.analyze_data()
+        wh_df, date_ranges = self.filtered_watch_history_df, self.date_ranges
         plots = {}
         plots["weekly_avg"] = self.plot_weekly_avg(wh_df, date_ranges).plot_url
         plots["hourly_avg"] = self.plot_avg_per_hour(wh_df, date_ranges).plot_url
@@ -80,22 +123,6 @@ class PlotsService:
         twelve_months_timedelta = timedelta(days=365)
         first_video_in_range = last_video_in_range - twelve_months_timedelta
         return (first_video_in_range, last_video_in_range)
-
-    def analyze_data(self):
-        wh_df = self.watch_history_df
-        # filter df by year range and get ranges
-        dates_in_range = self.__get_last_12_months_dates(wh_df)
-        wh_df = self.__filter_df_year_range(wh_df, dates_in_range[0])
-        date_ranges = self.__calculate_time_difference(dates_in_range)
-
-        # Get total video count
-        # video_count_in_df = len(wh_df.watch_id)
-
-        # Change string to int
-        wh_df = wh_df[wh_df["video_length_secs"].notnull()].copy()
-        wh_df["video_length_secs"] = wh_df["video_length_secs"].astype(int)
-
-        return wh_df, date_ranges
 
     def plot_weekly_avg(self, wh_df, date_ranges):
         # Filter dataframe and group by desired index
@@ -564,3 +591,9 @@ class PlotsService:
         }
 
         return chart_data
+
+    # function to convert np.int64 to int
+    def default_serialization(self, o):
+        if isinstance(o, np.int64):
+            return int(o)
+        raise TypeError

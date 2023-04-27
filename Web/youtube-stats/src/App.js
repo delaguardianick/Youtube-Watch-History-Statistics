@@ -9,6 +9,7 @@ import { Container, Row, Col, Card, Dropdown } from "react-bootstrap";
 function App() {
   const [plots, setPlots] = useState({});
   const inputTakeoutRef = useRef(null);
+  const [isLoading, setLoading] = useState(true);
   const [takeoutStats, setDataFrameStats] = useState({});
   const [dateStartRange, setDateStartRange] = useState(new Date());
   const [dateEndRange, setDateEndRange] = useState(new Date());
@@ -18,24 +19,10 @@ function App() {
   const getAllPlotsUrl = async () => {
     const response = await fetch('http://localhost:8000/plots/all');
     const data = await response.json();
-    console.log("data: ")
-    console.log(data)
     // const charts = setChartsData(data);
     // setPlots(charts);
     setPlots(data);
   };
-
-  // const setChartsData = (chartsData) => {
-  //     // for every plot in chartsData, create a new chart
-  //     const charts = {};
-  //     for (let [key, value] of Object.entries(chartsData)) {
-  //       console.log(value)
-  //       let plot = JSON.parse(value);
-  //       let options = chartOptionsForPlot(plot);
-  //       charts[key] = {options, plot};
-  //     }
-  //     return charts;
-  // }
 
   const handleFileSelect = async (event) => {
     const file = event.target.files[0];
@@ -49,18 +36,19 @@ function App() {
   };
 
   const getDataFrameStats = async () => {
+    setLoading(true);
     const response = await fetch('http://localhost:8000/stats');
-    const data = await response.json();
-    console.log(parseISO(data.start_date), parseISO(data.end_date));
+    const  data = JSON.parse(await response.json());
     if (data.start_date === null || data.end_date === null) 
       {
-      // setDateStartRange(Date.now());
-      // setDateEndRange(Date.now());
+      setDateStartRange(Date.now());
+      setDateEndRange(Date.now());
     } else {
       setDateStartRange(parseISO(data.start_date));
       setDateEndRange(parseISO(data.end_date));
     }
     setDataFrameStats(data);
+    setLoading(false);
   };
 
   const dateObjToString = (dateObj) => {
@@ -161,7 +149,7 @@ function App() {
                           </div>
                           <div className="col">
                             <div className="text-muted">
-                              640 Videos Watched
+                            {!isLoading && takeoutStats && takeoutStats.watch_time_in_hours && <span>{takeoutStats.watch_time_in_hours}</span>}
                             </div>
                           </div>
                         </div>
@@ -185,7 +173,7 @@ function App() {
                           </div>
                           <div className="col">
                             <div className="text-muted">
-                              640 Videos Watched
+                            {!isLoading && takeoutStats && takeoutStats.videos_watched && <span>{takeoutStats.videos_watched}</span>}
                             </div>
                           </div>
                         </div>
@@ -204,12 +192,12 @@ function App() {
                           </div>
                           <div className="col">
                             <div className="font-weight-bold solo-fact-header">
-                            Number of videos:
+                            Favorite creator:
                             </div>
                           </div>
                           <div className="col">
                             <div className="text-muted">
-                              640 Videos Watched
+                              {!isLoading && takeoutStats && takeoutStats.fav_creator_by_videos && <span>{takeoutStats.fav_creator_by_videos[0]} {takeoutStats.fav_creator_by_videos[1]} </span>}
                             </div>
                           </div>
                         </div>
@@ -228,12 +216,12 @@ function App() {
                           </div>
                           <div className="col">
                             <div className="font-weight-bold solo-fact-header">
-                            Number of videos:
+                            Most Watched Month:
                             </div>
                           </div>
                           <div className="col">
                             <div className="text-muted">
-                              640 Videos Watched
+                              {!isLoading && takeoutStats && takeoutStats.most_viewed_month && <span>{takeoutStats.most_viewed_month[0]} {takeoutStats.most_viewed_month[1]} </span>}
                             </div>
                           </div>
                         </div>
