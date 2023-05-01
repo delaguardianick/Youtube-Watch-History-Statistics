@@ -18,8 +18,7 @@
 
 #### Installing dependencies:
 - Backend:
-  - `pip install --upgrade pip` ?? needed?
-  - (TODO: install requirements)
+  - `pip install -r requirements.txt`
 - Frontend:
   - `cd \Web\youtube-stats`
   - `npm install`
