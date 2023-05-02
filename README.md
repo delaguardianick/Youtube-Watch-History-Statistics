@@ -6,7 +6,7 @@
 
 
 ## Installation
-- run `git clone https://github.com/delaguardianick/YT-Watch-History-Stats.git` in desired folder
+- Run `git clone https://github.com/delaguardianick/YT-Watch-History-Stats.git` in desired folder
 - `cd YT-Watch-History-Stats` (go into cloned project)
 #### Virtual Environment:
 - Create virtual environment:
@@ -38,9 +38,10 @@
 - In another terminal: run the API server
   - `cd \Backend\src`
   - `uvicorn main:app --reload --host 0.0.0.0 --port 8000`
+  - For debugging of the backend, run the main.py file inside vscode in debugger mode, this will start the server and allow breakpoints to be placed in the python code
 - Open project in desired IDE
   - `code .` if using VScode
-  - Keep both terminal open
+  - Keep both terminals open
     - Web changes refresh automatically
     - Backend changes require restart of API server
 
