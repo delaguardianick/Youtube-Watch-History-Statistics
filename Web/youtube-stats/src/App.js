@@ -1,10 +1,9 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import './App.css';
-// import './dist/output.css';
 import { useState, useEffect, useRef} from 'react';
 import {parseISO} from 'date-fns';
 import "react-datepicker/dist/react-datepicker.css";
-import { Container, Row, Col, Card, Dropdown } from "react-bootstrap";
+import { Container, Row, Col, Card, Dropdown, Spinner } from "react-bootstrap";
 
 function App() {
   const [plots, setPlots] = useState({});
@@ -15,16 +14,19 @@ function App() {
   const [dateEndRange, setDateEndRange] = useState(new Date());
   const [leftPlot, setLeftPlot] = useState("weekly_avg");
   const [rightPlot, setRightPlot] = useState("top_channels");
+  const [takeoutId, setTakeoutId] = useState(null);
 
   const getAllPlotsUrl = async () => {
+    setLoading(true);
     const response = await fetch('http://localhost:8000/plots/all');
     const data = await response.json();
     // const charts = setChartsData(data);
     // setPlots(charts);
     setPlots(data);
+    setLoading(false);
   };
 
-  const handleFileSelect = async (event) => {
+  const uploadTakeout = async (event) => {
     const file = event.target.files[0];
     const formData = new FormData();
     formData.append('file', file);
@@ -33,6 +35,8 @@ function App() {
       body: formData,
     });
     const data = await response.json();
+    setTakeoutId(data.takeout_id);
+    console.log(takeoutId)
   };
 
   const getDataFrameStats = async () => {
@@ -93,7 +97,7 @@ function App() {
               <li><a className="nav-link scrollto" href="#help">Help</a></li>
               <li><a className="nav-link scrollto" href="#contact">Github</a></li>
               <li>
-              <label onChange={handleFileSelect} htmlFor="formId" className="btn-get-started scrollto">
+              <label onChange={uploadTakeout} htmlFor="formId" className="btn-get-started scrollto">
                 <input name="" type="file" id="formId" hidden />
               </label>
             </li>
@@ -114,7 +118,7 @@ function App() {
             <h2>Analyze your youtube watch trends</h2>
           </div>
           <div className="hero-container hero-right" data-aos="fade-in">
-          <label onChange={handleFileSelect} htmlFor="formId" className="btn-get-started scrollto">
+          <label onChange={uploadTakeout} htmlFor="formId" className="btn-get-started scrollto">
                 Upload Takeout
                 <input name="" type="file" id="formId" hidden />
             </label>
@@ -243,7 +247,7 @@ function App() {
               <Col sm={6} className="mb-3">
                 <Card className="plot-image">
                   <Dropdown>
-                    <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+                    <Dropdown.Toggle variant="dark" id="dropdown-basic">
                       {leftPlot === "weekly_avg"
                         ? "Weekly"
                         : leftPlot === "hourly_avg"
@@ -264,8 +268,13 @@ function App() {
                   </Dropdown>
                   {/* {plots && <img src={plots[leftPlot]} alt="" />} */}
                   <div className='left-plot-div'>
-                    {/* {plots && plots[leftPlot] && <Chart options={plots[leftPlot].options} series={plots[leftPlot].plot.series} type="line" />} */}
-                    {plots && <img src={plots[leftPlot]} alt="" />}
+                    {isLoading ? (
+                        <Spinner animation="grow" role="status">
+                          <span className="sr-only"></span>
+                        </Spinner>
+                      ) : (
+                        plots && <img src={plots[leftPlot]} alt="" />
+                      )}
                   </div>
 
                 </Card>
@@ -273,7 +282,7 @@ function App() {
               <Col sm={6}>
                 <Card className="plot-image">
                   <Dropdown>
-                    <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+                    <Dropdown.Toggle variant="dark" id="dropdown-basic">
                       {rightPlot === "top_channels"           
                           ? "Top Channels"
                         : rightPlot === "top_genres"
@@ -287,49 +296,22 @@ function App() {
                       <Dropdown.Item onClick={() => setRightPlot("top_genres")}>
                         Top Genres
                       </Dropdown.Item>
-                      {/* <Dropdown.Item onClick={() => setRightPlot("top_videos")}>
-                        Top Videos
-                      </Dropdown.Item> */}
                     </Dropdown.Menu>
                   </Dropdown>
                   <div className='right-plot-div'>
-                    {plots && <img src={plots[rightPlot]} alt="" />}
-
-                    {/* {plots && plots[rightPlot] && <Chart options={plots[rightPlot].options} series={plots[rightPlot].plot.series} type="line" />} */}
+                    {isLoading ? (
+                      <Spinner animation="grow" role="status">
+                        <span className="sr-only"></span>
+                      </Spinner>
+                    ) : (
+                      plots && <img src={plots[rightPlot]} alt="" />
+                    )}
                   </div>
                 </Card>
               </Col>
             </Row>
           </Container>
         </section>
-
-        {/* <section id="plots">
-          <div className="plots-container">
-            <div className="div1 plot-image card">
-              <span>Weekly</span>
-              {plots && <img src={plots.weekly_avg} alt="" />}
-            </div>
-            <div className="div2 plot-image card">
-              <span>Daily</span>
-              {plots && <img src={plots.hourly_avg} alt="" />}
-            </div>
-            <div className="div3 plot-image card">
-              <span>Monthly</span>
-              {plots && <img src={plots.monthly_avg} alt="" />}
-            </div>
-            <div className="div4 plot-image card">
-              <span>Top Channels</span>
-              {plots && <img src={plots.top_channels} alt="" />}
-            </div>
-            <div className="div5 plot-image card">
-              <span>Top Genres</span>
-              {plots && <img src={plots.top_genres} alt="" />}
-            </div>
-            <div className="div6 plot-image card">
-              <span>Top Videos</span>
-              {plots && <img src={plots.top_videos} alt="" />}
-            </div>
-        </section>  */}
       </div>
     </main>
 

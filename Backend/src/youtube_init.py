@@ -20,13 +20,13 @@ sys.path.append(os.path.join(script_dir, ".."))
 
 class YoutubeStats:
     takeout = None
-    takeoutId = None
+    takeout_id = None
     db_actions = None
     db_handler = None
 
     def __init__(self, takeout: json):
         self.takeout = takeout
-        self.takeoutId = str(uuid.uuid4())
+        self.takeout_id = str(uuid.uuid4())
         self.db_actions = DatabaseActions()
         self.db_handler = DBHandler()
         self.data_modifier = DataModifier()
@@ -43,12 +43,14 @@ class YoutubeStats:
             all_videos_dict = self.enhance_video_data(all_videos_dict, transcript_flag)
 
         self.db_actions.insert_many_records(
-            self.takeoutId, list(all_videos_dict.values())
+            self.takeout_id, list(all_videos_dict.values())
         )
 
         print(
             f"Total time for {len(all_videos_dict)} records: {format(time.time() - time_enhance_s, '.1f')}"
         )
+
+        return self.takeout_id
 
     def takeout_to_objects(self, takeout: json) -> list:
         all_videos = []
@@ -201,12 +203,12 @@ class DatabaseActions:
         conn.close()
         print("Database setup")
 
-    def insert_many_records(self, takeoutId: str, video_objs: list):
+    def insert_many_records(self, takeout_id: str, video_objs: list):
         # Prepare data for insertion
         data = [
             (
                 video_obj.get_video_id(),
-                takeoutId,
+                takeout_id,
                 video_obj.get_watch_date_time_iso(),
                 video_obj.get_watch_date(),
                 video_obj.get_watch_time(),

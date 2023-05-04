@@ -1,5 +1,3 @@
-import time
-
 # import youtube_api as youtube_api
 from Youtube_Analysis_Service import PlotsService as Analysis
 from youtube_init import YoutubeStats as Processing
@@ -50,15 +48,10 @@ async def process_upload(file: UploadFile = File(...)):
     contents = await file.read()
     # print("Processing takeout...")
     s.processing_service = Processing(json.loads(contents))
-    s.processing_service.process_takeout(enhanced=True, transcript_flag=False)
-    return {"takeout": "Basic takeout uploaded successfully"}
-
-
-# @app.get("/upload/advanced")
-# async def process_upload():
-#     print("Fetching extra information about the videos...")
-#     s.processing_service.update_rows_extra_info()
-#     return {"takeout": "Extra info added to db"}
+    takeout_id = s.processing_service.process_takeout(
+        enhanced=True, transcript_flag=False
+    )
+    return {"takeout": "Basic takeout uploaded successfully", "takeout_id": takeout_id}
 
 
 @app.get("/plots/all")

@@ -4,7 +4,6 @@ import base64
 from dateutil import parser
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FixedLocator, FixedFormatter
 import pandas as pd
 import seaborn as sns
 from datetime import timedelta
@@ -134,7 +133,6 @@ class PlotsService:
         ].apply(lambda x: x / (60 * 60 * date_ranges.get("weeks")))
 
         # label mapping
-
         weekdays_map = self.get_mappings("weekdays")
         weekdays_count_df["day_of_week"] = weekdays_count_df["day_of_week"].map(
             weekdays_map
@@ -153,17 +151,6 @@ class PlotsService:
             ax.set_xlabel("Weekdays")
             ax.set_ylabel("Hours watched on average")
             ax.grid(True)
-
-        # # Create JSON object
-        # chart_data = {
-        #     "categories": list(weekdays_count_df["day_of_week"]),
-        #     "series": [
-        #         {
-        #             "name": "Avg Watch Time / Weekday",
-        #             "data": list(weekdays_count_df["hours_watched_avg"]),
-        #         }
-        #     ],
-        # }
 
         chart_data = self.plots_to_json(
             weekdays_count_df,
