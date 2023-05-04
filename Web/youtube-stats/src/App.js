@@ -247,7 +247,7 @@ function App() {
               <Col sm={6} className="mb-3">
                 <Card className="plot-image">
                   <Dropdown>
-                    <Dropdown.Toggle variant="primary" id="dropdown-basic">
+                    <Dropdown.Toggle variant="dark" id="dropdown-basic">
                       {leftPlot === "weekly_avg"
                         ? "Weekly"
                         : leftPlot === "hourly_avg"
@@ -269,7 +269,7 @@ function App() {
                   {/* {plots && <img src={plots[leftPlot]} alt="" />} */}
                   <div className='left-plot-div'>
                     {isLoading ? (
-                        <Spinner animation="border" role="status">
+                        <Spinner animation="grow" role="status">
                           <span className="sr-only"></span>
                         </Spinner>
                       ) : (
@@ -282,7 +282,7 @@ function App() {
               <Col sm={6}>
                 <Card className="plot-image">
                   <Dropdown>
-                    <Dropdown.Toggle variant="primary" id="dropdown-basic">
+                    <Dropdown.Toggle variant="dark" id="dropdown-basic">
                       {rightPlot === "top_channels"           
                           ? "Top Channels"
                         : rightPlot === "top_genres"
@@ -300,7 +300,7 @@ function App() {
                   </Dropdown>
                   <div className='right-plot-div'>
                     {isLoading ? (
-                      <Spinner animation="border" role="status">
+                      <Spinner animation="grow" role="status">
                         <span className="sr-only"></span>
                       </Spinner>
                     ) : (
