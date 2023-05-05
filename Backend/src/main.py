@@ -1,8 +1,6 @@
-# import youtube_api as youtube_api
 from Youtube_Analysis_Service import PlotsService as Analysis
 from youtube_init import YoutubeStats as Processing
 
-# from matplotlib.figure import Figure
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -46,7 +44,6 @@ s = Settings()
 @app.post("/upload")
 async def process_upload(file: UploadFile = File(...)):
     contents = await file.read()
-    # print("Processing takeout...")
     s.processing_service = Processing(json.loads(contents))
     takeout_id = s.processing_service.process_takeout(
         enhanced=True, transcript_flag=False
@@ -71,4 +68,3 @@ async def get_takeout_stats():
 if __name__ == "__main__":
     print("Starting API")
     uvicorn.run(app, host="0.0.0.0", port=8000)
-    # get_info_db()
