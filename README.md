@@ -1,9 +1,6 @@
 # WIP - Youtube Stats Plus
 ###### Analyze your youtube statistics.
 
-### MVP (updated 4/27/2023)
-![image](https://user-images.githubusercontent.com/52568848/234989496-0c6cb714-83a0-4818-b209-5bb53bec03cc.png)
-
 
 ## Installation
 - Run `git clone https://github.com/delaguardianick/YT-Watch-History-Stats.git` in desired folder
@@ -51,3 +48,7 @@
 	- 70% of that time is making API calls to youtube to get the extra info for the videos
 - Youtube doesn't allow you to find out what % of the video you have watched, so these stats assume you've watched the whole video
 	- Real time statistics are probably slightly lower than the displayed.
+
+
+### MVP (updated 4/27/2023)
+![image](https://user-images.githubusercontent.com/52568848/234989496-0c6cb714-83a0-4818-b209-5bb53bec03cc.png)
