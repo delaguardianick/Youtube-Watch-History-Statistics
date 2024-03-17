@@ -48,7 +48,6 @@
 - Youtube doesn't allow you to find out what % of the video you have watched, so these stats assume you've watched the whole video
 	- Real time statistics are probably slightly lower than the displayed.
 
-
 ### 2024/03/17 
 #workinpublic
 Todo: 
