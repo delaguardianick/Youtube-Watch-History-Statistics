@@ -1,10 +1,6 @@
 # WIP - Youtube Stats Plus
 ###### Analyze your youtube statistics.
 
-### MVP (updated 4/27/2023)
-![image](https://user-images.githubusercontent.com/52568848/234989496-0c6cb714-83a0-4818-b209-5bb53bec03cc.png)
-
-
 ## Installation
 - Run `git clone https://github.com/delaguardianick/YT-Watch-History-Stats.git` in desired folder
 - `cd YT-Watch-History-Stats` (go into cloned project)
@@ -51,3 +47,21 @@
 	- 70% of that time is making API calls to youtube to get the extra info for the videos
 - Youtube doesn't allow you to find out what % of the video you have watched, so these stats assume you've watched the whole video
 	- Real time statistics are probably slightly lower than the displayed.
+
+
+### 2024/03/17 
+#workinpublic
+Todo: 
+- Improve MVP UI theme https://demos.creative-tim.com/black-dashboard-react/#/documentation/tutorial 
+- Change DB table to a composite key of takeoutId-videoId
+    Currently a new user's upload would overwrite existing records if same video.
+    Since video data is not personalized, we could actually keep a unique record of each uploaded video, and in another table keep track of which user watched which userID. Would reduce video table size if there are many repeating videos.
+- Google takeout is not as much of a bottleneck. User can request only youtube -> only videos -> only watch history. Is instant and lighweight
+
+
+Issues:
+- On uploading, need to call GET /stats after. Currently only calls onInit.
+
+
+### MVP (updated 4/27/2023)
+![image](https://user-images.githubusercontent.com/52568848/234989496-0c6cb714-83a0-4818-b209-5bb53bec03cc.png)

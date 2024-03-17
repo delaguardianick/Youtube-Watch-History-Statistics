@@ -80,7 +80,7 @@ class PlotsService:
     def _most_viewed_month(self, df) -> tuple:
         monthly_hours = df.groupby("month_date")["video_length_secs"].sum() / 3600
 
-        # Map to month number to name
+        # Map month number to name
         monthly_hours.index = monthly_hours.index.map(self.get_mappings("months"))
 
         most_watched_month = monthly_hours.idxmax()

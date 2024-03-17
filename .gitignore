@@ -1,3 +1,5 @@
+venv
+
 Backend/venv/
 Backend/venv-alt/
 Backend/__pycache__/
