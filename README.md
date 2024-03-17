@@ -1,5 +1,7 @@
 # WIP - Youtube Stats Plus
-###### Analyze your youtube statistics.
+#### Analyze your youtube statistics.
+
+### Description
 Given a Google Takeout (https://takeout.google.com/settings/takeout), it will analyze your watch history and display a datadashboard.
 Input: watch_history.json file inside the Google Takeout. Can be found in Takeout\YouTube and YouTube Music\history inside the takeout file.
 
