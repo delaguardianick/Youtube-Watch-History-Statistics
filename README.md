@@ -3,7 +3,7 @@
 
 ### Description
 Given a Google Takeout (https://takeout.google.com/settings/takeout), it will analyze your watch history and display a datadashboard.
-Input: watch_history.json file inside the Google Takeout. Can be found in Takeout\YouTube and YouTube Music\history inside the takeout file.
+Input: `watch_history.json` file inside the Google Takeout. Can be found in `Takeout\YouTube and YouTube Music\history` inside the takeout file.
 
 Youtube gives very rudamentary statistics about a user's watch time and viewer trends, their efforts are focused more on statistics for creators.
 The end goal of this project is to give a Yotube viewer full control and details into their own watching habits, perhaps exploring global trends on youtube and how videos are watched.
