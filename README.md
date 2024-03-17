@@ -50,7 +50,7 @@
 	- Real time statistics are probably slightly lower than the displayed.
 
 ### 2024/03/17 
-#workinpublic
+#buildinpublic
 Todo: 
 - Improve MVP UI theme https://demos.creative-tim.com/black-dashboard-react/#/documentation/tutorial 
 - Change DB table to a composite key of takeoutId-videoId
