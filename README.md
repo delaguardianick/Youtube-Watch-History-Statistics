@@ -20,6 +20,7 @@
   - `npm install`
 - Database:
   - paste `database.ini` file inside `\Backend\src\database` folder
+  - then run `youtube_init.py` and it should create the table for the records
 - Youtube API:
   - paste `youtube_api_key.txt` file inside `\Backend\src\api`
 
