@@ -1,4 +1,4 @@
-# WIP - Youtube Stats Plus
+# Youtube Stats Plus
 #### Analyze your youtube statistics.
 
 ### Description
