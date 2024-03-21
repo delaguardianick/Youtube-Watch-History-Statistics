@@ -60,7 +60,8 @@ The end goal of this project is to give a Yotube viewer full control and details
 #buildinpublic
 
 Todo: 
-- Improve MVP UI theme https://demos.creative-tim.com/black-dashboard-react/#/documentation/tutorial 
+- Improve MVP UI theme https://demos.creative-tim.com/black-dashboard-react/#/documentation/tutorial
+    - Interactive chart.js graphs 
 - Change DB table to a composite key of takeoutId-videoId
     Currently a new user's upload would overwrite existing records if same video.
     Since video data is not personalized, we could actually keep a unique record of each uploaded video, and in another table keep track of which user watched which userID. Would reduce video table size if there are many repeating videos.
