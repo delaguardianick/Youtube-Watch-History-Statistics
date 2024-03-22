@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import json
-from pydantic import BaseSettings
+from pydantic.v1 import BaseSettings 
 
 app = FastAPI()
 
@@ -37,10 +37,6 @@ class Settings(BaseSettings):
     processing_service: Processing = None
     analysis_service: Analysis = None
 
-
-s = Settings()
-
-
 @app.post("/upload")
 async def process_upload(file: UploadFile = File(...)):
     contents = await file.read()
@@ -67,4 +63,5 @@ async def get_takeout_stats():
 
 if __name__ == "__main__":
     print("Starting API")
+    s = Settings()
     uvicorn.run(app, host="0.0.0.0", port=8000)

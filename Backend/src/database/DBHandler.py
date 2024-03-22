@@ -24,4 +24,4 @@ class DBHandler:
             return conn
 
         except (Exception, psycopg2.DatabaseError) as error:
-            print(error)
+            print("Could not connect do PostgreSQL database! : DBHandler.connect()")

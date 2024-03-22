@@ -163,10 +163,17 @@ class DatabaseActions:
 
     def setup_db(self):
         conn = self.db_handler.connect()
-        c = conn.cursor()
 
-        c.execute("""DROP TABLE watch_history_dev_takeout_id;""")
-        # Create table
+        c = conn.cursor()
+        exists = self.check_if_table_exists("watch_history_dev_takeout_id", conn)
+        
+        if (exists):
+            c.execute("""DROP TABLE watch_history_dev_takeout_id;""")
+
+        # TODO: Wouldn't have to do all of this once we have a table we can reuse with diff users 
+        # if (not exists):    
+            # Create table
+
         c.execute(
             """CREATE TABLE watch_history_dev_takeout_id(
                 video_id TEXT PRIMARY KEY,
@@ -202,6 +209,24 @@ class DatabaseActions:
         conn.commit()
         conn.close()
         print("Database setup")
+
+    def check_if_table_exists(self, table_name : str, conn):
+        c = conn.cursor()
+        exists = False
+
+        try:
+            exists = c.execute(f""" SELECT EXISTS (
+                                    SELECT FROM 
+                                        {table_name}); 
+                            """, table_name)
+            
+            exists = c.fetchone()[0]
+            c.close()
+            
+        except Exception as e:
+            print(e)
+            print(f"Creating table: {table_name}", table_name)
+        return exists
 
     def insert_many_records(self, takeout_id: str, video_objs: list):
         # Prepare data for insertion

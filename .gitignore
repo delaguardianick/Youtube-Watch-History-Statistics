@@ -1,3 +1,6 @@
+venv
+node_modules
+
 Backend/venv/
 Backend/venv-alt/
 Backend/__pycache__/
