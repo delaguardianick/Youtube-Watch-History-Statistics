@@ -1,0 +1,47 @@
+<mat-card class="cardWithShadow">
+  <mat-card-header>
+    <mat-card-title>Employee Salary</mat-card-title>
+    <mat-card-subtitle class="mat-body-1">Every month</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content class="p-b-32">
+    <apx-chart
+      [series]="employeeChart.series"
+      [plotOptions]="employeeChart.plotOptions"
+      [dataLabels]="employeeChart.dataLabels"
+      [chart]="employeeChart.chart"
+      [legend]="employeeChart.legend"
+      [colors]="employeeChart.colors"
+      [tooltip]="employeeChart.tooltip"
+      [xaxis]="employeeChart.xaxis"
+      [yaxis]="employeeChart.yaxis"
+      [grid]="employeeChart.grid"
+    ></apx-chart>
+
+    <div class="d-flex align-items-center justify-content-between m-t-16">
+      <div class="d-flex align-items-center">
+        <span
+          class="text-primary bg-light-primary rounded icon-40 d-flex align-items-center justify-content-center"
+        >
+          <i-tabler name="grid-dots" class="icon-20 d-flex"></i-tabler>
+        </span>
+
+        <div class="m-l-12">
+          <span class="mat-subtitle-2">Salary</span>
+          <h5 class="mat-body-2 f-w-600 m-t-4">$36,358</h5>
+        </div>
+      </div>
+      <div class="d-flex align-items-center">
+        <span
+          class="text-body-2 bg-light text-gray-100 rounded icon-40 d-flex align-items-center justify-content-center"
+        >
+          <i-tabler name="grid-dots" class="icon-20 d-flex"></i-tabler>
+        </span>
+
+        <div class="m-l-12">
+          <span class="mat-subtitle-2">Profit</span>
+          <h5 class="mat-body-2 f-w-600 m-t-4">$5,296</h5>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

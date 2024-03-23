@@ -1,0 +1,43 @@
+<mat-card class="cardWithShadow">
+  <mat-card-content class="p-y-30">
+    <mat-card-title>Weekly Stats</mat-card-title>
+    <mat-card-subtitle class="mat-body-1 m-b-24"
+      >Average sales</mat-card-subtitle
+    >
+
+    <apx-chart
+      [series]="weeklyCart.series"
+      [plotOptions]="weeklyCart.plotOptions"
+      [chart]="weeklyCart.chart"
+      [tooltip]="weeklyCart.tooltip"
+      [fill]="weeklyCart.fill"
+      [stroke]="weeklyCart.stroke"
+    ></apx-chart>
+
+    @for(stat of stats; track stat.color) {
+    <div class="m-t-32">
+      <div class="d-flex align-items-center">
+        <span
+          class="text-{{ stat.color }} bg-light-{{
+            stat.color
+          }} rounded icon-40 d-flex align-items-center justify-content-center"
+        >
+          <i-tabler name="grid-dots" class="icon-20 d-flex"></i-tabler>
+        </span>
+
+        <div class="m-l-16 m-r-auto">
+          <h6 class="mat-subtitle-1 f-s-16 f-w-600">{{ stat.title }}</h6>
+          <span class="mat-body-1">{{ stat.subtitle }}</span>
+        </div>
+        <span
+          class="bg-light-{{ stat.color }} text-{{
+            stat.color
+          }} rounded f-w-600 p-6 p-y-4 f-s-14"
+        >
+          +{{ stat.percent }}
+        </span>
+      </div>
+    </div>
+    }
+  </mat-card-content>
+</mat-card>
