@@ -1,0 +1,241 @@
+
+
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap");
+  
+// font
+$font-family: 'Plus Jakarta Sans', sans-serif;
+
+// light color variable
+$sidebarbg: white;
+$background: white;
+$cardbg: white;
+$toolbar: white;
+$cardshadow: rgb(145 158 171 / 30%) 0px 0px 2px 0px, rgb(145 158 171 / 12%) 0px 12px 24px -4px;
+$hoverBgColor: #f6f9fc;
+
+// Dark color variable
+$darksidebarbg: #2a3447;
+$darkbackground: #2a3447;
+$darkcardbg: #2a3447;
+$darktoolbar: #2a3447;
+$darkcardshadow: rgba(145, 158, 171, 0.3) 0px 0px 2px 0px, rgba(145, 158, 171, 0.02) 0px 12px 24px -4px;
+$darkborderColor: #333f55;
+$darkformborderColor: #465670;
+$darkhoverbgcolor: #333f55;
+$darkthemelightprimary: #253662;
+$darkthemelightaccent: #1C455D;
+$darkthemelightwarning: #4D3A2A;
+$darkthemelighterror: #4B313D;
+$darkthemelightsuccess: #1B3C48;
+
+// Sidenav
+$sidenav-desktop: 270px !default;
+$sidenav-mini: 80px !default;
+$header-height: 70px !default;
+
+
+//BorderColor
+$borderColor: #e5eaef;
+$borderformColor: #dfe5ef;
+
+// custom
+$primary: #5d87ff;
+$accent: #49beff;
+$warning: #ffae1f;
+$error: #fa896b;
+$success: #13deb9;
+$white: #ffffff;
+
+$light: #f2f6fa;
+
+$gray-100:  #7c8fac;
+
+$light-primary: #ecf2ff;
+$light-accent: #e8f7ff;
+$light-warning: #fef5e5;
+$light-error: #fdede8;
+$light-success: #e6fffa;
+
+// layout
+$boxedWidth: 1200px;
+
+$border-radius: 7px;
+
+// text color
+$textPrimary: #2a3547;
+.sidebarNav-horizontal {
+    .childBox {
+      background: $white;
+    }
+   
+    // header
+    .horizontal-topbar {
+      box-shadow: rgba(0, 0, 0, 0.05) 0px 9px 17.5px;
+      .branding {padding-left: 0;}
+      .container {
+        max-width: 1200px;
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+    }
+  
+    // sidebar
+    .horizontal-navbar {
+      position: relative;
+      gap: 3px !important;
+      .parentBox {
+        position: relative;
+        z-index: 5;
+        margin: 5px 0;
+        &.mega-menu {
+          position: static;
+          &:hover {
+            > .childBox > .ddmenu {
+              display: inline-block;
+            }
+          }
+          > .childBox {
+            width: 100%;
+            left: 0;
+  
+            > .ddmenu {
+              width: 24%;
+            }
+          }
+        }
+        &.two-column {
+          &:hover {
+            > .childBox > .ddmenu {
+              display: inline-block;
+            }
+          }
+          > .childBox {
+            width: 600px;
+  
+            > .ddmenu {
+              width: 49%;
+            }
+          }
+        }
+        .menuLink {
+          padding: 10px;
+          border-radius: 6px;
+          display: flex;
+          align-items: center;
+          height: 40px;
+          gap: 10px;
+        }
+        &:hover > .menuLink {
+          background-color: rgba(0, 0, 0, 0.025);
+        }
+        &:hover > .activeMenu,
+        .activeMenu {
+          color: $white;
+          background-color: $primary;
+        }
+        .down-icon .mat-icon {
+          width: 18px;
+          height: 18px;
+          font-size: 18px;
+        }
+        .childBox {
+          border-radius: $border-radius;
+          box-shadow: $cardshadow;
+          position: absolute;
+          width: 250px;
+          background-color: $white;
+  
+          .ddmenu {
+            display: none;
+            padding: 10px;
+            margin: 10px;
+            position: relative;
+          }
+        }
+  
+        &:hover > .childBox > .ddmenu:hover {
+          background-color: rgba(0, 0, 0, 0.025);
+          &:hover > .childBox > .ddmenu:hover {
+            background-color: rgba(0, 0, 0, 0.025);
+          }
+        }
+        &:hover > .childBox > .ddmenu:hover > .childBox {
+          left: 230px;
+          top: 0px;
+          z-index: 9;
+          > .ddmenu:hover > .childBox {
+            left: 235px;
+            top: 0;
+          }
+        }
+  
+        &:hover > .childBox > .ddmenu {
+          display: block;
+          padding: 0;
+          &:hover > .childBox > .ddmenu {
+            display: block;
+            padding: 0;
+            &:hover > .childBox > .ddmenu {
+              display: block;
+              padding: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .sidebarNav-horizontal {
+    .topbar,
+    .mainWrapper {
+      width: 100%;
+    }
+    .horizontal-navbar {
+      .parentBox {
+        &.pactive > a, &.pactive > a:hover, &.pactive:hover > a{
+          color:white !important;
+          border-radius:$border-radius ;
+        }
+      }
+    }
+  }
+  
+  .ltr {
+    .sidebarNav-horizontal {
+      .horizontal-navbar {
+        .parentBox {
+          &:last-child:hover > .childBox > .ddmenu {
+            &:hover > .childBox {
+              right: 250px;
+              left: unset;
+              > .ddmenu:hover > .childBox {
+                right: 250px;
+                left: unset;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .rtl {
+    .sidebarNav-horizontal {
+      .horizontal-navbar {
+        .parentBox {
+          &:last-child:hover > .childBox > .ddmenu {
+            &:hover > .childBox {
+              left: 250px;
+              right: unset;
+              > .ddmenu:hover > .childBox {
+                left: 250px;
+                right: unset;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
