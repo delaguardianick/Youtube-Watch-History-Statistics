@@ -1,7 +1,7 @@
 from Youtube_Analysis_Service import PlotsService as Analysis
 from youtube_init import YoutubeStats as Processing
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -39,13 +39,18 @@ class Settings(BaseSettings):
 
 @app.post("/upload")
 async def process_upload(file: UploadFile = File(...)):
-    contents = await file.read()
-    s.processing_service = Processing(json.loads(contents))
-    takeout_id = s.processing_service.process_takeout(
-        enhanced=True, transcript_flag=False
-    )
-    return {"takeout": "Basic takeout uploaded successfully", "takeout_id": takeout_id}
-
+    try:
+        # Process file and return takeout_id
+        contents = await file.read()
+        s.processing_service = Processing(json.loads(contents))
+        takeout_id = s.processing_service.process_takeout(
+            enhanced=True, transcript_flag=False
+        )
+        
+        return {"message": "Takeout uploaded successfully", "takeout_id": takeout_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to process upload")
+    
 
 @app.get("/plots/all")
 async def get_all_plots():
