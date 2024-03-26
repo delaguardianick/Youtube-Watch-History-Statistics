@@ -42,13 +42,17 @@
               hidden
             />
           </label>
+          
           <h4>Date range:</h4>
           <div class="date-picker">
-            <div>{{ undefined }} - </div>
-            <div>{{ undefined}}</div>
+            <div>{{ this.data?.start_date }} - </div>
+            <div>ABOVEE!!</div>
           </div>
         </div>
       </section>
+      <div>
+        <button (click)="getDataFrameStats()">Get Stats</button>
+      </div>
 
       <!-- The charts and plots sections will need to be adapted to Angular's way of handling dynamic data -->
       

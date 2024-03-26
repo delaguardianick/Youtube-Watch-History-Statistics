@@ -3,22 +3,21 @@ import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/internal/operators/map';
 import { switchMap } from 'rxjs/internal/operators/switchMap';
 import { catchError, Observable, of } from 'rxjs';
-
-interface Stats {
-  start_date: string;
-  end_date: string;
-  watch_time_in_hours: number;
-  videos_watched: number;
-  most_viewed_month: string;
-  fav_creator_by_videos: string;
-}
+import { Stats } from '../models/models';
+import { DataStateService} from '../data-state.service';
+import { DataState } from '../models/models';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private dataStateService: DataStateService) {
+    this.state$ = this.dataStateService.getState();
 
+  }
+
+  state$: Observable<DataState>;
+  
   // getAllPlots() {
   //   return this.http.get('http://localhost:8000/plots/all');
   // }
@@ -29,15 +28,12 @@ export class DataService {
 
     return this.uploadTakeout(file).pipe(
       switchMap((response) => {
-        // Assuming the server responds with { takeout_id: "someId" }
         console.log('Upload successful, takeout_id:', response.takeout_id);
-        // If upload is successful, call getDataFrameStats
-        return this.getDataFrameStats();
+        return this.analyzeTakeout();
       }),
-      catchError(error => {
-        // Handle or log error
+      catchError((error) => {
         console.error('Upload failed:', error);
-        return of(null); // Return a null Observable to signify failure
+        return of(null);
       })
     );
   }
@@ -48,7 +44,13 @@ export class DataService {
     return this.http.post<any>('http://localhost:8000/upload', formData);
   }
 
-  getDataFrameStats() {
-    return this.http.get<Stats>('http://localhost:8000/stats');
+  analyzeTakeout() {
+    // Update state with statistics
+    return this.http.get<Stats>('http://localhost:8000/stats').pipe(
+      map((stats) => {
+        this.dataStateService.updateStatistics(stats);
+        return stats;
+      })
+    );
   }
 }

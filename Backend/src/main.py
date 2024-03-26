@@ -49,7 +49,7 @@ async def process_upload(file: UploadFile = File(...)):
         
         return {"message": "Takeout uploaded successfully", "takeout_id": takeout_id}
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to process upload")
+        raise HTTPException(status_code=500, detail=f"Failed to process upload {e}")
     
 
 @app.get("/plots/all")
