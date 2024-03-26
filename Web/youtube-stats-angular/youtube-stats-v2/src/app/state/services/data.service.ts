@@ -1,32 +1,56 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-
-interface Stats {
-  start_date: string;
-  end_date: string;
-  watch_time_in_hours: number;
-  videos_watched: number;
-  most_viewed_month: string;
-  fav_creator_by_videos: string;
-}
+import { map } from 'rxjs/internal/operators/map';
+import { switchMap } from 'rxjs/internal/operators/switchMap';
+import { catchError, Observable, of } from 'rxjs';
+import { Stats } from '../models/models';
+import { DataStateService} from '../data-state.service';
+import { DataState } from '../models/models';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private dataStateService: DataStateService) {
+    this.state$ = this.dataStateService.getState();
 
-  getAllPlots() {
-    return this.http.get('http://localhost:8000/plots/all');
+  }
+
+  state$: Observable<DataState>;
+  
+  // getAllPlots() {
+  //   return this.http.get('http://localhost:8000/plots/all');
+  // }
+
+  uploadTakeoutAndFetchStats(file: File): Observable<Stats | null> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.uploadTakeout(file).pipe(
+      switchMap((response) => {
+        console.log('Upload successful, takeout_id:', response.takeout_id);
+        return this.analyzeTakeout();
+      }),
+      catchError((error) => {
+        console.error('Upload failed:', error);
+        return of(null);
+      })
+    );
   }
 
   uploadTakeout(file: File) {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post('http://localhost:8000/upload', formData);
+    return this.http.post<any>('http://localhost:8000/upload', formData);
   }
 
-  getDataFrameStats() {
-    return this.http.get<Stats>('http://localhost:8000/stats');
+  analyzeTakeout() {
+    // Update state with statistics
+    return this.http.get<Stats>('http://localhost:8000/stats').pipe(
+      map((stats) => {
+        this.dataStateService.updateStatistics(stats);
+        return stats;
+      })
+    );
   }
 }

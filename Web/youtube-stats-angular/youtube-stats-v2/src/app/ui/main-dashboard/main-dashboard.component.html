@@ -19,12 +19,6 @@
           <li>
             <a class="nav-link scrollto" href="#contact">Github</a>
           </li>
-          <li>
-            <label for="formId" class="btn-get-started scrollto">
-              Upload Takeout
-              <input (change)="undefined" type="file" id="formId" hidden />
-            </label>
-          </li>
         </ul>
         <i class="bi bi-list mobile-nav-toggle"></i>
       </nav>
@@ -39,17 +33,26 @@
           <h2>Analyze your youtube watch trends</h2>
         </div>
         <div class="hero-container hero-right" data-aos="fade-in">
-          <label for="formId" class="btn-get-started scrollto">
+          <label for="fileInput" class="btn-get-started scrollto">
             Upload Takeout
-            <input (change)="undefined" type="file" id="formId" hidden />
+            <input 
+              (change)="uploadTakeout($event)" 
+              type="file" 
+              id="fileInput" 
+              hidden
+            />
           </label>
+          
           <h4>Date range:</h4>
           <div class="date-picker">
-            <div>{{ undefined }} - </div>
-            <div>{{ undefined}}</div>
+            <div>{{ this.data?.start_date }} - </div>
+            <div>ABOVEE!!</div>
           </div>
         </div>
       </section>
+      <div>
+        <button (click)="getDataFrameStats()">Get Stats</button>
+      </div>
 
       <!-- The charts and plots sections will need to be adapted to Angular's way of handling dynamic data -->
       
