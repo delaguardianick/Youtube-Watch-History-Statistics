@@ -3,21 +3,23 @@ import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/internal/operators/map';
 import { switchMap } from 'rxjs/internal/operators/switchMap';
 import { catchError, Observable, of } from 'rxjs';
-import { Stats } from '../models/models';
-import { DataStateService} from '../data-state.service';
+import { Stats, StatsFactory } from '../models/models';
+import { DataStateService } from '../data-state.service';
 import { DataState } from '../models/models';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataService {
-  constructor(private http: HttpClient, private dataStateService: DataStateService) {
+  constructor(
+    private http: HttpClient,
+    private dataStateService: DataStateService
+  ) {
     this.state$ = this.dataStateService.getState();
-
   }
 
   state$: Observable<DataState>;
-  
+
   // getAllPlots() {
   //   return this.http.get('http://localhost:8000/plots/all');
   // }
@@ -44,12 +46,10 @@ export class DataService {
     return this.http.post<any>('http://localhost:8000/upload', formData);
   }
 
-  analyzeTakeout() {
-    // Update state with statistics
-    console.log("Analyzing takeout");
-    return this.http.get<any>('http://localhost:8000/stats')
-    .pipe(
-      map((stats) => {
+  analyzeTakeout(): Observable<Stats | null> {
+    return this.http.get<any>('http://localhost:8000/stats').pipe(
+      map((statsApiResponse) => {
+        const stats = StatsFactory.fromApiResponse(statsApiResponse);
         this.dataStateService.updateStatistics(stats);
         return stats;
       })
