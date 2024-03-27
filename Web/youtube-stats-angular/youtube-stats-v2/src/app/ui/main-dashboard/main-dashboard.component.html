@@ -45,8 +45,8 @@
           
           <h4>Date range:</h4>
           <div class="date-picker">
-            <div>{{ this.data?.start_date }} - </div>
-            <div>ABOVEE!!</div>
+            <div>{{ userStatistics?.start_date }} - </div>
+            <div>{{ userStatistics?.end_date }} - </div>
           </div>
         </div>
       </section>
@@ -54,6 +54,7 @@
         <button (click)="getDataFrameStats()">Get Stats</button>
       </div>
 
+      
       <!-- The charts and plots sections will need to be adapted to Angular's way of handling dynamic data -->
       
     </div>
