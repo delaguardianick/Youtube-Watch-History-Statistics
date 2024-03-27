@@ -46,7 +46,9 @@ export class DataService {
 
   analyzeTakeout() {
     // Update state with statistics
-    return this.http.get<Stats>('http://localhost:8000/stats').pipe(
+    console.log("Analyzing takeout");
+    return this.http.get<any>('http://localhost:8000/stats')
+    .pipe(
       map((stats) => {
         this.dataStateService.updateStatistics(stats);
         return stats;
