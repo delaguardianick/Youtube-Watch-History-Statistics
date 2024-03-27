@@ -1,7 +1,6 @@
 from contextlib import asynccontextmanager
 from Youtube_Analysis_Service import PlotsService as Analysis
 from youtube_init import YoutubeStats as Processing
-
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -72,7 +71,7 @@ async def get_all_plots():
 async def get_takeout_stats():
     s.analysis_service.fetch_watch_history()
     df_stats = s.analysis_service.get_df_stats()
-    return JSONResponse(content=df_stats)
+    return JSONResponse(content=json.loads(df_stats))
 
 if __name__ == "__main__":
     print("Starting API")

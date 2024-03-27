@@ -1,36 +1,45 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { DataService } from '../../state/services/data.service';
 import { PlotService } from '../../state/services/plots.service';
 import { DataStateService } from '../../state/data-state.service';
 import { DataState, Stats } from '../../state/models/models';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'main-dashboard',
   standalone: true,
+  imports: [CommonModule],
   styleUrls: ['./main-dashboard.component.scss'],
   templateUrl: './main-dashboard.component.html',
   providers: [PlotService, DataService],
 })
-export class MainDashboardComponent {
+export class MainDashboardComponent implements OnInit {
   state$: Observable<DataState>;
 
-  constructor(private dataService: DataService, private dataStateService: DataStateService) {
+  constructor(
+    private dataService: DataService,
+    private dataStateService: DataStateService
+  ) {
     this.state$ = this.dataStateService.getState();
   }
 
   isLoading = false;
   plots: Object | undefined;
-  takeoutId: number | undefined;
-  data: Stats | undefined;
+  takeoutId: string | undefined;
+  userStatistics: Stats | undefined;
+  userStatistics$: Observable<Stats | undefined> | undefined;
 
   ngOnInit() {
     // this.getAllPlotsUrl();
     this.state$.subscribe((state) => {
       if (state.userStatistics) {
-        this.data = state.userStatistics;
+        this.userStatistics = state.userStatistics;
       }
     });
+    this.userStatistics$ = this.state$.pipe(
+      map((state) => state.userStatistics)
+    );
   }
 
   // async getAllPlotsUrl() {
@@ -55,12 +64,15 @@ export class MainDashboardComponent {
   }
 
   public getDataFrameStats() {
-    // Method to get user statistics from state
-    this.dataService.analyzeTakeout();
-    this.state$.subscribe((state) => {
-      if (state.userStatistics) {
-        this.data = state.userStatistics;
-      }
+    this.dataService.analyzeTakeout().subscribe({
+      next: (stats) => {
+        console.log('Statistics fetched successfully:', stats);
+      },
+      error: (error) => console.error('Failed to fetch statistics:', error),
     });
+  }
+
+  public displayStats() {
+    console.log(this.userStatistics);
   }
 }
