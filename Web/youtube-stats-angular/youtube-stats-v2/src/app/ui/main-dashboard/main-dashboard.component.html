@@ -5,9 +5,7 @@
         <ul>
           <div id="logo">
             <h1>
-              <a href="">
-                <span>Youtube</span>Stats 
-              </a>
+              <a href=""> <span>Youtube</span>Stats </a>
             </h1>
           </div>
           <li>
@@ -35,18 +33,18 @@
         <div class="hero-container hero-right" data-aos="fade-in">
           <label for="fileInput" class="btn-get-started scrollto">
             Upload Takeout
-            <input 
-              (change)="uploadTakeout($event)" 
-              type="file" 
-              id="fileInput" 
+            <input
+              (change)="uploadTakeout($event)"
+              type="file"
+              id="fileInput"
               hidden
             />
           </label>
-          
+
           <h4>Date range:</h4>
           <div class="date-picker">
-            <div>{{ userStatistics?.start_date }} - </div>
-            <div>{{ userStatistics?.end_date }} - </div>
+            <div>{{ userStatistics?.start_date }} -</div>
+            <div>{{ userStatistics?.end_date }} -</div>
           </div>
         </div>
       </section>
@@ -54,9 +52,20 @@
         <button (click)="getDataFrameStats()">Get Stats</button>
       </div>
 
-      
-      <!-- The charts and plots sections will need to be adapted to Angular's way of handling dynamic data -->
-      
+      <!-- <button (click)="getAllPlot()">Get Plots</button> -->
+
+      <div>
+        <span>APEX:</span>
+        <app-weekly-average-chart> </app-weekly-average-chart>
+      </div>
+
+      <div>
+        <img
+          *ngIf="weeklyAvgChartUrl"
+          [src]="weeklyAvgChartUrl"
+          alt="Weekly Average Chart"
+        />
+      </div>
     </div>
   </main>
 
@@ -78,7 +87,10 @@
     </div>
   </footer>
 
-  <a href="#" class="back-to-top d-flex align-items-center justify-content-center">
+  <a
+    href="#"
+    class="back-to-top d-flex align-items-center justify-content-center"
+  >
     <i class="bi bi-arrow-up-short"></i>
   </a>
 </div>
