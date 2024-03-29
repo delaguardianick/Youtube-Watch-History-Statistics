@@ -98,12 +98,14 @@ class PlotsService:
 
     def get_all_plots(self):
         wh_df, date_ranges = self.filtered_watch_history_df, self.date_ranges
-        plots = {}
-        plots["weekly_avg"] = self.plot_weekly_avg(wh_df, date_ranges).plot_url
-        plots["hourly_avg"] = self.plot_avg_per_hour(wh_df, date_ranges).plot_url
-        plots["monthly_avg"] = self.plot_monthly_avg(wh_df, date_ranges).plot_url
-        plots["top_channels"] = self.plot_top_viewed_channels(wh_df).plot_url
-        plots["top_genres"] = self.plot_top_genres(wh_df).plot_url
+        
+        plots = {
+        "weekly_avg": self.plot_weekly_avg(wh_df, date_ranges)
+        }
+        # plots["hourly_avg"] = self.plot_avg_per_hour(wh_df, date_ranges).plot_url
+        # plots["monthly_avg"] = self.plot_monthly_avg(wh_df, date_ranges).plot_url
+        # plots["top_channels"] = self.plot_top_viewed_channels(wh_df).plot_url
+        # plots["top_genres"] = self.plot_top_genres(wh_df).plot_url
         # plots["top_videos"] = self.plot_top_videos(wh_df).plot_url
 
         return plots  # {"plot_name" : "plot_url"}
@@ -138,19 +140,19 @@ class PlotsService:
             weekdays_map
         )
 
-        with sns.axes_style("darkgrid"):
-            fig, ax = plt.subplots()
-            ax.plot(
-                weekdays_count_df["day_of_week"],
-                weekdays_count_df["hours_watched_avg"],
-                color="dodgerblue",
-                marker="o",
-                linestyle="-",
-            )
-            ax.set_title("Avg Watch Time / Weekday")
-            ax.set_xlabel("Weekdays")
-            ax.set_ylabel("Hours watched on average")
-            ax.grid(True)
+        # with sns.axes_style("darkgrid"):
+        #     fig, ax = plt.subplots()
+        #     ax.plot(
+        #         weekdays_count_df["day_of_week"],
+        #         weekdays_count_df["hours_watched_avg"],
+        #         color="dodgerblue",
+        #         marker="o",
+        #         linestyle="-",
+        #     )
+        #     ax.set_title("Avg Watch Time / Weekday")
+        #     ax.set_xlabel("Weekdays")
+        #     ax.set_ylabel("Hours watched on average")
+        #     ax.grid(True)
 
         chart_data = self.plots_to_json(
             weekdays_count_df,
@@ -159,7 +161,7 @@ class PlotsService:
             "Average / Weekday",
         )
 
-        return Plot("weekly_avg", self.__get_plot_url(ax), json.dumps(chart_data))
+        return chart_data
 
     def plot_avg_per_hour(self, wh_df, date_ranges):
         videos_by_hour = wh_df[["video_length_secs", "hour_time"]]
