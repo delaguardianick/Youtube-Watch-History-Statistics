@@ -5,11 +5,12 @@ import { DataStateService } from '../../state/data-state.service';
 import { DataState, Stats } from '../../state/models/models';
 import { map, Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { WeeklyAverageChartComponent } from '../charts/weekly-average-chart/weekly-average-chart.component';
 
 @Component({
   selector: 'main-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, WeeklyAverageChartComponent],
   styleUrls: ['./main-dashboard.component.scss'],
   templateUrl: './main-dashboard.component.html',
   providers: [PlotService, DataService],
@@ -19,7 +20,8 @@ export class MainDashboardComponent implements OnInit {
 
   constructor(
     private dataService: DataService,
-    private dataStateService: DataStateService
+    private dataStateService: DataStateService,
+    private plotService: PlotService
   ) {
     this.state$ = this.dataStateService.getState();
   }
@@ -29,6 +31,7 @@ export class MainDashboardComponent implements OnInit {
   takeoutId: string | undefined;
   userStatistics: Stats | undefined;
   userStatistics$: Observable<Stats | undefined> | undefined;
+  weeklyAvgChartUrl: string | undefined;
 
   ngOnInit() {
     // this.getAllPlotsUrl();
@@ -42,11 +45,11 @@ export class MainDashboardComponent implements OnInit {
     );
   }
 
-  // async getAllPlotsUrl() {
-  //   this.isLoading = true;
-  //   const data = await this.dataService.getAllPlots().toPromise();
-  //   this.plots = data;
-  //   this.isLoading = false;
+  // async getAllPlot() {
+  //   this.plotService.getAllPlots().subscribe((data) => {
+  //     this.weeklyAvgChartUrl = data.weekly_avg; // Assuming the API returns a URL to the image of the chart
+  //     // If the API returns chart data instead of a URL, you'll need to adapt this to render the chart with ApexCharts
+  //   });
   // }
 
   public async uploadTakeout(event: any) {
