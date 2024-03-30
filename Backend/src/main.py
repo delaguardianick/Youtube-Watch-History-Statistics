@@ -65,7 +65,7 @@ async def get_all_plots():
     s.analysis_service = Analysis()
     s.analysis_service.fetch_watch_history()
     plots = s.analysis_service.get_all_plots()
-    return JSONResponse(content=plots)
+    return JSONResponse(content=json.loads(plots))
 
 @app.get("/stats")
 async def get_takeout_stats():

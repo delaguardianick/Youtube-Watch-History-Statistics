@@ -16,8 +16,8 @@ export class WeeklyAverageChartComponent implements OnInit {
   constructor(private plotsService: PlotService) {}
 
   ngOnInit(): void {
-    this.plotsService.getAllPlots().subscribe((data) => {
-      this.configureCharts(data.weekly_avg); // Assuming 'weekly_avg' is your desired chart data
+    this.plotsService.getAllPlots().subscribe((allPlots) => {
+      this.configureCharts(allPlots.weeklyAvg.chartData); // Assuming 'weekly_avg' is your desired chart data
     });
   }
 
@@ -29,7 +29,7 @@ export class WeeklyAverageChartComponent implements OnInit {
         type: 'line',
       },
       title: {
-        text: chartData.series[0].name,
+        text: chartData.series.name,
       },
       xaxis: {
         categories: chartData.categories,

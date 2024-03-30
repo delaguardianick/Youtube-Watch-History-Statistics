@@ -1,21 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
-
-interface AllPlots {
-  weekly_avg: Plot;
-  // hourly_avg: string;
-  // monthly_avg: string;
-  // top_channels: string;
-  // top_genres: string;
-  // top_videos: string; // Uncomment if you decide to include it later
-}
-
-interface Plot {
-  title: string;
-  data: Array<number>;
-  categories: Array<string>;
-}
+import { PlotFactory, PlotsData } from '../models/models';
+import { DataStateService } from '../data-state.service';
 
 @Injectable({
   providedIn: 'root',
@@ -23,28 +10,18 @@ interface Plot {
 export class PlotService {
   private plotsUrl = 'http://localhost:8000/plots/all'; // Adjust the URL as necessary
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private dataStateService: DataStateService
+  ) {}
 
-  getAllPlots(): Observable<AllPlots> {
-    return this.http.get<AllPlots>(this.plotsUrl).pipe(
+  getAllPlots(): Observable<PlotsData> {
+    return this.http.get<PlotsData>(this.plotsUrl).pipe(
       map((getAllPlotsResponse) => {
-        return getAllPlotsResponse;
+        const allPlots = PlotFactory.fromApiResponse(getAllPlotsResponse);
+        this.dataStateService.updatePlots(allPlots);
+        return allPlots;
       })
     );
   }
-
-  // getAllPlots(): Observable<AllPlots> {
-  //   result = this.http.get<AllPlots>(this.plotsUrl).pipe(
-  //     map((getAllPlotsResponse) => {
-
-  //       const weeklyAvgPlot = {
-  //         title: 'Weekly Average',
-  //         data: getAllPlotsResponse.weekly_avg.data,
-  //         categories: getAllPlotsResponse.weekly_avg.categories,
-  //       };
-
-  //       return response;
-  //     })
-  //   );
-  // }
 }

@@ -1,17 +1,17 @@
 // plots.model.ts
-export interface PlotData {
-  weekly_avg: string;
-  hourly_avg: string;
-  monthly_avg: string;
-  top_channels: string;
-  top_genres: string;
+export interface PlotsData {
+  weeklyAvg: Plot;
+  // hourly_avg: string;
+  // monthly_avg: string;
+  // top_channels: string;
+  // top_genres: string;
   // top_videos: string;
 }
 
 export interface DataState {
   takeoutId: string | undefined;
   userStatistics: Stats | undefined;
-  userPlots: PlotData | undefined;
+  userPlots: PlotsData | undefined;
 }
 
 // stats.model.ts
@@ -37,5 +37,36 @@ export class StatsFactory {
       fav_creator_by_videos: data.fav_creator_by_videos || undefined,
     };
     return stats;
+  }
+}
+
+export interface Plot {
+  title: string;
+  chartData: ChartData;
+}
+
+export interface ChartData {
+  categories: [];
+  series: {
+    name: string;
+    data: [];
+  };
+}
+
+export class PlotFactory {
+  static fromApiResponse(data: any): PlotsData {
+    const allPlots: PlotsData = {
+      weeklyAvg: {
+        title: data.weekly_avg.title || '',
+        chartData: {
+          categories: data.weekly_avg.chart_data.categories || [],
+          series: {
+            name: data.weekly_avg.chart_data.series.name || '',
+            data: data.weekly_avg.chart_data.series.data || [],
+          },
+        },
+      },
+    };
+    return allPlots;
   }
 }

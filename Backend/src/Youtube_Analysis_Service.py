@@ -108,7 +108,8 @@ class PlotsService:
         # plots["top_genres"] = self.plot_top_genres(wh_df).plot_url
         # plots["top_videos"] = self.plot_top_videos(wh_df).plot_url
 
-        return plots  # {"plot_name" : "plot_url"}
+        return json.dumps(plots, default=self.default_serialization)
+        # return plots  # {"plot_name" : {title, plot_data}}
 
     def __filter_df_year_range(self, wh_df, beginning_date):
         wh_df["date_timestamp"] = pd.to_datetime(wh_df["date_"])
@@ -140,28 +141,21 @@ class PlotsService:
             weekdays_map
         )
 
-        # with sns.axes_style("darkgrid"):
-        #     fig, ax = plt.subplots()
-        #     ax.plot(
-        #         weekdays_count_df["day_of_week"],
-        #         weekdays_count_df["hours_watched_avg"],
-        #         color="dodgerblue",
-        #         marker="o",
-        #         linestyle="-",
-        #     )
-        #     ax.set_title("Avg Watch Time / Weekday")
-        #     ax.set_xlabel("Weekdays")
-        #     ax.set_ylabel("Hours watched on average")
-        #     ax.grid(True)
+        title = "Avg Watch Time / Weekday"
 
         chart_data = self.plots_to_json(
             weekdays_count_df,
             "day_of_week",
             "hours_watched_avg",
-            "Average / Weekday",
+            title,
         )
 
-        return chart_data
+        plot = {
+            "title" : title,
+            "chart_data" : chart_data
+        }
+
+        return plot
 
     def plot_avg_per_hour(self, wh_df, date_ranges):
         videos_by_hour = wh_df[["video_length_secs", "hour_time"]]
