@@ -100,10 +100,10 @@ class PlotsService:
         wh_df, date_ranges = self.filtered_watch_history_df, self.date_ranges
         
         plots = {
-        "weekly_avg": self.plot_weekly_avg(wh_df, date_ranges)
+        "weekly_avg": self.plot_weekly_avg(wh_df, date_ranges),
+        "hourly_avg": self.plot_hour_avg(wh_df, date_ranges),
+        "monthly_avg": self.plot_monthly_avg(wh_df, date_ranges)
         }
-        # plots["hourly_avg"] = self.plot_avg_per_hour(wh_df, date_ranges).plot_url
-        # plots["monthly_avg"] = self.plot_monthly_avg(wh_df, date_ranges).plot_url
         # plots["top_channels"] = self.plot_top_viewed_channels(wh_df).plot_url
         # plots["top_genres"] = self.plot_top_genres(wh_df).plot_url
         # plots["top_videos"] = self.plot_top_videos(wh_df).plot_url
@@ -157,7 +157,7 @@ class PlotsService:
 
         return plot
 
-    def plot_avg_per_hour(self, wh_df, date_ranges):
+    def plot_hour_avg(self, wh_df, date_ranges):
         videos_by_hour = wh_df[["video_length_secs", "hour_time"]]
         videos_by_hour = videos_by_hour.groupby("hour_time").sum().reset_index()
         videos_by_hour["minutes_watched_avg"] = videos_by_hour[
@@ -167,22 +167,7 @@ class PlotsService:
         hour_time_map = self.get_mappings("hours")
         videos_by_hour["hour_time"] = videos_by_hour["hour_time"].map(hour_time_map)
 
-        with sns.axes_style("darkgrid"):
-            fig, ax = plt.subplots()
-            ax.plot(
-                videos_by_hour["hour_time"],
-                videos_by_hour["minutes_watched_avg"],
-                color="dodgerblue",
-                marker="o",
-                linestyle="-",
-            )
-            ax.set_title("Avg Watch Time / Hour")
-            ax.set_xlabel("Hour")
-            ax.set_ylabel("Minutes watched on average")
-            ax.grid(True)
-
-            # Rotate the x-axis labels
-            plt.xticks(rotation=45)
+        title = "Average / Hour"
 
         chart_data = self.plots_to_json(
             videos_by_hour,
@@ -190,8 +175,13 @@ class PlotsService:
             "minutes_watched_avg",
             "Average / Hour",
         )
+        
+        plot = {
+            "title" : title,
+            "chart_data" : chart_data
+        }
 
-        return Plot("hourly_avg", self.__get_plot_url(ax), json.dumps(chart_data))
+        return plot
 
     def plot_monthly_avg(self, wh_df, date_ranges):
         videos_by_month = wh_df[["video_length_secs", "month_date"]]
@@ -205,22 +195,7 @@ class PlotsService:
         # Convert the month_date column to strings
         videos_by_month["month_date"] = videos_by_month["month_date"].astype(str)
 
-        with sns.axes_style("darkgrid"):
-            fig, ax = plt.subplots()
-            ax.plot(
-                videos_by_month["month_date"],
-                videos_by_month["hours_watched_avg"],
-                color="dodgerblue",
-                marker="o",
-                linestyle="-",
-            )
-            ax.set_title("Avg Watch Time / Month")
-            ax.set_xlabel("Month")
-            ax.set_ylabel("Minutes watched on average")
-            ax.grid(True)
-
-            # Rotate the x-axis labels
-            plt.xticks(rotation=45)
+        title = "Average / Month"
 
         chart_data = self.plots_to_json(
             videos_by_month,
@@ -229,7 +204,12 @@ class PlotsService:
             "Average / Month",
         )
 
-        return Plot("monthly_avg", self.__get_plot_url(ax), json.dumps(chart_data))
+        plot = {
+            "title" : title,
+            "chart_data" : chart_data
+        }
+
+        return plot
 
     def plot_top_viewed_channels(self, wh_df):
         # Filter dataframe and group by desired index

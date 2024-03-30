@@ -10,7 +10,7 @@ export class DataStateService {
   private initialState: DataState = {
     takeoutId: undefined,
     userStatistics: undefined,
-    userPlots: undefined,
+    plotsData: undefined,
   };
   private stateSubject: BehaviorSubject<DataState> =
     new BehaviorSubject<DataState>(this.initialState);

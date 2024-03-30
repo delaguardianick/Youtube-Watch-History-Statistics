@@ -20,10 +20,6 @@ export class DataService {
 
   state$: Observable<DataState>;
 
-  // getAllPlots() {
-  //   return this.http.get('http://localhost:8000/plots/all');
-  // }
-
   uploadTakeoutAndFetchStats(file: File): Observable<Stats | null> {
     const formData = new FormData();
     formData.append('file', file);
@@ -46,7 +42,7 @@ export class DataService {
     return this.http.post<any>('http://localhost:8000/upload', formData);
   }
 
-  analyzeTakeout(): Observable<Stats | null> {
+  analyzeTakeout(): Observable<Stats> {
     return this.http.get<any>('http://localhost:8000/stats').pipe(
       map((statsApiResponse) => {
         const stats = StatsFactory.fromApiResponse(statsApiResponse);
