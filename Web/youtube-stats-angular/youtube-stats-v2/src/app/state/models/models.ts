@@ -42,14 +42,12 @@ export class StatsFactory {
 
 export interface Plot {
   title: string;
-  chartData: ChartData;
-}
-
-export interface ChartData {
-  categories: [];
-  series: {
-    name: string;
-    data: [];
+  chartData: {
+    categories: string[];
+    series: {
+      name: string;
+      data: number[];
+    }[];
   };
 }
 
@@ -60,10 +58,7 @@ export class PlotFactory {
         title: data.weekly_avg.title || '',
         chartData: {
           categories: data.weekly_avg.chart_data.categories || [],
-          series: {
-            name: data.weekly_avg.chart_data.series.name || '',
-            data: data.weekly_avg.chart_data.series.data || [],
-          },
+          series: data.weekly_avg.chart_data.series || [],
         },
       },
     };
