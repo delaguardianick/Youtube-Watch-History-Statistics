@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { PlotService } from '../../../state/services/plots.service';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { CommonModule } from '@angular/common';
@@ -12,13 +12,16 @@ import { Plot } from '../../../state/models/models';
   styleUrl: './weekly-average-chart.component.scss',
 })
 export class WeeklyAverageChartComponent implements OnInit {
+  @Input() plotData: Plot | undefined;
+  //input plotData: Plot
+
   public chartOptions: any;
 
   constructor(private plotsService: PlotService) {}
 
   ngOnInit(): void {
     this.plotsService.getAllPlots().subscribe((allPlots) => {
-      this.configureCharts(allPlots.weeklyAvg); // Assuming 'weekly_avg' is your desired chart data
+      this.configureCharts(allPlots.weeklyAvg);
     });
   }
 
@@ -28,8 +31,9 @@ export class WeeklyAverageChartComponent implements OnInit {
       series: [
         {
           name: chartData.series[0].name,
-          data: chartData.series[0].data,
-          color: '#5D87FF',
+          data: chartData.series[0].data.map((value) =>
+            parseFloat(value.toFixed(1))
+          ),
         },
       ],
       chart: {
@@ -39,14 +43,7 @@ export class WeeklyAverageChartComponent implements OnInit {
         toolbar: {
           show: false,
         },
-        height: 60,
-        sparkline: {
-          enabled: true,
-        },
-        group: 'sparklines',
-      },
-      sparkline: {
-        enabled: true,
+        height: 350,
       },
       stroke: {
         curve: 'smooth',
@@ -61,17 +58,36 @@ export class WeeklyAverageChartComponent implements OnInit {
       },
       title: {
         text: plotData.title,
+        align: 'left', // Make sure title alignment is correct
+        style: {
+          fontSize: '16px', // Adjust the font size as needed
+        },
       },
       xaxis: {
         categories: chartData.categories,
+        labels: {
+          show: true, // Ensure x-axis labels are shown
+        },
+      },
+      yaxis: {
+        labels: {
+          formatter: function (val: string) {
+            return parseFloat(val).toFixed(1); // Format y-axis labels to show only one decimal
+          },
+        },
       },
       // dataLabels: {
-      //   enabled: false,
+      //   enabled: true,
       // },
       tooltip: {
         theme: 'dark',
         x: {
           format: 'dd/MM/yy HH:mm',
+        },
+        y: {
+          formatter: function (val: string) {
+            return parseFloat(val).toFixed(1) + ' units'; // Adjust 'units' based on your measurement
+          },
         },
       },
     };

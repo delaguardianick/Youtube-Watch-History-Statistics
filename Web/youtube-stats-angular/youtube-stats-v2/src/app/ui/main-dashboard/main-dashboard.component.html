@@ -54,55 +54,7 @@
 
       <!-- <button (click)="getAllPlot()">Get Plots</button> -->
 
-      <div class="row top-card-row">
-        <div class="col-lg-2 col-sm-4 col-6">First card</div>
-        <div class="col-lg-2 col-sm-4 col-6">second card</div>
-        <div class="col-lg-2 col-sm-4 col-6">third card</div>
-        <div class="col-lg-2 col-sm-4 col-6">fourth card</div>
-        <div class="col-lg-2 col-sm-4 col-6">fifth card</div>
-      </div>
-      <div class="row">
-        <div class="col-lg-8">
-          <div>
-            <app-weekly-average-chart> </app-weekly-average-chart>
-          </div>
-        </div>
-        <div class="col-lg-4">
-          <div class="row">
-            <div class="col-12 col-sm-6 col-lg-12">Side panel 1</div>
-            <div class="col-12 col-sm-6 col-lg-12">Side panel 2</div>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <img
-          *ngIf="weeklyAvgChartUrl"
-          [src]="weeklyAvgChartUrl"
-          alt="Weekly Average Chart"
-        />
-      </div>
-
-      <div class="main-dashboard">
-        <div class="row">First row (upload etc)</div>
-        <div class="row">
-          <div class="col-lg-2 col-sm-4 col-6">First card</div>
-          <div class="col-lg-2 col-sm-4 col-6">second card</div>
-          <div class="col-lg-2 col-sm-4 col-6">third card</div>
-          <div class="col-lg-2 col-sm-4 col-6">fourth card</div>
-          <div class="col-lg-2 col-sm-4 col-6">fifth card</div>
-        </div>
-
-        <div class="row">
-          <div class="col-lg-8">Top Channels/Genres charts</div>
-          <div class="col-lg-4">
-            <div class="row">
-              <div class="col-12 col-sm-6 col-lg-12">Side panel 1</div>
-              <div class="col-12 col-sm-6 col-lg-12">Side panel 2</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <app-plots-main></app-plots-main>
     </div>
   </main>
 
