@@ -54,18 +54,7 @@
 
       <!-- <button (click)="getAllPlot()">Get Plots</button> -->
 
-      <div>
-        <span>APEX:</span>
-        <app-weekly-average-chart> </app-weekly-average-chart>
-      </div>
-
-      <div>
-        <img
-          *ngIf="weeklyAvgChartUrl"
-          [src]="weeklyAvgChartUrl"
-          alt="Weekly Average Chart"
-        />
-      </div>
+      <app-plots-main></app-plots-main>
     </div>
   </main>
 

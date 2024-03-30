@@ -37,16 +37,17 @@
   }
 }
 
-input[type="file"] { 
+input[type="file"] {
   opacity: 1; /* make transparent */
 }
-
 
 .body {
   background-color: #f1f5f9;
   color: #333;
-  min-height: 100vh; margin:0;
-  display:flex; flex-direction:column;
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 h1,
@@ -81,7 +82,7 @@ h5 {
 a {
   letter-spacing: 2px;
   text-decoration: none;
-  color: #FF0000;
+  color: #ff0000;
 }
 
 a:hover {
@@ -146,10 +147,11 @@ span {
 --------------------------------------------------------------*/
 #header {
   background: #fff;
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.1);
   z-index: 997;
   transition: all 0.5s ease;
   padding-top: 10px 0;
-  min-height:50px; 
+  min-height: 50px;
 }
 
 #header #logo h1 {
@@ -176,7 +178,7 @@ span {
 }
 
 #header.header-scrolled {
-  background: #fff;
+  background: #dfa6a6;
   box-shadow: 0 3px 7px rgba(0, 0, 0, 0.1);
   padding: 12px 0;
 }
@@ -223,7 +225,7 @@ span {
 .navbar a:hover,
 .navbar .active,
 .navbar .active:focus,
-.navbar li:hover>a {
+.navbar li:hover > a {
   color: #d10808;
 }
 
@@ -258,11 +260,11 @@ span {
 
 .navbar .dropdown ul a:hover,
 .navbar .dropdown ul .active:hover,
-.navbar .dropdown ul li:hover>a {
+.navbar .dropdown ul li:hover > a {
   color: #d10808;
 }
 
-.navbar .dropdown:hover>ul {
+.navbar .dropdown:hover > ul {
   opacity: 1;
   top: 100%;
   visibility: visible;
@@ -274,7 +276,7 @@ span {
   visibility: hidden;
 }
 
-.navbar .dropdown .dropdown:hover>ul {
+.navbar .dropdown .dropdown:hover > ul {
   opacity: 1;
   top: 0;
   left: 100%;
@@ -286,7 +288,7 @@ span {
     left: -90%;
   }
 
-  .navbar .dropdown .dropdown:hover>ul {
+  .navbar .dropdown .dropdown:hover > ul {
     left: -100%;
   }
 }
@@ -358,7 +360,7 @@ span {
 
 .navbar-mobile a:hover,
 .navbar-mobile .active,
-.navbar-mobile li:hover>a {
+.navbar-mobile li:hover > a {
   color: #d10808;
 }
 
@@ -393,11 +395,11 @@ span {
 
 .navbar-mobile .dropdown ul a:hover,
 .navbar-mobile .dropdown ul .active:hover,
-.navbar-mobile .dropdown ul li:hover>a {
+.navbar-mobile .dropdown ul li:hover > a {
   color: #d10808;
 }
 
-.navbar-mobile .dropdown>.dropdown-active {
+.navbar-mobile .dropdown > .dropdown-active {
   display: block;
 }
 
@@ -406,17 +408,18 @@ span {
 --------------------------------------------------------------*/
 #main {
   width: 90%;
-  height: calc(100vh - 40px);
   /* background: url(img/hero-bg.png) center bottom no-repeat; */
   background-size: 100%;
-  position: relative;
   margin-top: 3.5em;
-  flex :1 ;
-  margin-left: auto;
+  flex: 1;
+  background-color: #ffff;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
   margin-right: auto;
+  margin-left: auto;
 }
 
-#main .main-container{
+#main .main-container {
+  width: 90%;
   margin-right: auto;
   margin-left: auto;
   padding-bottom: 2em;
@@ -426,14 +429,11 @@ span {
 .hero-section {
   display: flex;
   margin-bottom: 0.5em;
-  width: 95%;
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-  margin-right: auto;
-  margin-left: auto;
   background-color: #ffff;
 }
 
-.hero-row{
+.hero-row {
   width: 100%;
 }
 
@@ -445,10 +445,9 @@ span {
   justify-content: flex-end;
 }
 
-.hero-container{
-  flex: 1
+.hero-container {
+  flex: 1;
 }
-
 
 @media (min-width: 1025px) {
   #hero {
@@ -484,9 +483,9 @@ span {
   line-height: 56px;
   font-family: "Philosopher", sans-serif;
   color: white;
-  background-color:  #e62c2c;
+  background-color: #e62c2c;
   padding: 0.5rem;
-  font-family: 'Google Sans', 'Roboto', 'Arial', sans-serif;
+  font-family: "Google Sans", "Roboto", "Arial", sans-serif;
   border-radius: 10px;
   margin-bottom: 0.5em;
 }
@@ -502,7 +501,7 @@ span {
   color: #777;
   margin-bottom: 1em;
   font-size: 20px;
-  font-family: 'Google Sans', 'Roboto', 'Arial', sans-serif;
+  font-family: "Google Sans", "Roboto", "Arial", sans-serif;
   font-weight: 300;
 }
 
@@ -520,7 +519,7 @@ span {
 }
 
 #hero .btn-get-started {
-  font-family: 'Google Sans', 'Roboto', 'Arial', sans-serif;
+  font-family: "Google Sans", "Roboto", "Arial", sans-serif;
   text-transform: uppercase;
   font-weight: bold;
   font-size: 13px;
@@ -530,7 +529,7 @@ span {
   border-radius: 50px;
   transition: 0.5s;
   margin-bottom: 1em;
-  border: 0.3em solid #FF0000;
+  border: 0.3em solid #ff0000;
   background: #fff;
   color: black;
   text-decoration: none;
@@ -561,28 +560,23 @@ span {
   color: #d10808;
 }
 
-.date-picker{
+.date-picker {
   display: flex;
   align-items: center;
   padding-bottom: 1em;
 }
 
-.date-start, .date-end{
+.date-start,
+.date-end {
   padding: 0.5em;
 }
 
 /*--------------------------------------------------------------
-# Solo facts
+# Top card row 
 --------------------------------------------------------------*/
-.solo-facts{
-  width: 95%;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 1rem;
-  margin-bottom: 1em;
-}
-.solo-fact-header{
-  font-weight: bold;
+
+.top-card-row {
+  height: 12em;
 }
 
 /*--------------------------------------------------------------
@@ -607,30 +601,29 @@ span {
   width: 100%;
   /* box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; } */
 
-  .plot-image {
-    position: relative;
-    padding: 1rem;
-  }
-  
-  .plot-image img {
-    max-width: 100%;
-    height: auto;
-  }
+.plot-image {
+  position: relative;
+  padding: 1rem;
+}
 
-  .plot-image .left-plot-div{
-    padding-top: 1.5rem
-  }
+.plot-image img {
+  max-width: 100%;
+  height: auto;
+}
 
-  .plot-image .right-plot-div{
-    padding-top: 1.5rem
-  }
-  
-  .dropdown {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-  }
+.plot-image .left-plot-div {
+  padding-top: 1.5rem;
+}
 
+.plot-image .right-plot-div {
+  padding-top: 1.5rem;
+}
+
+.dropdown {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}
 
 /*--------------------------------------------------------------
 # Sections
@@ -723,7 +716,7 @@ section {
   background: #2a2c30;
   bottom: 0;
   width: 100%;
-  min-height:50px
+  min-height: 50px;
 }
 
 .footer .footer-logo .navbar-brand {
@@ -749,12 +742,11 @@ section {
   display: flex;
 }
 
-
 .footer .list-menu .list-unstyled {
   display: flex;
 }
 
-.footer .list-menu>h4 {
+.footer .list-menu > h4 {
   color: #fff;
   padding-bottom: 20px;
 }
@@ -767,19 +759,19 @@ section {
   letter-spacing: 0;
 }
 
-.plot-image{
+.plot-image {
   padding-top: 1em;
   text-align: center;
   border: var(--bs-card-border-width) solid var(--bs-card-border-color);
 }
 
-.plot-image span{
+.plot-image span {
   font-size: 1.5em;
   font-weight: 600;
   color: #000;
 }
 
-.plot-image img{
+.plot-image img {
   width: 100%;
   height: auto;
   /* object-fit: cover; */

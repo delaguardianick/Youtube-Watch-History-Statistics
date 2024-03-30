@@ -1,17 +1,18 @@
 // plots.model.ts
-export interface PlotData {
-  weekly_avg: string;
-  hourly_avg: string;
-  monthly_avg: string;
-  top_channels: string;
-  top_genres: string;
+export interface PlotsData {
+  weeklyAvg: Plot;
+  hourlyAvg: Plot;
+  monthlyAvg: Plot;
+  // monthly_avg: string;
+  // top_channels: string;
+  // top_genres: string;
   // top_videos: string;
 }
 
 export interface DataState {
   takeoutId: string | undefined;
   userStatistics: Stats | undefined;
-  userPlots: PlotData | undefined;
+  plotsData: PlotsData | undefined;
 }
 
 // stats.model.ts
@@ -37,5 +38,46 @@ export class StatsFactory {
       fav_creator_by_videos: data.fav_creator_by_videos || undefined,
     };
     return stats;
+  }
+}
+
+export interface Plot {
+  title: string;
+  chartData: {
+    categories: string[];
+    series: {
+      name: string;
+      data: number[];
+    }[];
+  };
+}
+
+export class PlotFactory {
+  static fromApiResponse(data: any): PlotsData {
+    // Initialize an empty object that will be populated with Plot data
+    const allPlots: Partial<PlotsData> = {};
+
+    // Define a mapping of keys in 'data' to the corresponding keys in 'PlotsData'
+    const keyMap: { [key: string]: keyof PlotsData } = {
+      weekly_avg: 'weeklyAvg',
+      hourly_avg: 'hourlyAvg',
+      monthly_avg: 'monthlyAvg',
+    };
+
+    // Iterate over the keyMap to dynamically populate allPlots
+    Object.entries(keyMap).forEach(([apiResponseKey, plotsDataKey]) => {
+      const plotData = data[apiResponseKey];
+      if (plotData) {
+        allPlots[plotsDataKey] = {
+          title: plotData.title || '',
+          chartData: {
+            categories: plotData.chart_data?.categories || [],
+            series: plotData.chart_data?.series || [],
+          },
+        };
+      }
+    });
+
+    return allPlots as PlotsData;
   }
 }

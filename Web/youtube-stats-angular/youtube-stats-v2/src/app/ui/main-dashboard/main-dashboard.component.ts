@@ -1,16 +1,17 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { DataService } from '../../state/services/data.service';
 import { PlotService } from '../../state/services/plots.service';
 import { DataStateService } from '../../state/data-state.service';
-import { DataState, Stats } from '../../state/models/models';
-import { map, Observable } from 'rxjs';
+import { DataState, PlotsData, Stats } from '../../state/models/models';
+import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { WeeklyAverageChartComponent } from '../charts/weekly-average-chart/weekly-average-chart.component';
+import { PlotsMainComponent } from '../charts/plots-main/plots-main.component';
 
 @Component({
   selector: 'main-dashboard',
   standalone: true,
-  imports: [CommonModule, WeeklyAverageChartComponent],
+  imports: [CommonModule, WeeklyAverageChartComponent, PlotsMainComponent],
   styleUrls: ['./main-dashboard.component.scss'],
   templateUrl: './main-dashboard.component.html',
   providers: [PlotService, DataService],
@@ -20,8 +21,7 @@ export class MainDashboardComponent implements OnInit {
 
   constructor(
     private dataService: DataService,
-    private dataStateService: DataStateService,
-    private plotService: PlotService
+    private dataStateService: DataStateService
   ) {
     this.state$ = this.dataStateService.getState();
   }
@@ -30,27 +30,16 @@ export class MainDashboardComponent implements OnInit {
   plots: Object | undefined;
   takeoutId: string | undefined;
   userStatistics: Stats | undefined;
-  userStatistics$: Observable<Stats | undefined> | undefined;
-  weeklyAvgChartUrl: string | undefined;
+  plotsData: PlotsData | undefined;
 
   ngOnInit() {
-    // this.getAllPlotsUrl();
     this.state$.subscribe((state) => {
       if (state.userStatistics) {
         this.userStatistics = state.userStatistics;
+        this.plotsData = state?.plotsData;
       }
     });
-    this.userStatistics$ = this.state$.pipe(
-      map((state) => state.userStatistics)
-    );
   }
-
-  // async getAllPlot() {
-  //   this.plotService.getAllPlots().subscribe((data) => {
-  //     this.weeklyAvgChartUrl = data.weekly_avg; // Assuming the API returns a URL to the image of the chart
-  //     // If the API returns chart data instead of a URL, you'll need to adapt this to render the chart with ApexCharts
-  //   });
-  // }
 
   public async uploadTakeout(event: any) {
     console.log('uploading');
