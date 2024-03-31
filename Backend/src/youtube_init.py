@@ -40,14 +40,16 @@ class YoutubeStats:
 
         time_enhance_s = time.time()
         if enhanced:
-            all_videos_dict = self.enhance_video_data(all_videos_dict, transcript_flag)
+            all_videos_dict = self.enhance_video_data(
+                all_videos_dict, transcript_flag)
 
         self.db_actions.insert_many_records(
             self.takeout_id, list(all_videos_dict.values())
         )
 
         print(
-            f"Total time for {len(all_videos_dict)} records: {format(time.time() - time_enhance_s, '.1f')}"
+            f"Total time for {len(all_videos_dict)} records: {
+                format(time.time() - time_enhance_s, '.1f')}"
         )
 
         return self.takeout_id
@@ -60,9 +62,11 @@ class YoutubeStats:
         for i, video in enumerate(takeout):
             video_obj: YoutubeVideo = self.data_modifier.clean_data(video)
             if i == 0:
-                first_video_date = datetime.fromisoformat(video_obj.get_watch_date())
+                first_video_date = datetime.fromisoformat(
+                    video_obj.get_watch_date())
 
-            curr_video_date = datetime.fromisoformat(video_obj.get_watch_date())
+            curr_video_date = datetime.fromisoformat(
+                video_obj.get_watch_date())
             if self._is_more_than_12_months_apart(first_video_date, curr_video_date):
                 last_video_date = curr_video_date
                 break
@@ -95,7 +99,7 @@ class YoutubeStats:
         time_enhance_s = time.time()
         batch_size = 49
         for i in range(0, len(all_video_ids), batch_size):
-            batch_videos_ids = all_video_ids[i : i + batch_size]
+            batch_videos_ids = all_video_ids[i: i + batch_size]
 
             extra_info_for_batch = (
                 self.youtube_api.api_get_video_details(batch_videos_ids)
@@ -120,7 +124,8 @@ class YoutubeStats:
             video_id = video_details.get("id")
             duration = video_details.get("contentDetails").get("duration")
             transcript = (
-                self.get_video_transcript(video_id) if transcript_flag else None
+                self.get_video_transcript(
+                    video_id) if transcript_flag else None
             )
             (
                 video_length_str,
@@ -129,8 +134,10 @@ class YoutubeStats:
 
             video: YoutubeVideo = all_videos_dict[video_id]
             video.set_duration(duration)
-            video.set_description(video_details.get("snippet").get("description"))
-            video.set_category_id(video_details.get("snippet").get("categoryId"))
+            video.set_description(video_details.get(
+                "snippet").get("description"))
+            video.set_category_id(video_details.get(
+                "snippet").get("categoryId"))
             video.set_tags(repr(video_details.get("snippet").get("tags")))
             video.set_transcript(transcript)
             video.set_video_length(video_length_str, video_length_secs)
@@ -165,13 +172,14 @@ class DatabaseActions:
         conn = self.db_handler.connect()
 
         c = conn.cursor()
-        exists = self.check_if_table_exists("watch_history_dev_takeout_id", conn)
-        
+        exists = self.check_if_table_exists(
+            "watch_history_dev_takeout_id", conn)
+
         if (exists):
             c.execute("""DROP TABLE watch_history_dev_takeout_id;""")
 
-        # TODO: Wouldn't have to do all of this once we have a table we can reuse with diff users 
-        # if (not exists):    
+        # TODO: Wouldn't have to do all of this once we have a table we can reuse with diff users
+        # if (not exists):
             # Create table
 
         c.execute(
@@ -201,28 +209,68 @@ class DatabaseActions:
             )
             """
         )
-
-        c.execute(
-            """CREATE INDEX idx_video_id ON watch_history_dev_takeout_id(video_id);"""
-        )
+        # self.create_tables(c)
 
         conn.commit()
         conn.close()
         print("Database setup")
 
-    def check_if_table_exists(self, table_name : str, conn):
+    def create_tables(self, c):
+        c.execute(
+            """CREATE TABLE "Videos" (
+                "video_id" varchar PRIMARY KEY,
+                "title" varchar,
+                "duration" integer,
+                "upload_date_iso" timestamp,
+                "video_URL" TEXT,
+                "channel_name" TEXT,
+                "channel_url" TEXT,
+                "video_status" TEXT,
+                "video_length_secs" TEXT,
+                "video_description" TEXT,
+                "category_id" INTEGER,
+                "tags" TEXT,
+                "transcript" TEXT,
+                "date_" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                );
+            """
+        )
+
+        c.execute(
+            """CREATE TABLE "Takeouts" (
+                "takeout_id" varchar PRIMARY KEY,
+                "user_id" integer,
+                "upload_date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                );
+            """
+        )
+
+        c.execute(
+            """CREATE TABLE "TakeoutVideos" (
+                "takeout_video_id" integer PRIMARY KEY,
+                "takeout_id" varchar,
+                "video_id" varchar,
+                "watch_date" timestamp
+                );
+            """
+        )
+
+        c.execute(
+            """CREATE INDEX idx_takeout_id ON "TakeoutVideos"("takeout_id");""")
+
+    def check_if_table_exists(self, table_name: str, conn):
         c = conn.cursor()
         exists = False
 
         try:
             exists = c.execute(f""" SELECT EXISTS (
-                                    SELECT FROM 
-                                        {table_name}); 
+                                    SELECT FROM
+                                        {table_name});
                             """, table_name)
-            
+
             exists = c.fetchone()[0]
             c.close()
-            
+
         except Exception as e:
             print(e)
             print(f"Creating table: {table_name}", table_name)
@@ -296,7 +344,8 @@ class DatabaseActions:
             conn.commit()
         conn.close()
         print(
-            f"Inserted all records into database table in {format(time.time() - insert_time_s, '.1f')}"
+            f"Inserted all records into database table in {
+                format(time.time() - insert_time_s, '.1f')}"
         )
 
 
