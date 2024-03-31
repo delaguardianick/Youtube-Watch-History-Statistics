@@ -58,6 +58,7 @@ The end goal of this project is to give a Yotube viewer full control and details
 
 ### 2024/03/31
 WIP DB Schema to support multiple users
+
 ![Schema](https://github.com/delaguardianick/YT-Watch-History-Stats/assets/52568848/7b3ebaf7-e6ae-4682-b7f7-7a1d758d4805)
 
 
