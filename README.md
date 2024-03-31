@@ -64,6 +64,7 @@ WIP DB Schema to support multiple users
 
 ### 2024/03/17 
 #buildinpublic
+Updates can be followed here: https://twitter.com/nickdlgg 
 
 Todo: 
 - Improve MVP UI theme https://demos.creative-tim.com/black-dashboard-react/#/documentation/tutorial
