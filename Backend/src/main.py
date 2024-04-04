@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import json
-from pydantic.v1 import BaseSettings 
+from pydantic.v1 import BaseSettings
 
 origins = [
     "http://localhost",
@@ -16,13 +16,14 @@ origins = [
     "https://o413082.ingest.sentry.io/api/6520676/envelope/?sentry_key=84bf6d1a437a48ea822d66c72bc407ca&sentry_version=7&sentry_client=sentry.javascript.nextjs%2F7.41.0",
     "*",
 ]
+
+
 @asynccontextmanager
 async def app_lifespan(app: FastAPI):
     global s
     s = Settings()
-    # s.processing_service = Processing()
     s.analysis_service = Analysis()
-    yield 
+    yield
     # Clean up if needed
 
 
@@ -38,6 +39,7 @@ app.add_middleware(
 )
 plots = None
 
+
 class Settings(BaseSettings):
     processing_service: Processing = None
     analysis_service: Analysis = None
@@ -46,6 +48,7 @@ class Settings(BaseSettings):
 @app.get("/")
 def root():
     return {"message": "Hello World"}
+
 
 @app.post("/upload")
 async def process_upload(file: UploadFile = File(...)):
@@ -58,14 +61,18 @@ async def process_upload(file: UploadFile = File(...)):
         )
         return {"message": "Takeout uploaded successfully", "takeout_id": takeout_id}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to process upload {e}")
-    
+        print(f"Failed to process upload {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to process upload {e}")
+
+
 @app.get("/plots/all")
 async def get_all_plots():
     s.analysis_service = Analysis()
     s.analysis_service.fetch_watch_history()
     plots = s.analysis_service.get_all_plots()
     return JSONResponse(content=json.loads(plots))
+
 
 @app.get("/stats")
 async def get_takeout_stats():
