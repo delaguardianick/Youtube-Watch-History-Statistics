@@ -1,4 +1,4 @@
-import YoutubeVideo as YoutubeVideo
+from YoutubeVideo import YoutubeVideo
 import time as time
 from api.youtube_api import YoutubeApi
 from data_modifier import DataModifier
@@ -10,6 +10,7 @@ from config import config
 from database.DBHandler import DBHandler
 import sys
 from datetime import datetime, timedelta
+from psycopg2.extras import execute_values
 
 # Get the absolute path of the current script
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -40,7 +41,7 @@ class YoutubeStats:
 
         time_enhance_s = time.time()
         if enhanced:
-            all_videos_dict = self.enhance_video_data(
+            all_videos_dict: dict[str, YoutubeVideo] = self.enhance_video_data(
                 all_videos_dict, transcript_flag)
 
         self.db_actions.insert_many_records(
@@ -54,7 +55,7 @@ class YoutubeStats:
 
         return self.takeout_id
 
-    def takeout_to_objects(self, takeout: json) -> list:
+    def takeout_to_objects(self, takeout: json) -> list[YoutubeVideo]:
         all_videos = []
         first_video_date = None
         last_video_date = None
@@ -90,8 +91,8 @@ class YoutubeStats:
             return False
 
     def enhance_video_data(
-        self, all_videos_dict: dict[str, any], transcript_flag: bool = False
-    ) -> dict[str, any]:
+        self, all_videos_dict: dict[str, YoutubeVideo], transcript_flag: bool = False
+    ) -> dict[str, YoutubeVideo]:
         print("Getting additional video information")
 
         all_video_ids = list(all_videos_dict.keys())
@@ -106,7 +107,7 @@ class YoutubeStats:
             ).get("items")
 
             # Update video objects with the information from the API response
-            all_videos_dict = self.update_videos_with_api_info(
+            all_videos_dict: dict[str, YoutubeVideo] = self.update_videos_with_api_info(
                 extra_info_for_batch, all_videos_dict, transcript_flag
             )
 
@@ -118,7 +119,7 @@ class YoutubeStats:
         video_details_for_batch: list,
         all_videos_dict: dict,
         transcript_flag: bool = False,
-    ) -> dict[str, any]:
+    ) -> dict[str, YoutubeVideo]:
         # Update corresponding rows in database table with additional information
         for video_details in video_details_for_batch:
             video_id = video_details.get("id")
@@ -172,89 +173,56 @@ class DatabaseActions:
         conn = self.db_handler.connect()
 
         c = conn.cursor()
-        exists = self.check_if_table_exists(
-            "watch_history_dev_takeout_id", conn)
 
-        if (exists):
-            c.execute("""DROP TABLE watch_history_dev_takeout_id;""")
-
-        # TODO: Wouldn't have to do all of this once we have a table we can reuse with diff users
-        # if (not exists):
-            # Create table
-
-        c.execute(
-            """CREATE TABLE watch_history_dev_takeout_id(
-                video_id TEXT PRIMARY KEY,
-                takeout_id TEXT,
-                date_time_iso TEXT,
-                date_ TEXT,
-                time_ TEXT,
-                year_date INTEGER,
-                month_date INTEGER,
-                day_date INTEGER,
-                hour_time INTEGER,
-                day_of_week INTEGER,
-                title TEXT,
-                video_URL TEXT,
-                channel_name TEXT,
-                channel_url TEXT,
-                video_status TEXT,
-                is_available BOOLEAN,
-                video_length_str TEXT,
-                video_length_secs TEXT,
-                video_description TEXT,
-                category_id INTEGER,
-                tags TEXT,
-                transcript TEXT
-            )
-            """
-        )
-        # self.create_tables(c)
+        self.create_tables(c)
 
         conn.commit()
         conn.close()
         print("Database setup")
 
     def create_tables(self, c):
-        c.execute(
-            """CREATE TABLE "Videos" (
-                "video_id" varchar PRIMARY KEY,
-                "title" varchar,
-                "duration" integer,
-                "upload_date_iso" timestamp,
-                "video_URL" TEXT,
-                "channel_name" TEXT,
-                "channel_url" TEXT,
-                "video_status" TEXT,
-                "video_length_secs" TEXT,
-                "video_description" TEXT,
-                "category_id" INTEGER,
-                "tags" TEXT,
-                "transcript" TEXT,
-                "date_" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-                );
-            """
-        )
 
-        c.execute(
-            """CREATE TABLE "Takeouts" (
-                "takeout_id" varchar PRIMARY KEY,
-                "user_id" integer,
-                "upload_date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-                );
-            """
-        )
+        # c.execute("""DROP TABLE IF EXISTS "TakeoutVideos";""")
+        # c.execute("""DROP TABLE IF EXISTS "Videos";""")
+        # c.execute("""DROP TABLE IF EXISTS "Takeouts";""")
 
-        c.execute(
-            """CREATE TABLE "TakeoutVideos" (
-                "takeout_video_id" integer PRIMARY KEY,
-                "takeout_id" varchar,
-                "video_id" varchar,
-                "watch_date" timestamp
-                );
-            """
-        )
+        c.execute("""CREATE TABLE "Videos" (
+                        "video_id" VARCHAR PRIMARY KEY,
+                        "title" VARCHAR,
+                        "upload_date_iso" TIMESTAMP,
+                        "video_URL" TEXT,
+                        "channel_name" TEXT,
+                        "channel_url" TEXT,
+                        "video_status" TEXT,
+                        "video_length_secs" TEXT,
+                        "video_description" TEXT,
+                        "category_id" INTEGER,
+                        "tags" TEXT,
+                        "transcript" TEXT,
+                        "date_" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    );"""
+                  )
 
+        # Create Takeouts table
+        c.execute("""CREATE TABLE "Takeouts" (
+                        "takeout_id" VARCHAR PRIMARY KEY,
+                        "user_id" INTEGER,
+                        "upload_date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    );"""
+                  )
+
+        # Create TakeoutVideos table with foreign keys
+        c.execute("""CREATE TABLE "TakeoutVideos" (
+                        "takeout_video_id" SERIAL PRIMARY KEY,
+                        "takeout_id" VARCHAR,
+                        "video_id" VARCHAR,
+                        "watch_date" TIMESTAMP,
+                        FOREIGN KEY ("takeout_id") REFERENCES "Takeouts"("takeout_id"),
+                        FOREIGN KEY ("video_id") REFERENCES "Videos"("video_id")
+                    );"""
+                  )
+
+        # Index for performance
         c.execute(
             """CREATE INDEX idx_takeout_id ON "TakeoutVideos"("takeout_id");""")
 
@@ -276,77 +244,68 @@ class DatabaseActions:
             print(f"Creating table: {table_name}", table_name)
         return exists
 
-    def insert_many_records(self, takeout_id: str, video_objs: list):
-        # Prepare data for insertion
-        data = [
-            (
-                video_obj.get_video_id(),
-                takeout_id,
-                video_obj.get_watch_date_time_iso(),
-                video_obj.get_watch_date(),
-                video_obj.get_watch_time(),
-                video_obj.get_watch_year(),
-                video_obj.get_watch_month(),
-                video_obj.get_watch_day(),
-                video_obj.get_watch_hour(),
-                video_obj.get_watch_weekday(),
-                video_obj.get_title(),
-                video_obj.get_video_URL(),
-                video_obj.get_channel_name(),
-                video_obj.get_channel_url(),
-                video_obj.get_video_status(),
-                video_obj.get_is_available(),
-                video_obj.get_video_length_str(),
-                video_obj.get_video_length_secs(),
-                video_obj.get_description(),
-                video_obj.get_category_id(),
-                video_obj.get_tags(),
-                video_obj.get_transcript(),
-            )
-            for video_obj in video_objs
-        ]
-
+    def insert_many_records(self, takeout_id: str, video_objs: list[YoutubeVideo]):
         conn = self.db_handler.connect()
-
-        batch_size = 5000
-        insert_time_s = time.time()
-        for i in range(0, len(data), batch_size):
-            # Insert data into the database table using multi-row insert syntax
+        try:
             with conn.cursor() as c:
-                values_str = ",".join(["%s"] * len(data))
-                query = f"""INSERT INTO watch_history_dev_takeout_id(
-                        video_id,
-                        takeout_id,
-                        date_time_iso,
-                        date_,
-                        time_,
-                        year_date,
-                        month_date,
-                        day_date,
-                        hour_time,
-                        day_of_week,
-                        title,
-                        video_URL,
-                        channel_name,
-                        channel_url,
-                        video_status,
-                        is_available,
-                        video_length_str,
-                        video_length_secs,
-                        video_description,
-                        category_id,
-                        tags,
-                        transcript
+                # Insert into Takeouts (if not exists)
+                c.execute("""INSERT INTO "Takeouts" ("takeout_id")
+                            VALUES (%s) ON CONFLICT ("takeout_id") DO NOTHING;""",
+                          (takeout_id,))
+
+                # Prepare and Insert into Videos
+                videos_values = [
+                    (
+                        video_obj.get_video_id(),
+                        video_obj.get_title(),
+                        video_obj.get_watch_date_time_iso(),
+                        video_obj.get_video_URL(),
+                        video_obj.get_channel_name(),
+                        video_obj.get_channel_url(),
+                        video_obj.get_video_status(),
+                        video_obj.get_video_length_secs(),
+                        video_obj.get_description(),
+                        video_obj.get_category_id(),
+                        video_obj.get_tags(),
+                        video_obj.get_transcript()
                     )
-                    VALUES {values_str}
-                    ON CONFLICT (video_id) DO NOTHING"""
-                c.execute(query, data)
+                    for video_obj in video_objs
+                ]
+                execute_values(c, """
+                    INSERT INTO "Videos" (
+                        "video_id",
+                        "title",
+                        "upload_date_iso",
+                        "video_URL",
+                        "channel_name",
+                        "channel_url",
+                        "video_status",
+                        "video_length_secs",
+                        "video_description",
+                        "category_id",
+                        "tags",
+                        "transcript"
+                    ) VALUES %s ON CONFLICT (video_id) DO NOTHING;""", videos_values)
+
+                # Prepare and Insert into TakeoutVideos
+                takeout_videos_values = [
+                    (
+                        takeout_id,
+                        video_obj.get_video_id(),
+                        video_obj.get_watch_date_time_iso()
+                    )
+                    for video_obj in video_objs
+                ]
+                execute_values(c, """
+                    INSERT INTO "TakeoutVideos" ("takeout_id", "video_id", watch_date)
+                    VALUES %s ON CONFLICT DO NOTHING;""", takeout_videos_values)
+
             conn.commit()
-        conn.close()
-        print(
-            f"Inserted all records into database table in {
-                format(time.time() - insert_time_s, '.1f')}"
-        )
+            print("Inserted all records into the new database tables.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
+        finally:
+            conn.close()
 
 
 if __name__ == "__main__":
