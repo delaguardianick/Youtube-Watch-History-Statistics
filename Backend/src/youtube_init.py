@@ -55,7 +55,7 @@ class YoutubeStats:
 
         return self.takeout_id
 
-    def takeout_to_objects(self, takeout: json) -> list:
+    def takeout_to_objects(self, takeout: json) -> list[YoutubeVideo]:
         all_videos = []
         first_video_date = None
         last_video_date = None
@@ -91,8 +91,8 @@ class YoutubeStats:
             return False
 
     def enhance_video_data(
-        self, all_videos_dict: dict[str, any], transcript_flag: bool = False
-    ) -> dict[str, any]:
+        self, all_videos_dict: dict[str, YoutubeVideo], transcript_flag: bool = False
+    ) -> dict[str, YoutubeVideo]:
         print("Getting additional video information")
 
         all_video_ids = list(all_videos_dict.keys())
@@ -174,40 +174,6 @@ class DatabaseActions:
 
         c = conn.cursor()
 
-        # if (exists):
-        #     c.execute("""DROP TABLE watch_history_dev_takeout_id;""")
-
-        # TODO: Wouldn't have to do all of this once we have a table we can reuse with diff users
-        # if (not exists):
-        # Create table
-
-        # c.execute(
-        #     """CREATE TABLE watch_history_dev_takeout_id(
-        #         video_id TEXT PRIMARY KEY,
-        #         takeout_id TEXT,
-        #         date_time_iso TEXT,
-        #         date_ TEXT,
-        #         time_ TEXT,
-        #         year_date INTEGER,
-        #         month_date INTEGER,
-        #         day_date INTEGER,
-        #         hour_time INTEGER,
-        #         day_of_week INTEGER,
-        #         title TEXT,
-        #         video_URL TEXT,
-        #         channel_name TEXT,
-        #         channel_url TEXT,
-        #         video_status TEXT,
-        #         is_available BOOLEAN,
-        #         video_length_str TEXT,
-        #         video_length_secs TEXT,
-        #         video_description TEXT,
-        #         category_id INTEGER,
-        #         tags TEXT,
-        #         transcript TEXT
-        #     )
-        #     """
-        # )
         self.create_tables(c)
 
         conn.commit()
@@ -216,14 +182,13 @@ class DatabaseActions:
 
     def create_tables(self, c):
 
-        c.execute("""DROP TABLE IF EXISTS "TakeoutVideos";""")
-        c.execute("""DROP TABLE IF EXISTS "Videos";""")
-        c.execute("""DROP TABLE IF EXISTS "Takeouts";""")
+        # c.execute("""DROP TABLE IF EXISTS "TakeoutVideos";""")
+        # c.execute("""DROP TABLE IF EXISTS "Videos";""")
+        # c.execute("""DROP TABLE IF EXISTS "Takeouts";""")
 
         c.execute("""CREATE TABLE "Videos" (
                         "video_id" VARCHAR PRIMARY KEY,
                         "title" VARCHAR,
-                        "duration" INTEGER,
                         "upload_date_iso" TIMESTAMP,
                         "video_URL" TEXT,
                         "channel_name" TEXT,
@@ -293,7 +258,6 @@ class DatabaseActions:
                     (
                         video_obj.get_video_id(),
                         video_obj.get_title(),
-                        video_obj.get_video_length_secs(),
                         video_obj.get_watch_date_time_iso(),
                         video_obj.get_video_URL(),
                         video_obj.get_channel_name(),
@@ -311,7 +275,6 @@ class DatabaseActions:
                     INSERT INTO "Videos" (
                         "video_id",
                         "title",
-                        "duration",
                         "upload_date_iso",
                         "video_URL",
                         "channel_name",
@@ -334,7 +297,7 @@ class DatabaseActions:
                     for video_obj in video_objs
                 ]
                 execute_values(c, """
-                    INSERT INTO "TakeoutVideos" ("takeout_id", "video_id", "watch_date")
+                    INSERT INTO "TakeoutVideos" ("takeout_id", "video_id", watch_date)
                     VALUES %s ON CONFLICT DO NOTHING;""", takeout_videos_values)
 
             conn.commit()
