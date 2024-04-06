@@ -84,27 +84,6 @@ class PlotsService:
 
         return w_history_df, date_ranges
 
-    # def data_frame_to_videos(self, df: pd.DataFrame) -> list[YoutubeVideo]:
-    #     videos = []
-    #     for index, row in df.iterrows():
-    #         video = YoutubeVideo(
-    #             watch_date_iso=row['watch_date'],
-    #             title=row['title'],
-    #             video_URL=row['video_URL'],
-    #             channel_name=row['channel_name'],
-    #             channel_url=row['channel_url'],
-    #         )
-    #         video.set_additional_attributes(
-    #             video_length_secs=row['video_length_secs'],
-    #             description=row['video_description'],
-    #             category_id=row['category_id'],
-    #             tags=row['tags'],
-    #             transcript=row['transcript'],
-    #             video_description=row['video_description']
-    #         )
-    #         videos.append(video)
-    #     return videos
-
     def get_df_stats(self) -> dict:
         df = self.filtered_watch_history_df
         stats = {}
