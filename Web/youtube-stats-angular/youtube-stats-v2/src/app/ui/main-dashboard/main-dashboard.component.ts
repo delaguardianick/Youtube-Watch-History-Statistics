@@ -1,26 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataService } from '../../state/services/data.service';
 import { PlotService } from '../../state/services/plots.service';
 import { DataStateService } from '../../state/data-state.service';
 import { DataState, PlotsData, Stats } from '../../state/models/models';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { WeeklyAverageChartComponent } from '../charts/weekly-average-chart/weekly-average-chart.component';
 import { PlotsMainComponent } from '../charts/plots-main/plots-main.component';
-
 @Component({
   selector: 'main-dashboard',
   standalone: true,
-  imports: [CommonModule, WeeklyAverageChartComponent, PlotsMainComponent],
+  imports: [CommonModule, PlotsMainComponent],
   styleUrls: ['./main-dashboard.component.scss'],
   templateUrl: './main-dashboard.component.html',
   providers: [PlotService, DataService],
 })
 export class MainDashboardComponent implements OnInit {
   state$: Observable<DataState>;
-
   constructor(
     private dataService: DataService,
+    private plotsService: PlotService,
     private dataStateService: DataStateService
   ) {
     this.state$ = this.dataStateService.getState();
@@ -30,15 +28,19 @@ export class MainDashboardComponent implements OnInit {
   plots: Object | undefined;
   takeoutId: string | undefined;
   userStatistics: Stats | undefined;
-  plotsData: PlotsData | undefined;
+  // plotsData: PlotsData | undefined;
 
   ngOnInit() {
-    this.state$.subscribe((state) => {
-      if (state.userStatistics) {
-        this.userStatistics = state.userStatistics;
-        this.plotsData = state?.plotsData;
-      }
-    });
+    this.plotsService.getAllPlots();
+    this.state$ = this.dataStateService.getState();
+
+    // this.state$ = this.dataStateService.getState();
+    // this.state$.subscribe((state) => {
+    //   if (state.userStatistics) {
+    //     this.userStatistics = state.userStatistics;
+    //     // this.plotsData = state?.plotsData;
+    //   }
+    // });
   }
 
   public async uploadTakeout(event: any) {

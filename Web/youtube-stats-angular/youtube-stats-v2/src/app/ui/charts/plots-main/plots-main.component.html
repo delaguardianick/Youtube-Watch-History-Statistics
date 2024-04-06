@@ -7,9 +7,24 @@
 </div>
 <div class="row">
   <div class="col-lg-8">
-    <!-- main Chart -->
+    <div class="plot-selector">
+      <select
+        class="form-control"
+        [(ngModel)]="selectedPlot"
+        (change)="updateChart()"
+      >
+        <option value="hourOfDay">Hour of Day</option>
+        <option value="month">Month</option>
+        <option value="dayOfYear">Day of Year</option>
+        <option value="weekday">Weekday</option>
+      </select>
+    </div>
     <div>
-      <app-weekly-average-chart> </app-weekly-average-chart>
+      <ng-container *ngIf="allPlotsData$ | async as allPlotsData">
+        <app-weekly-average-chart
+          [plotData]="allPlotsData.weeklyAvg"
+        ></app-weekly-average-chart>
+      </ng-container>
     </div>
   </div>
   <div class="col-lg-4">

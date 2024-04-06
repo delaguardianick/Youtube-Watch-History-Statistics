@@ -1,6 +1,6 @@
 // data-state.service.ts
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { DataState, PlotsData, Stats } from './models/models';
 
 @Injectable({
@@ -22,6 +22,13 @@ export class DataStateService {
     return this.stateSubject.asObservable();
   }
 
+  // Method to get plotsData as an Observable
+  getPlotsData(): Observable<PlotsData | undefined> {
+    return this.stateSubject
+      .asObservable()
+      .pipe(map((state) => state.plotsData));
+  }
+
   // Method to update the takeoutId in the state
   updateTakeoutId(takeoutId: string): void {
     const currentState = this.stateSubject.value;
@@ -37,7 +44,7 @@ export class DataStateService {
 
   updatePlots(plots: PlotsData): void {
     const currentState = this.stateSubject.value;
-    const updatedState = { ...currentState, userPlots: plots };
+    const updatedState = { ...currentState, plotsData: plots };
     this.stateSubject.next(updatedState);
   }
 }
