@@ -17,16 +17,17 @@ export class WeeklyAverageChartComponent implements OnInit {
 
   public chartOptions: any;
 
-  constructor(private plotsService: PlotService) {}
+  // constructor(private plotsService: PlotService) {}
 
   ngOnInit(): void {
-    this.plotsService.getAllPlots().subscribe((allPlots) => {
-      this.configureCharts(allPlots.weeklyAvg);
-    });
+    // this.plotsService.getAllPlots().subscribe((allPlots) => {
+    //   this.configureCharts(allPlots.weeklyAvg);
+    // });
   }
 
-  configureCharts(plotData: Plot): void {
-    const chartData = plotData.chartData;
+  configureCharts() {
+    if (!this.plotData || !this.plotData.chartData) return;
+    const chartData = this.plotData.chartData;
     this.chartOptions = {
       series: [
         {
@@ -100,7 +101,7 @@ export class WeeklyAverageChartComponent implements OnInit {
         size: 0,
       },
       title: {
-        text: plotData.title,
+        text: this.plotData.title,
         align: 'left', // Make sure title alignment is correct
         style: {
           fontSize: '16px', // Adjust the font size as needed
@@ -138,6 +139,7 @@ export class WeeklyAverageChartComponent implements OnInit {
         offsetY: -20,
       },
     };
+    return this.chartOptions;
   }
 
   // configureCharts(plotData: Plot): void {
