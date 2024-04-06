@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from datetime import timedelta
+from YoutubeVideo import YoutubeVideo
 from database.DBHandler import DBHandler
 import json
 import numpy as np
@@ -26,51 +27,71 @@ class PlotsService:
     watch_history_df = None
     filtered_watch_history_df = None
     date_ranges = None
+    # TODO: Change this to the takeout_id you want to analyze (watch out w sql injection)
+    takeout_id_to_query = "54cd1e4b-9fde-433f-be9d-2a7142b3e369"
 
     def __init__(self):
         self.db_handler = DBHandler()
 
     def fetch_watch_history(self, local=False):
-        # local = False
+        sql_query = """
+            SELECT 
+                tv.watch_date,
+                v.*
+            FROM 
+                (SELECT * FROM "TakeoutVideos" WHERE takeout_id = %s) AS tv
+            LEFT JOIN 
+                "Videos" AS v 
+            ON 
+                tv.video_id = v.video_id;
+            """
+
         if local:
-            self.watch_history_df = pd.read_sql_query(
-                "SELECT * from watch_history_dev_takeout_id WHERE is_available = 1",
+            self.watch_history_df: pd.DataFrame = pd.read_sql_query(
+                sql_query,
                 sqlite3.connect(
-                    "C:/Users/Gordak/Documents/Nick/Projects/Coding/youtube-stats/Backend/src/SQLite/YoutubeStats.sqlite"
+                    "your/local/path.sqlite"
                 ),
             )
         else:
-            conn = self.db_handler.connect()
-            self.watch_history_df = pd.read_sql_query(
-                "SELECT * from watch_history_dev_takeout_id WHERE is_available is true",
-                conn,
+            engine = self.db_handler.connect_sqlalchemy()
+            self.watch_history_df: pd.DataFrame = pd.read_sql_query(
+                sql_query,
+                con=engine,
+                params=(self.takeout_id_to_query,)
             )
 
-        self.filtered_watch_history_df, self.date_ranges = self.analyze_data()
+        self.filtered_watch_history_df, self.date_ranges = self.analyze_data(
+            self.watch_history_df)
 
         return self.watch_history_df
 
-    def analyze_data(self):
+    def analyze_data(self, w_history_df: pd.DataFrame) -> tuple:
         # filter df by year range and get ranges
-        wh_df = self.watch_history_df
-        dates_in_range = self.__get_last_12_months_dates(wh_df)
-        wh_df = self.__filter_df_year_range(wh_df, dates_in_range[0])
+
+        # allVideos: list[YoutubeVideo] = self.data_frame_to_videos(w_history_df)
+
+        dates_in_range = self.__get_last_12_months_dates(w_history_df)
+        w_history_df = self.__filter_df_year_range(
+            w_history_df, dates_in_range[0])
         date_ranges = self.__calculate_time_difference(dates_in_range)
 
         # Change string to int
-        wh_df = wh_df[wh_df["video_length_secs"].notnull()].copy()
-        wh_df["video_length_secs"] = wh_df["video_length_secs"].astype(int)
+        w_history_df = w_history_df[w_history_df["video_length_secs"].notnull()].copy(
+        )
+        w_history_df["video_length_secs"] = w_history_df["video_length_secs"].astype(
+            int)
 
-        return wh_df, date_ranges
+        return w_history_df, date_ranges
 
-    # Get datestats from watch history
     def get_df_stats(self) -> dict:
         df = self.filtered_watch_history_df
         stats = {}
         stats["start_date"] = df["date_"].min()
         stats["end_date"] = df["date_"].max()
 
-        stats["watch_time_in_hours"] = round(df["video_length_secs"].sum() / 3600, 1)
+        stats["watch_time_in_hours"] = round(
+            df["video_length_secs"].sum() / 3600, 1)
         stats["videos_watched"] = df.shape[0]
         stats["most_viewed_month"] = self._most_viewed_month(df)
         stats["fav_creator_by_videos"] = self._fav_creator_by_videos(df)
@@ -78,10 +99,12 @@ class PlotsService:
         return json.dumps(stats, default=self.default_serialization)
 
     def _most_viewed_month(self, df) -> tuple:
-        monthly_hours = df.groupby("month_date")["video_length_secs"].sum() / 3600
+        monthly_hours = df.groupby("month_date")[
+            "video_length_secs"].sum() / 3600
 
         # Map month number to name
-        monthly_hours.index = monthly_hours.index.map(self.get_mappings("months"))
+        monthly_hours.index = monthly_hours.index.map(
+            self.get_mappings("months"))
 
         most_watched_month = monthly_hours.idxmax()
         most_watched_month_count = round(monthly_hours.max(), 1)
@@ -98,11 +121,11 @@ class PlotsService:
 
     def get_all_plots(self):
         wh_df, date_ranges = self.filtered_watch_history_df, self.date_ranges
-        
+
         plots = {
-        "weekly_avg": self.plot_weekly_avg(wh_df, date_ranges),
-        "hourly_avg": self.plot_hour_avg(wh_df, date_ranges),
-        "monthly_avg": self.plot_monthly_avg(wh_df, date_ranges)
+            "weekly_avg": self.plot_weekly_avg(wh_df, date_ranges),
+            "hourly_avg": self.plot_hour_avg(wh_df, date_ranges),
+            "monthly_avg": self.plot_monthly_avg(wh_df, date_ranges)
         }
         # plots["top_channels"] = self.plot_top_viewed_channels(wh_df).plot_url
         # plots["top_genres"] = self.plot_top_genres(wh_df).plot_url
@@ -121,15 +144,20 @@ class PlotsService:
         # ]
 
     def __get_last_12_months_dates(self, wh_df):
-        last_video_in_range = parser.parse(wh_df["date_time_iso"].iloc[0])
+        last_video_in_range = parser.parse(
+            wh_df["watch_date"].iloc[0].date().isoformat())
         twelve_months_timedelta = timedelta(days=365)
         first_video_in_range = last_video_in_range - twelve_months_timedelta
         return (first_video_in_range, last_video_in_range)
 
     def plot_weekly_avg(self, wh_df, date_ranges):
-        # Filter dataframe and group by desired index
+        wh_df['watch_date'] = pd.to_datetime(
+            wh_df['watch_date'], errors='coerce')
+        wh_df['day_of_week'] = wh_df['watch_date'].dt.dayofweek
+
         weekdays_count_df = wh_df[["video_length_secs", "day_of_week"]]
-        weekdays_count_df = weekdays_count_df.groupby("day_of_week").sum().reset_index()
+        weekdays_count_df = weekdays_count_df.groupby(
+            "day_of_week").sum().reset_index()
         # Data manipulation. total secs for a sunday into hours watched on average on a sunday
         weekdays_count_df["hours_watched_avg"] = weekdays_count_df[
             "video_length_secs"
@@ -151,21 +179,27 @@ class PlotsService:
         )
 
         plot = {
-            "title" : title,
-            "chart_data" : chart_data
+            "title": title,
+            "chart_data": chart_data
         }
 
         return plot
 
     def plot_hour_avg(self, wh_df, date_ranges):
+        wh_df['watch_date'] = pd.to_datetime(
+            wh_df['watch_date'], errors='coerce')
+        wh_df['hour_time'] = wh_df['watch_date'].dt.hour
+
         videos_by_hour = wh_df[["video_length_secs", "hour_time"]]
-        videos_by_hour = videos_by_hour.groupby("hour_time").sum().reset_index()
+        videos_by_hour = videos_by_hour.groupby(
+            "hour_time").sum().reset_index()
         videos_by_hour["minutes_watched_avg"] = videos_by_hour[
             "video_length_secs"
         ].apply(lambda x: x / (60 * date_ranges.get("days")))
 
         hour_time_map = self.get_mappings("hours")
-        videos_by_hour["hour_time"] = videos_by_hour["hour_time"].map(hour_time_map)
+        videos_by_hour["hour_time"] = videos_by_hour["hour_time"].map(
+            hour_time_map)
 
         title = "Average / Hour"
 
@@ -175,25 +209,32 @@ class PlotsService:
             "minutes_watched_avg",
             "Average / Hour",
         )
-        
+
         plot = {
-            "title" : title,
-            "chart_data" : chart_data
+            "title": title,
+            "chart_data": chart_data
         }
 
         return plot
 
     def plot_monthly_avg(self, wh_df, date_ranges):
+        wh_df['watch_date'] = pd.to_datetime(
+            wh_df['watch_date'], errors='coerce')
+        wh_df['month_date'] = wh_df['watch_date'].dt.month
+
         videos_by_month = wh_df[["video_length_secs", "month_date"]]
-        videos_by_month = videos_by_month.groupby("month_date").sum().reset_index()
+        videos_by_month = videos_by_month.groupby(
+            "month_date").sum().reset_index()
         videos_by_month["hours_watched_avg"] = videos_by_month[
             "video_length_secs"
         ].apply(lambda x: x / (60 * 60 * date_ranges.get("years") * 12))
 
         months_map = self.get_mappings("months")
-        videos_by_month["month_date"] = videos_by_month["month_date"].map(months_map)
+        videos_by_month["month_date"] = videos_by_month["month_date"].map(
+            months_map)
         # Convert the month_date column to strings
-        videos_by_month["month_date"] = videos_by_month["month_date"].astype(str)
+        videos_by_month["month_date"] = videos_by_month["month_date"].astype(
+            str)
 
         title = "Average / Month"
 
@@ -205,8 +246,8 @@ class PlotsService:
         )
 
         plot = {
-            "title" : title,
-            "chart_data" : chart_data
+            "title": title,
+            "chart_data": chart_data
         }
 
         return plot
@@ -293,7 +334,8 @@ class PlotsService:
     def plot_top_genres(self, wh_df):
         # Filter dataframe and group by desired index
         genres_count_df = wh_df[["category_id", "video_length_secs"]]
-        genres_count_df = genres_count_df.groupby("category_id").sum().reset_index()
+        genres_count_df = genres_count_df.groupby(
+            "category_id").sum().reset_index()
 
         # Data manipulation. total secs for a genre into hours watched
         genres_count_df["hours_watched"] = genres_count_df["video_length_secs"].apply(

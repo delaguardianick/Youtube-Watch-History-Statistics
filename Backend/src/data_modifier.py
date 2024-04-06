@@ -6,13 +6,15 @@ class DataModifier:
     def clean_data(self, video) -> YoutubeVideo:
         raw_date_time = video.get("time")
         date = raw_date_time[:10]
-        time = raw_date_time[11 : len(raw_date_time) - 1]
+        time = raw_date_time[11: len(raw_date_time) - 1]
         datetimeISO = date + " " + time
 
-        date_obj = datetime.fromisoformat(raw_date_time[: len(raw_date_time) - 1])
+        date_obj = datetime.fromisoformat(
+            raw_date_time[: len(raw_date_time) - 1])
 
         title = video.get("title").split(" ", 1)[1]
-        video_URL = "" if video.get("titleUrl") == None else video.get("titleUrl")
+        video_URL = "" if video.get(
+            "titleUrl") == None else video.get("titleUrl")
         channel_name = (
             ""
             if video.get("subtitles") == None
@@ -42,13 +44,16 @@ class DataModifier:
             return "TOO LONG", -1
 
         # Get hours
-        hours, video_length = DataModifier.interval_split_time(video_length, "H")
+        hours, video_length = DataModifier.interval_split_time(
+            video_length, "H")
 
         # Get minutes
-        mins, video_length = DataModifier.interval_split_time(video_length, "M")
+        mins, video_length = DataModifier.interval_split_time(
+            video_length, "M")
 
         # Get seconds
-        secs, video_length = DataModifier.interval_split_time(video_length, "S")
+        secs, video_length = DataModifier.interval_split_time(
+            video_length, "S")
 
         video_length_str = f"{hours}:{mins}:{secs}"
         total_secs = (
@@ -80,7 +85,8 @@ class DataModifier:
     def append_videos_id_to_query(self, watch_history) -> list[str]:
         vid_ids_to_query = [""]
         for video in watch_history:
-            video_url = "" if video.get("titleUrl") == None else video.get("titleUrl")
+            video_url = "" if video.get(
+                "titleUrl") == None else video.get("titleUrl")
 
             video_id = self.get_video_id(video_url)
             video_id = "" if video_id == None else video_id
