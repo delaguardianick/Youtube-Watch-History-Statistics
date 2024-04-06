@@ -37,7 +37,7 @@ export class DataStateService {
 
   updatePlots(plots: PlotsData): void {
     const currentState = this.stateSubject.value;
-    const updatedState = { ...currentState, userPlots: plots };
+    const updatedState = { ...currentState, plotsData: plots };
     this.stateSubject.next(updatedState);
   }
 }

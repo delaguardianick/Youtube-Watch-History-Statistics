@@ -54,7 +54,9 @@
 
       <!-- <button (click)="getAllPlot()">Get Plots</button> -->
 
-      <app-plots-main></app-plots-main>
+      <app-plots-main
+        [plotsData]="(this.state$ | async)?.plotsData"
+      ></app-plots-main>
     </div>
   </main>
 
