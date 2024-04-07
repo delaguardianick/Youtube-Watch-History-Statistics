@@ -15,13 +15,17 @@ export class PlotService {
     private dataStateService: DataStateService
   ) {}
 
-  getAllPlots(): Observable<PlotsData> {
-    return this.http.get<PlotsData>(this.plotsUrl).pipe(
-      map((getAllPlotsResponse) => {
-        const allPlots = PlotFactory.fromApiResponse(getAllPlotsResponse);
-        this.dataStateService.updatePlots(allPlots);
-        return allPlots;
-      })
-    );
+  getAllPlots(): void {
+    this.http
+      .get<PlotsData>(this.plotsUrl)
+      .pipe(
+        map((getAllPlotsResponse) => {
+          const allPlots = PlotFactory.fromApiResponse(getAllPlotsResponse);
+          this.dataStateService.updatePlots(allPlots);
+        })
+      )
+      .subscribe({
+        error: (err) => console.error('Error fetching plots data:', err),
+      });
   }
 }

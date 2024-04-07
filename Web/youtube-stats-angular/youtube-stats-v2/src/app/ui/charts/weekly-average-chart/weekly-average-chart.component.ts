@@ -12,22 +12,12 @@ import { Plot } from '../../../state/models/models';
   styleUrl: './weekly-average-chart.component.scss',
 })
 export class WeeklyAverageChartComponent implements OnInit {
-  @Input() plotData: Plot | undefined;
-  //input plotData: Plot
-
   public chartOptions: any;
+  ngOnInit(): void {}
 
-  // constructor(private plotsService: PlotService) {}
-
-  ngOnInit(): void {
-    // this.plotsService.getAllPlots().subscribe((allPlots) => {
-    //   this.configureCharts(allPlots.weeklyAvg);
-    // });
-  }
-
-  configureCharts() {
-    if (!this.plotData || !this.plotData.chartData) return;
-    const chartData = this.plotData.chartData;
+  configureCharts(plotData: Plot | undefined) {
+    if (!plotData || !plotData.chartData) return;
+    const chartData = plotData.chartData;
     this.chartOptions = {
       series: [
         {
@@ -101,7 +91,7 @@ export class WeeklyAverageChartComponent implements OnInit {
         size: 0,
       },
       title: {
-        text: this.plotData.title,
+        text: plotData.title,
         align: 'left', // Make sure title alignment is correct
         style: {
           fontSize: '16px', // Adjust the font size as needed
