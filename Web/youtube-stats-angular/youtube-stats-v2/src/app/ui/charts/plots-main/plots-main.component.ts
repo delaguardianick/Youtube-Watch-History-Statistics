@@ -1,8 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { WeeklyAverageChartComponent } from '../weekly-average-chart/weekly-average-chart.component';
 import { FormsModule } from '@angular/forms';
-import { PlotService } from '../../../state/services/plots.service';
-import { DataState, PlotsData } from '../../../state/models/models';
+import { PlotsData } from '../../../state/models/models';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { DataStateService } from '../../../state/data-state.service';
@@ -19,29 +18,22 @@ export class PlotsMainComponent implements OnInit {
     this.allPlotsData = plotsData;
     this.updateChart();
   }
-  state$: Observable<DataState> | undefined;
+  plotData$: Observable<PlotsData | undefined> | undefined;
   allPlotsData: PlotsData | undefined;
-  selectedPlot = 'weekday'; // Default selection
-  chartOptions: any; // This will hold your chart configuration
-  allPlotsData$: Observable<PlotsData> | undefined;
+  selectedPlot = 'weekday';
+  chartOptions: any;
   @ViewChild(WeeklyAverageChartComponent) weeklyAverageChart:
     | WeeklyAverageChartComponent
     | undefined;
 
-  constructor(
-    private plotsService: PlotService,
-    private dataStateService: DataStateService
-  ) {}
+  constructor(private dataStateService: DataStateService) {}
 
   ngOnInit() {
-    this.allPlotsData$ = this.plotsService.getAllPlots();
-    // this.state$ = this.dataStateService.getState().subscribe();
-    this.dataStateService.getState().subscribe((state) => {
-      this.allPlotsData = state.plotsData;
-      // Handle state updates
-      // Example: this.userStatistics = state.userStatistics;
+    this.plotData$ = this.dataStateService.getPlotsData();
+    this.plotData$.subscribe((plotsData) => {
+      this.allPlotsData = plotsData;
+      this.updateChart();
     });
-    this.updateChart();
   }
 
   updateChart() {
@@ -59,12 +51,10 @@ export class PlotsMainComponent implements OnInit {
         // this.chartOptions = this.getDayOfYearOptions();
         break;
       case 'weekday':
-        this.chartOptions = this.weeklyAverageChart?.configureCharts();
+        this.getWeekdayOptions();
         break;
       default:
-        this.chartOptions = this.getWeekdayOptions();
-      // this.chartOptions = this.weeklyAverageChart?.chartOptions();
-      // Handle default case or error
+        this.getWeekdayOptions();
     }
   }
 
@@ -79,6 +69,8 @@ export class PlotsMainComponent implements OnInit {
     /* Return chart options for 'Day of Year' */
   }
   getWeekdayOptions() {
-    return this.weeklyAverageChart?.configureCharts();
+    this.chartOptions = this.weeklyAverageChart?.configureCharts(
+      this.allPlotsData?.weeklyAvg
+    );
   }
 }
