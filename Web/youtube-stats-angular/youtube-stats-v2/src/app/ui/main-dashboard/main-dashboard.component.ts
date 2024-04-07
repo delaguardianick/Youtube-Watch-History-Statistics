@@ -6,41 +6,27 @@ import { DataState, PlotsData, Stats } from '../../state/models/models';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { PlotsMainComponent } from '../charts/plots-main/plots-main.component';
+import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'main-dashboard',
   standalone: true,
-  imports: [CommonModule, PlotsMainComponent],
+  imports: [CommonModule, PlotsMainComponent, FormsModule],
   styleUrls: ['./main-dashboard.component.scss'],
   templateUrl: './main-dashboard.component.html',
   providers: [PlotService, DataService],
 })
 export class MainDashboardComponent implements OnInit {
-  state$: Observable<DataState>;
   constructor(
     private dataService: DataService,
     private plotsService: PlotService,
     private dataStateService: DataStateService
-  ) {
-    this.state$ = this.dataStateService.getState();
-  }
+  ) {}
 
-  isLoading = false;
-  plots: Object | undefined;
   takeoutId: string | undefined;
   userStatistics: Stats | undefined;
-  // plotsData: PlotsData | undefined;
 
   ngOnInit() {
     this.plotsService.getAllPlots();
-    this.state$ = this.dataStateService.getState();
-
-    // this.state$ = this.dataStateService.getState();
-    // this.state$.subscribe((state) => {
-    //   if (state.userStatistics) {
-    //     this.userStatistics = state.userStatistics;
-    //     // this.plotsData = state?.plotsData;
-    //   }
-    // });
   }
 
   public async uploadTakeout(event: any) {

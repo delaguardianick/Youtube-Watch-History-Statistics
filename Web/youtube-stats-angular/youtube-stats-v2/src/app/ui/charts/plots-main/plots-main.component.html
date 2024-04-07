@@ -20,11 +20,7 @@
       </select>
     </div>
     <div>
-      <ng-container *ngIf="allPlotsData$ | async as allPlotsData">
-        <app-weekly-average-chart
-          [plotData]="allPlotsData.weeklyAvg"
-        ></app-weekly-average-chart>
-      </ng-container>
+      <app-weekly-average-chart></app-weekly-average-chart>
     </div>
   </div>
   <div class="col-lg-4">
