@@ -1,5 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { PlotService } from '../../../state/services/plots.service';
+import { Component, OnInit } from '@angular/core';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { CommonModule } from '@angular/common';
 import { Plot } from '../../../state/models/models';

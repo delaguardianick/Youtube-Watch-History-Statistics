@@ -1,8 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { WeeklyAverageChartComponent } from '../weekly-average-chart/weekly-average-chart.component';
 import { FormsModule } from '@angular/forms';
-import { PlotService } from '../../../state/services/plots.service';
-import { DataState, PlotsData } from '../../../state/models/models';
+import { PlotsData } from '../../../state/models/models';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { DataStateService } from '../../../state/data-state.service';

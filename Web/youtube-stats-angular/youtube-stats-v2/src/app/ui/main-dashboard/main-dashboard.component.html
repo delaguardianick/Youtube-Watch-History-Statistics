@@ -52,11 +52,7 @@
         <button (click)="getDataFrameStats()">Get Stats</button>
       </div>
 
-      <!-- <button (click)="getAllPlot()">Get Plots</button> -->
-
-      <app-plots-main
-        [plotsData]="(this.state$ | async)?.plotsData"
-      ></app-plots-main>
+      <app-plots-main></app-plots-main>
     </div>
   </main>
 
