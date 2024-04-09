@@ -51,7 +51,7 @@ export class WeeklyAverageChartComponent implements OnInit {
         background: '#343E59',
       },
       grid: {
-        show: true,
+        show: false,
         padding: {
           bottom: 0,
         },
@@ -84,7 +84,7 @@ export class WeeklyAverageChartComponent implements OnInit {
       // },
       fill: {
         colors: ['#E8F7FF'],
-        type: 'solid',
+        // type: 'solid',
       },
       markers: {
         size: 0,
