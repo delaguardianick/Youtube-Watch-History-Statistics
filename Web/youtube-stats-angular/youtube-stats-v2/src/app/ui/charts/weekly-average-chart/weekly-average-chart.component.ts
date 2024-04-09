@@ -27,9 +27,9 @@ export class WeeklyAverageChartComponent implements OnInit {
           color: '#0396FF', // A color from your gradient
         },
       ],
-      // theme: {
-      //   mode: 'dark',
-      // },
+      theme: {
+        mode: 'dark',
+      },
       chart: {
         type: 'area',
         fontFamily: "'Plus Jakarta Sans', sans-serif;",
@@ -60,37 +60,38 @@ export class WeeklyAverageChartComponent implements OnInit {
         curve: 'smooth',
         width: 2,
       },
-      fill: {
-        colors: ['#E8F7FF'], // Adjust for gradient effect if desired
-        type: 'gradient',
-        gradient: {
-          shadeIntensity: 1,
-          opacityFrom: 0.7,
-          opacityTo: 0.9,
-          stops: [0, 90, 100],
-          colorStops: [
-            {
-              offset: 0,
-              color: '#ABDCFF',
-              opacity: 1,
-            },
-            {
-              offset: 100,
-              color: '#0396FF',
-              opacity: 1,
-            },
-          ],
-        },
-      },
       // fill: {
-      //   colors: ['#E8F7FF'],
-      //   type: 'solid',
+      //   colors: ['#E8F7FF'], // Adjust for gradient effect if desired
+      //   type: 'gradient',
+      //   gradient: {
+      //     shadeIntensity: 1,
+      //     opacityFrom: 0.7,
+      //     opacityTo: 0.9,
+      //     stops: [0, 90, 100],
+      //     colorStops: [
+      //       {
+      //         offset: 0,
+      //         color: '#ABDCFF',
+      //         opacity: 1,
+      //       },
+      //       {
+      //         offset: 100,
+      //         color: '#0396FF',
+      //         opacity: 1,
+      //       },
+      //     ],
+      //   },
       // },
+      fill: {
+        colors: ['#E8F7FF'],
+        type: 'solid',
+      },
       markers: {
         size: 0,
       },
       title: {
-        text: plotData.title,
+        // text: plotData.title,
+        text: 'Average Videos Watched per Weekday',
         align: 'left', // Make sure title alignment is correct
         style: {
           fontSize: '16px', // Adjust the font size as needed
@@ -99,7 +100,7 @@ export class WeeklyAverageChartComponent implements OnInit {
       xaxis: {
         categories: chartData.categories,
         labels: {
-          show: true, // Ensure x-axis labels are shown
+          show: true,
         },
       },
       yaxis: {
@@ -108,17 +109,20 @@ export class WeeklyAverageChartComponent implements OnInit {
             return parseFloat(val).toFixed(1); // Format y-axis labels to show only one decimal
           },
         },
+        title: {
+          text: 'Average Videos Watched',
+        },
       },
-      // dataLabels: {
-      //   enabled: true,
-      // },
+      dataLabels: {
+        enabled: true,
+      },
       tooltip: {
         x: {
           format: 'dd/MM/yy HH:mm',
         },
         y: {
           formatter: function (val: string) {
-            return parseFloat(val).toFixed(1) + ' units'; // Adjust 'units' based on your measurement
+            return parseFloat(val).toFixed(1) + ' videos'; // Adjust 'units' based on your measurement
           },
         },
       },
