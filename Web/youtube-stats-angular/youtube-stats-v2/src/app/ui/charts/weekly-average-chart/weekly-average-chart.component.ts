@@ -24,7 +24,7 @@ export class WeeklyAverageChartComponent implements OnInit {
           data: chartData.series[0].data.map((value) =>
             parseFloat(value.toFixed(1))
           ),
-          color: '#0396FF', // A color from your gradient
+          color: '#0396FF',
         },
       ],
       theme: {
@@ -48,7 +48,7 @@ export class WeeklyAverageChartComponent implements OnInit {
           blur: 4,
           opacity: 1,
         },
-        background: '#343E59', // Ensure the chart background matches your theme
+        background: '#343E59',
       },
       grid: {
         show: true,
