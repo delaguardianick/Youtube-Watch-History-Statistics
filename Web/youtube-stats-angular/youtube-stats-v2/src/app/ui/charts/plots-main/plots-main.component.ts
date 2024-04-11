@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { WeeklyAverageChartComponent } from '../weekly-average-chart/weekly-average-chart.component';
+import { TimeRangeAverageChartComponent } from '../time-range-average-chart/time-range-average-chart.component';
 import { FormsModule } from '@angular/forms';
 import { PlotsData } from '../../../state/models/models';
 import { Observable } from 'rxjs';
@@ -9,7 +9,7 @@ import { DataStateService } from '../../../state/data-state.service';
 @Component({
   selector: 'app-plots-main',
   standalone: true,
-  imports: [WeeklyAverageChartComponent, FormsModule, CommonModule],
+  imports: [TimeRangeAverageChartComponent, FormsModule, CommonModule],
   templateUrl: './plots-main.component.html',
   styleUrl: './plots-main.component.scss',
 })
@@ -22,8 +22,8 @@ export class PlotsMainComponent implements OnInit {
   allPlotsData: PlotsData | undefined;
   selectedPlot = 'weekday';
   chartOptions: any;
-  @ViewChild(WeeklyAverageChartComponent) weeklyAverageChart:
-    | WeeklyAverageChartComponent
+  @ViewChild(TimeRangeAverageChartComponent) weeklyAverageChart:
+    | TimeRangeAverageChartComponent
     | undefined;
 
   constructor(private dataStateService: DataStateService) {}

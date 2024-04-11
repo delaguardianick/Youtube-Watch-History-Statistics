@@ -4,13 +4,13 @@ import { CommonModule } from '@angular/common';
 import { Plot } from '../../../state/models/models';
 
 @Component({
-  selector: 'app-weekly-average-chart',
+  selector: 'app-time-range-average-chart',
   standalone: true,
   imports: [CommonModule, NgApexchartsModule],
-  templateUrl: './weekly-average-chart.component.html',
-  styleUrl: './weekly-average-chart.component.scss',
+  templateUrl: './time-range-average-chart.component.html',
+  styleUrl: './time-range-average-chart.component.scss',
 })
-export class WeeklyAverageChartComponent implements OnInit {
+export class TimeRangeAverageChartComponent implements OnInit {
   public chartOptions: any;
   ngOnInit(): void {}
 
