@@ -4,13 +4,13 @@ import { CommonModule } from '@angular/common';
 import { Plot } from '../../../state/models/models';
 
 @Component({
-  selector: 'app-weekly-average-chart',
+  selector: 'app-time-range-average-chart',
   standalone: true,
   imports: [CommonModule, NgApexchartsModule],
-  templateUrl: './weekly-average-chart.component.html',
-  styleUrl: './weekly-average-chart.component.scss',
+  templateUrl: './time-range-average-chart.component.html',
+  styleUrl: './time-range-average-chart.component.scss',
 })
-export class WeeklyAverageChartComponent implements OnInit {
+export class TimeRangeAverageChartComponent implements OnInit {
   public chartOptions: any;
   ngOnInit(): void {}
 
@@ -51,7 +51,7 @@ export class WeeklyAverageChartComponent implements OnInit {
         background: '#343E59',
       },
       grid: {
-        show: true,
+        show: false,
         padding: {
           bottom: 0,
         },
@@ -84,7 +84,7 @@ export class WeeklyAverageChartComponent implements OnInit {
       // },
       fill: {
         colors: ['#E8F7FF'],
-        type: 'solid',
+        // type: 'solid',
       },
       markers: {
         size: 0,
