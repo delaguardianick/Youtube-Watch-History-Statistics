@@ -218,36 +218,44 @@ class PlotsService:
         return plot
 
     def plot_monthly_avg(self, wh_df, date_ranges):
+        # Convert watch_date to datetime
         wh_df['watch_date'] = pd.to_datetime(
             wh_df['watch_date'], errors='coerce')
-        wh_df['month_date'] = wh_df['watch_date'].dt.month
+        # Extract month and year from watch_date
+        wh_df['month'] = wh_df['watch_date'].dt.month
+        wh_df['year'] = wh_df['watch_date'].dt.year
 
-        videos_by_month = wh_df[["video_length_secs", "month_date"]]
-        videos_by_month = videos_by_month.groupby(
-            "month_date").sum().reset_index()
-        videos_by_month["hours_watched_avg"] = videos_by_month[
-            "video_length_secs"
-        ].apply(lambda x: x / (60 * 60 * date_ranges.get("years") * 12))
+        # Group by year and month and sum the seconds watched
+        monthly_data = wh_df.groupby(['year', 'month'])[
+            'video_length_secs'].sum().reset_index()
 
+        # Calculate the number of days in each month-year group
+        monthly_data['days_in_month'] = wh_df.groupby(
+            ['year', 'month'])['watch_date'].transform(lambda x: x.dt.day.nunique())
+
+        # Calculate total hours per month
+        monthly_data['total_hours'] = monthly_data['video_length_secs'] / 3600
+
+        # Calculate average hours per day
+        monthly_data['avg_hours_per_day'] = monthly_data['total_hours'] / \
+            monthly_data['days_in_month']
+
+        # Mapping month numbers to month names
         months_map = self.get_mappings("months")
-        videos_by_month["month_date"] = videos_by_month["month_date"].map(
-            months_map)
-        # Convert the month_date column to strings
-        videos_by_month["month_date"] = videos_by_month["month_date"].astype(
-            str)
+        monthly_data['month'] = monthly_data['month'].map(months_map)
 
-        title = "Average / Month"
-
+        # Preparing data for the plot
         chart_data = self.plots_to_json(
-            videos_by_month,
-            "month_date",
-            "hours_watched_avg",
-            "Average / Month",
+            monthly_data,
+            'month',
+            'avg_hours_per_day',
+            'Average Hours Watched per Day / Month'
         )
 
+        # Build the plot dictionary
         plot = {
-            "title": title,
-            "chart_data": chart_data
+            'title': 'Average Hours Watched per Day / Month',
+            'chart_data': chart_data
         }
 
         return plot
