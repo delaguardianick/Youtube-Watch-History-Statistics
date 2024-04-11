@@ -39,12 +39,10 @@ export class PlotsMainComponent implements OnInit {
   updateChart() {
     switch (this.selectedPlot) {
       case 'hourOfDay':
-        // this.chartOptions = this.getHourOfDayOptions();
-        console.log('display hour of Day chart');
+        this.getHourOfDayOptions();
         break;
       case 'month':
-        console.log('display month chart');
-        // this.chartOptions = this.getMonthOptions();
+        this.getMonthOptions();
         break;
       case 'dayOfYear':
         console.log('display dayOfYear chart');
@@ -60,10 +58,15 @@ export class PlotsMainComponent implements OnInit {
 
   // Define these methods to return the specific configuration for each plot
   getHourOfDayOptions() {
-    /* Return chart options for 'Hour of Day' */
+    this.chartOptions = this.weeklyAverageChart?.configureCharts(
+      this.allPlotsData?.hourlyAvg
+    );
   }
   getMonthOptions() {
     /* Return chart options for 'Month' */
+    this.chartOptions = this.weeklyAverageChart?.configureCharts(
+      this.allPlotsData?.monthlyAvg
+    );
   }
   getDayOfYearOptions() {
     /* Return chart options for 'Day of Year' */

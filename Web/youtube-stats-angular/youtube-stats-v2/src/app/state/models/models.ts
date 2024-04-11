@@ -3,7 +3,6 @@ export interface PlotsData {
   weeklyAvg: Plot;
   hourlyAvg: Plot;
   monthlyAvg: Plot;
-  // monthly_avg: string;
   // top_channels: string;
   // top_genres: string;
   // top_videos: string;
