@@ -90,8 +90,7 @@ export class TimeRangeAverageChartComponent implements OnInit {
         size: 0,
       },
       title: {
-        // text: plotData.title,
-        text: 'Average Videos Watched per Weekday',
+        text: plotData.title,
         align: 'left', // Make sure title alignment is correct
         style: {
           fontSize: '16px', // Adjust the font size as needed
@@ -122,7 +121,7 @@ export class TimeRangeAverageChartComponent implements OnInit {
         },
         y: {
           formatter: function (val: string) {
-            return parseFloat(val).toFixed(1) + ' videos'; // Adjust 'units' based on your measurement
+            return parseFloat(val).toFixed(1) + ' hours averaged'; // Adjust 'units' based on your measurement
           },
         },
       },
