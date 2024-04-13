@@ -169,7 +169,8 @@ class PlotsService:
             weekdays_map
         )
 
-        title = "Avg Watch Time / Weekday"
+        title = f"Average Hours Watched per Weekday in the last {
+            date_ranges.get('days')} days"
 
         chart_data = self.plots_to_json(
             weekdays_count_df,
@@ -179,8 +180,9 @@ class PlotsService:
         )
 
         plot = {
+            "plot_id": "weekly_avg",
             "title": title,
-            "chart_data": chart_data
+            "chart_data": chart_data,
         }
 
         return plot
@@ -207,10 +209,12 @@ class PlotsService:
             videos_by_hour,
             "hour_time",
             "minutes_watched_avg",
-            "Average / Hour",
+            f"Average Minutes Watched per Hour in the last {
+                date_ranges.get('days')} days",
         )
 
         plot = {
+            "plot_id": "hourly_avg",
             "title": title,
             "chart_data": chart_data
         }
@@ -249,13 +253,14 @@ class PlotsService:
             monthly_data,
             'month',
             'avg_hours_per_day',
-            'Average Hours Watched per Day / Month'
+            'Average Hours Watched per Day, each Month'
         )
 
         # Build the plot dictionary
         plot = {
-            'title': 'Average Hours Watched per Day / Month',
-            'chart_data': chart_data
+            "plot_id": "monthly_avg",
+            'title': f'Average Daily Hours Watched per Month in the last {date_ranges.get("days")} days',
+            'chart_data': chart_data,
         }
 
         return plot
