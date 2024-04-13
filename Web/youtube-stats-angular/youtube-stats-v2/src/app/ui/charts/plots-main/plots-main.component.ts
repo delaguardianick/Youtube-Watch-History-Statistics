@@ -5,11 +5,21 @@ import { PlotsData } from '../../../state/models/models';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { DataStateService } from '../../../state/data-state.service';
+import { MaterialModule } from '../../../material.module';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-plots-main',
   standalone: true,
-  imports: [TimeRangeAverageChartComponent, FormsModule, CommonModule],
+  imports: [
+    TimeRangeAverageChartComponent,
+    FormsModule,
+    CommonModule,
+    MaterialModule,
+    MatCardModule,
+    MatButtonModule,
+  ],
   templateUrl: './plots-main.component.html',
   styleUrl: './plots-main.component.scss',
 })

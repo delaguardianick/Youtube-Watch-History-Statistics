@@ -41,6 +41,7 @@ export class StatsFactory {
 }
 
 export interface Plot {
+  plot_id: string | undefined;
   title: string;
   chartData: {
     categories: string[];
@@ -68,6 +69,7 @@ export class PlotFactory {
       const plotData = data[apiResponseKey];
       if (plotData) {
         allPlots[plotsDataKey] = {
+          plot_id: plotData.plot_id || undefined,
           title: plotData.title || '',
           chartData: {
             categories: plotData.chart_data?.categories || [],
