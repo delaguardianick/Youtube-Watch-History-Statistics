@@ -1,5 +1,6 @@
 // plots.model.ts
 export interface PlotsData {
+  dailyAvg: Plot;
   weeklyAvg: Plot;
   hourlyAvg: Plot;
   monthlyAvg: Plot;
@@ -59,6 +60,7 @@ export class PlotFactory {
 
     // Define a mapping of keys in 'data' to the corresponding keys in 'PlotsData'
     const keyMap: { [key: string]: keyof PlotsData } = {
+      daily_avg: 'dailyAvg',
       weekly_avg: 'weeklyAvg',
       hourly_avg: 'hourlyAvg',
       monthly_avg: 'monthlyAvg',
