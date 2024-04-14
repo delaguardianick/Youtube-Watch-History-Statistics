@@ -61,7 +61,10 @@ export class PlotsMainComponent implements OnInit {
         this.getWeekdayOptions();
         break;
       case 'topChannels':
-        this.getTopchannelsOptions();
+        this.getTopChannelsOptions();
+        break;
+      case 'topGenres':
+        this.getTopGenresOptions();
         break;
       default:
         this.getWeekdayOptions();
@@ -88,9 +91,14 @@ export class PlotsMainComponent implements OnInit {
       this.allPlotsData?.weeklyAvg
     );
   }
-  getTopchannelsOptions() {
+  getTopChannelsOptions() {
     this.chartOptions = this.timeRangeAverageChartComponent?.configureCharts(
       this.allPlotsData?.topChannels
+    );
+  }
+  getTopGenresOptions() {
+    this.chartOptions = this.timeRangeAverageChartComponent?.configureCharts(
+      this.allPlotsData?.topGenres
     );
   }
 }

@@ -24,27 +24,35 @@ export class TimeRangeAverageChartComponent implements OnInit {
         disableIndividualTooltips: true, // Custom flag to manage tooltips
         dateFormat: 'MMM do', // Date format for the x-axis labels
       };
-    }
-
-    if (plotData.plot_id === 'hourly_avg') {
+    } else if (plotData.plot_id === 'hourly_avg') {
       extraInfo = {
         title: 'Average Minutes Watched by Hour',
         y_axis_title: 'Average Minutes Watched',
         units: 'minutes',
       };
-    }
-    if (plotData.plot_id === 'weekly_avg') {
+    } else if (plotData.plot_id === 'weekly_avg') {
       extraInfo = {
         title: 'Average Hours Watched by Day of the Week',
         y_axis_title: 'Hours Watched',
         units: 'hours',
       };
-    }
-    if (plotData.plot_id === 'monthly_avg') {
+    } else if (plotData.plot_id === 'monthly_avg') {
       extraInfo = {
         title: 'Average Daily Hours Watched by Month',
         y_axis_title: 'Daily hours watched',
         units: 'avg daily hours',
+      };
+    } else if (plotData.plot_id === 'top_genres') {
+      extraInfo = {
+        title: 'Top Genres by Hours Watched',
+        y_axis_title: 'Hours Watched',
+        units: 'hours',
+      };
+    } else if (plotData.plot_id === 'top_channels') {
+      extraInfo = {
+        title: 'Top Channels by Hours Watched',
+        y_axis_title: 'Hours Watched',
+        units: 'hours',
       };
     }
     return extraInfo;
