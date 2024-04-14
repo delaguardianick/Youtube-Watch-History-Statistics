@@ -5,10 +5,11 @@ import { Stats } from '../../state/models/models';
 import { CommonModule } from '@angular/common';
 import { PlotsMainComponent } from '../charts/plots-main/plots-main.component';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'main-dashboard',
   standalone: true,
-  imports: [CommonModule, PlotsMainComponent, FormsModule],
+  imports: [CommonModule, PlotsMainComponent, FormsModule, MatButtonModule],
   styleUrls: ['./main-dashboard.component.scss'],
   templateUrl: './main-dashboard.component.html',
   providers: [PlotService, DataService],

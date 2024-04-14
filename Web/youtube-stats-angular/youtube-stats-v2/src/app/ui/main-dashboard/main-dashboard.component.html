@@ -31,15 +31,16 @@
           <h2>Analyze your youtube watch trends</h2>
         </div>
         <div class="hero-container hero-right" data-aos="fade-in">
-          <label for="fileInput" class="btn-get-started scrollto">
+          <input
+            hidden
+            type="file"
+            accept=".json"
+            #fileInput
+            (change)="uploadTakeout($event)"
+          />
+          <button mat-raised-button color="primary" (click)="fileInput.click()">
             Upload Takeout
-            <input
-              (change)="uploadTakeout($event)"
-              type="file"
-              id="fileInput"
-              hidden
-            />
-          </label>
+          </button>
 
           <h4>Date range:</h4>
           <div class="date-picker">
