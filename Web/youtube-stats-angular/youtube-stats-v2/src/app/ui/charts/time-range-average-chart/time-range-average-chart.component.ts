@@ -18,7 +18,7 @@ export class TimeRangeAverageChartComponent implements OnInit {
     let extraInfo = undefined;
     if (plotData.plot_id === 'daily_avg') {
       extraInfo = {
-        title: 'Average Hours Watched per Day',
+        title: 'Average Hours Watched per Day of the Year',
         y_axis_title: 'Average Hours Watched',
         units: 'hours',
         disableIndividualTooltips: true, // Custom flag to manage tooltips

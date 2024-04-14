@@ -60,6 +60,9 @@ export class PlotsMainComponent implements OnInit {
       case 'weekday':
         this.getWeekdayOptions();
         break;
+      case 'topChannels':
+        this.getTopchannelsOptions();
+        break;
       default:
         this.getWeekdayOptions();
     }
@@ -83,6 +86,11 @@ export class PlotsMainComponent implements OnInit {
   getWeekdayOptions() {
     this.chartOptions = this.timeRangeAverageChartComponent?.configureCharts(
       this.allPlotsData?.weeklyAvg
+    );
+  }
+  getTopchannelsOptions() {
+    this.chartOptions = this.timeRangeAverageChartComponent?.configureCharts(
+      this.allPlotsData?.topChannels
     );
   }
 }

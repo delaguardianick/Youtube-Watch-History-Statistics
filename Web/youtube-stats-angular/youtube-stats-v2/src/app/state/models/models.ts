@@ -4,9 +4,9 @@ export interface PlotsData {
   weeklyAvg: Plot;
   hourlyAvg: Plot;
   monthlyAvg: Plot;
-  // top_channels: string;
-  // top_genres: string;
-  // top_videos: string;
+  topChannels: Plot;
+  // top_genres: Plot;
+  // top_videos: Plot;
 }
 
 export interface DataState {
@@ -64,6 +64,7 @@ export class PlotFactory {
       weekly_avg: 'weeklyAvg',
       hourly_avg: 'hourlyAvg',
       monthly_avg: 'monthlyAvg',
+      top_channels: 'topChannels',
     };
 
     // Iterate over the keyMap to dynamically populate allPlots
