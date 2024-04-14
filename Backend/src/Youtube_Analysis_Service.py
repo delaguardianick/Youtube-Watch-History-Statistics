@@ -130,12 +130,8 @@ class PlotsService:
             "top_channels": self.plot_top_viewed_channels(wh_df),
             "top_genres": self.plot_top_genres(wh_df),
         }
-        # plots["top_channels"] = self.plot_top_viewed_channels(wh_df).plot_url
-        # plots["top_genres"] = self.plot_top_genres(wh_df).plot_url
-        # plots["top_videos"] = self.plot_top_videos(wh_df).plot_url
 
         return json.dumps(plots, default=self.default_serialization)
-        # return plots  # {"plot_name" : {title, plot_data}}
 
     def __filter_df_year_range(self, wh_df, beginning_date):
         wh_df["date_timestamp"] = pd.to_datetime(wh_df["date_"])
@@ -352,94 +348,15 @@ class PlotsService:
 
         return plot
 
-    # def plot_top_viewed_channels(self, wh_df):
-    #     # Filter dataframe and group by desired index
-    #     channels_count_df = wh_df[["channel_name", "video_length_secs"]]
-    #     channels_agg_df = (
-    #         channels_count_df.groupby("channel_name")
-    #         .agg({"video_length_secs": ["count", "sum"]})
-    #         .reset_index()
-    #     )
-
-    #     # Flatten the MultiIndex columns
-    #     channels_agg_df.columns = [
-    #         "_".join(col).strip() for col in channels_agg_df.columns.values
-    #     ]
-
-    #     # Rename the columns
-    #     channels_agg_df.rename(
-    #         columns={
-    #             "channel_name_": "channel_name",
-    #             "video_length_secs_count": "video_count",
-    #             "video_length_secs_sum": "video_length_secs",
-    #         },
-    #         inplace=True,
-    #     )
-
-    #     # Data manipulation. total secs for a channel into hours watched
-    #     channels_agg_df["hours_watched"] = channels_agg_df["video_length_secs"].apply(
-    #         lambda x: x / (60 * 60)
-    #     )
-
-    #     # Sort the DataFrame by total hours watched in descending order and select the top 10 most viewed channels
-    #     top_channels_agg_df = channels_agg_df.sort_values(
-    #         by="hours_watched", ascending=False
-    #     ).head(10)
-
-    #     # Plot the bar graph with two y-axes
-    #     fig, ax1 = plt.subplots()
-
-    #     # Plot total number of videos watched
-    #     bar_plot = ax1.bar(
-    #         top_channels_agg_df["channel_name"],
-    #         top_channels_agg_df["video_count"],
-    #         label="Total videos watched",
-    #         alpha=0.6,
-    #     )
-    #     ax1.set_xlabel("Channels")
-    #     ax1.set_ylabel("Total videos watched")
-    #     ax1.tick_params(axis="y")
-
-    #     # Rotate the x-axis labels
-    #     ax1.set_xticklabels(
-    #         labels=top_channels_agg_df["channel_name"], rotation=45, ha="right"
-    #     )
-
-    #     # Create a second y-axis for the total hours watched
-    #     ax2 = ax1.twinx()
-    #     (line_plot,) = ax2.plot(
-    #         top_channels_agg_df["channel_name"],
-    #         top_channels_agg_df["hours_watched"],
-    #         "r",
-    #         label="Total hours watched",
-    #         marker="o",
-    #     )
-    #     ax2.set_ylabel("Total hours watched")
-    #     ax2.tick_params(axis="y")
-
-    #     # Add title and legend
-    #     plt.title("Top 10 Most Viewed Channels")
-    #     fig.legend(
-    #         [bar_plot, line_plot],
-    #         ["Total videos watched", line_plot.get_label()],
-    #         loc="lower right",
-    #         title=f"Range:",
-    #     )
-
-    #     # Show the plot
-    #     plt.tight_layout()
-
-    #     return Plot("top_channels", self.__get_plot_url(ax1), None)
-
     def plot_top_genres(self, wh_df):
         # Filter dataframe and group by desired index
         genres_count_df = wh_df[["category_id", "video_length_secs"]]
         genres_count_df = genres_count_df.groupby(
             "category_id").sum().reset_index()
 
-        # Data manipulation. total secs for a genre into hours watched
+        # Convert total seconds for a genre into hours watched
         genres_count_df["hours_watched"] = genres_count_df["video_length_secs"].apply(
-            lambda x: x / (60 * 60)
+            lambda x: x / 3600
         )
 
         # Map the genre names to the category_id
@@ -452,74 +369,22 @@ class PlotsService:
             by="hours_watched", ascending=False
         ).head(7)
 
-        # Group the DataFrame by category_id and channel_name to get the count of videos for each channel in each genre
-        channel_genre_count = (
-            wh_df.groupby(["category_id", "channel_name"])
-            .size()
-            .reset_index(name="video_count")
-        )
-
-        # Find the top channel for each genre
-        top_channel_per_genre = channel_genre_count.loc[
-            channel_genre_count.groupby("category_id")["video_count"].idxmax()
-        ]
-
-        # Merge the top channel information with the top genres DataFrame
-        top_genres_channels_df = pd.merge(
+        # Prepare data for plotting (adapted to a JSON serializable format)
+        chart_data = self.plots_to_json(
             top_genres_count_df,
-            top_channel_per_genre[["category_id", "channel_name"]],
-            on="category_id",
-            how="inner",
+            "genre",
+            "hours_watched",
+            "Top 7 Most Watched Genres"
         )
 
-        # Sort the DataFrame by total hours watched in descending order and select the top 10 most watched genres
-        top_genres_channels_df = top_genres_channels_df.sort_values(
-            by="hours_watched", ascending=False
-        ).head(10)
+        # Structure for ApexCharts or similar
+        plot = {
+            "plot_id": "top_genres",
+            "title": "Top 7 Most Watched Genres",
+            "chart_data": chart_data
+        }
 
-        # Add the top channel information to the genre label
-        top_genres_channels_df["genre_with_top_channel"] = (
-            top_genres_channels_df["genre"]
-            + " ("
-            + top_genres_channels_df["channel_name"]
-            + ")"
-        )
-
-        # Plot the bar graph
-        fig, ax = plt.subplots(figsize=(12, 6))  # Adjust the figure size
-
-        # Custom bar colors and edge colors
-        colors = plt.cm.tab10.colors
-        bar_plot = ax.bar(
-            top_genres_channels_df["genre_with_top_channel"],
-            top_genres_channels_df["hours_watched"],
-            color=colors,
-            edgecolor="black",
-            alpha=0.7,
-        )
-
-        # Create a list of newline-separated labels that include both the genre and the top channel
-        newline_labels = [
-            f"{genre}\n({channel})"
-            for genre, channel in zip(
-                top_genres_channels_df["genre"], top_genres_channels_df["channel_name"]
-            )
-        ]
-
-        # Set x-axis labels and custom style
-        ax.set_xticks(top_genres_channels_df["genre_with_top_channel"].index)
-        ax.set_xticklabels(newline_labels, rotation=45, ha="right")
-
-        # Set y-axis labels
-        ax.set_ylabel("Total hours watched")
-
-        # Add title and legend
-        plt.title("Top 7 Most Watched Genres with Top Channel")
-
-        # Show the plot
-        plt.tight_layout()
-
-        return Plot("top_genres", self.__get_plot_url(ax), None)
+        return plot
 
     def plot_top_videos(self, wh_df):
         # Group the DataFrame by video title and channel and count the occurrences
