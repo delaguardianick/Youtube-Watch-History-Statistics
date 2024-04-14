@@ -32,7 +32,7 @@ export class PlotsMainComponent implements OnInit {
   allPlotsData: PlotsData | undefined;
   selectedPlot = 'weekday';
   chartOptions: any;
-  @ViewChild(TimeRangeAverageChartComponent) weeklyAverageChart:
+  @ViewChild(TimeRangeAverageChartComponent) timeRangeAverageChartComponent:
     | TimeRangeAverageChartComponent
     | undefined;
 
@@ -55,35 +55,50 @@ export class PlotsMainComponent implements OnInit {
         this.getMonthOptions();
         break;
       case 'dayOfYear':
-        console.log('display dayOfYear chart');
-        // this.chartOptions = this.getDayOfYearOptions();
+        this.chartOptions = this.getDayOfYearOptions();
         break;
       case 'weekday':
         this.getWeekdayOptions();
+        break;
+      case 'topChannels':
+        this.getTopChannelsOptions();
+        break;
+      case 'topGenres':
+        this.getTopGenresOptions();
         break;
       default:
         this.getWeekdayOptions();
     }
   }
 
-  // Define these methods to return the specific configuration for each plot
   getHourOfDayOptions() {
-    this.chartOptions = this.weeklyAverageChart?.configureCharts(
+    this.chartOptions = this.timeRangeAverageChartComponent?.configureCharts(
       this.allPlotsData?.hourlyAvg
     );
   }
   getMonthOptions() {
-    /* Return chart options for 'Month' */
-    this.chartOptions = this.weeklyAverageChart?.configureCharts(
+    this.chartOptions = this.timeRangeAverageChartComponent?.configureCharts(
       this.allPlotsData?.monthlyAvg
     );
   }
   getDayOfYearOptions() {
-    /* Return chart options for 'Day of Year' */
+    this.chartOptions = this.timeRangeAverageChartComponent?.configureCharts(
+      this.allPlotsData?.dailyAvg
+    );
   }
   getWeekdayOptions() {
-    this.chartOptions = this.weeklyAverageChart?.configureCharts(
+    this.chartOptions = this.timeRangeAverageChartComponent?.configureCharts(
       this.allPlotsData?.weeklyAvg
+    );
+  }
+  getTopChannelsOptions() {
+    this.chartOptions = this.timeRangeAverageChartComponent?.configureCharts(
+      this.allPlotsData?.topChannels
+    );
+  }
+  getTopGenresOptions() {
+    this.chartOptions = this.timeRangeAverageChartComponent?.configureCharts(
+      this.allPlotsData?.topGenres
     );
   }
 }

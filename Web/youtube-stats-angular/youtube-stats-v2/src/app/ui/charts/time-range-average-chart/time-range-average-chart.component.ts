@@ -16,25 +16,43 @@ export class TimeRangeAverageChartComponent implements OnInit {
 
   #plotSpecificInfo(plotData: Plot) {
     let extraInfo = undefined;
-    if (plotData.plot_id === 'hourly_avg') {
+    if (plotData.plot_id === 'daily_avg') {
+      extraInfo = {
+        title: 'Average Hours Watched per Day of the Year',
+        y_axis_title: 'Average Hours Watched',
+        units: 'hours',
+        disableIndividualTooltips: true, // Custom flag to manage tooltips
+        dateFormat: 'MMM do', // Date format for the x-axis labels
+      };
+    } else if (plotData.plot_id === 'hourly_avg') {
       extraInfo = {
         title: 'Average Minutes Watched by Hour',
         y_axis_title: 'Average Minutes Watched',
         units: 'minutes',
       };
-    }
-    if (plotData.plot_id === 'weekly_avg') {
+    } else if (plotData.plot_id === 'weekly_avg') {
       extraInfo = {
         title: 'Average Hours Watched by Day of the Week',
         y_axis_title: 'Hours Watched',
         units: 'hours',
       };
-    }
-    if (plotData.plot_id === 'monthly_avg') {
+    } else if (plotData.plot_id === 'monthly_avg') {
       extraInfo = {
         title: 'Average Daily Hours Watched by Month',
         y_axis_title: 'Daily hours watched',
         units: 'avg daily hours',
+      };
+    } else if (plotData.plot_id === 'top_genres') {
+      extraInfo = {
+        title: 'Top Genres by Hours Watched',
+        y_axis_title: 'Hours Watched',
+        units: 'hours',
+      };
+    } else if (plotData.plot_id === 'top_channels') {
+      extraInfo = {
+        title: 'Top Channels by Hours Watched',
+        y_axis_title: 'Hours Watched',
+        units: 'hours',
       };
     }
     return extraInfo;
@@ -119,11 +137,13 @@ export class TimeRangeAverageChartComponent implements OnInit {
         },
       },
       dataLabels: {
-        enabled: true,
+        enabled: extraPlotInfo?.disableIndividualTooltips ? false : true,
       },
       tooltip: {
+        // enabled: !extraPlotInfo?.disableIndividualTooltips,
+        enabled: true, // Conditionally enable tooltips,
         x: {
-          format: 'dd/MM/yy HH:mm',
+          format: extraPlotInfo?.dateFormat || 'dd/MM/yy HH:mm', // Use custom format if available
         },
         y: {
           formatter: function (val: string) {
@@ -139,52 +159,4 @@ export class TimeRangeAverageChartComponent implements OnInit {
     };
     return this.chartOptions;
   }
-
-  // configureCharts(plotData: Plot): void {
-  // const chartData = plotData.chartData;
-  // this.chartOptions = {
-  //   series: { ...chartData.series, color: '#5D87FF' },
-  //   chart: {
-  //     type: 'area',
-  //     fontFamily: "'Plus Jakarta Sans', sans-serif;",
-  //     foreColor: '#adb0bb',
-  //     toolbar: {
-  //       show: false,
-  //     },
-  //     // height: 60,
-  //     sparkline: {
-  //       enabled: true,
-  //     },
-  //     group: 'sparklines',
-  //     height: 350,
-  //     // type: 'line',
-  //   },
-  //   stroke: {
-  //     curve: 'smooth',
-  //     width: 2,
-  //   },
-  //   title: {
-  //     text: plotData.title,
-  //   },
-  //   fill: {
-  //     colors: ['#E8F7FF'],
-  //     type: 'solid',
-  //   },
-  //   markers: {
-  //     size: 0,
-  //   },
-  //   xaxis: {
-  //     categories: chartData.categories,
-  //   },
-  //   dataLabels: {
-  //     enabled: false,
-  //   },
-  //   tooltip: {
-  //     theme: 'dark',
-  //     x: {
-  //       format: 'dd/MM/yy HH:mm',
-  //       show: false,
-  //     },
-  //   },
-  // };
 }

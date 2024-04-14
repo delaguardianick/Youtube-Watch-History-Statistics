@@ -1,11 +1,11 @@
 // plots.model.ts
 export interface PlotsData {
+  dailyAvg: Plot;
   weeklyAvg: Plot;
   hourlyAvg: Plot;
   monthlyAvg: Plot;
-  // top_channels: string;
-  // top_genres: string;
-  // top_videos: string;
+  topChannels: Plot;
+  topGenres: Plot;
 }
 
 export interface DataState {
@@ -59,9 +59,12 @@ export class PlotFactory {
 
     // Define a mapping of keys in 'data' to the corresponding keys in 'PlotsData'
     const keyMap: { [key: string]: keyof PlotsData } = {
+      daily_avg: 'dailyAvg',
       weekly_avg: 'weeklyAvg',
       hourly_avg: 'hourlyAvg',
       monthly_avg: 'monthlyAvg',
+      top_channels: 'topChannels',
+      top_genres: 'topGenres',
     };
 
     // Iterate over the keyMap to dynamically populate allPlots
