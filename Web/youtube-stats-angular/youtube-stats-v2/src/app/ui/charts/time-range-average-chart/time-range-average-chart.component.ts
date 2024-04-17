@@ -40,7 +40,7 @@ export class TimeRangeAverageChartComponent implements OnInit {
       extraInfo = {
         title: 'Average Daily Hours Watched by Month',
         y_axis_title: 'Daily hours watched',
-        units: 'avg daily hours',
+        units: 'hours',
       };
     } else if (plotData.plot_id === 'top_genres') {
       extraInfo = {

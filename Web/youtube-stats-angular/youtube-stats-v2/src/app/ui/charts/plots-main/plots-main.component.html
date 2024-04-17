@@ -1,49 +1,50 @@
+<div>
+  <h3>
+    Date Range: {{ userStatistics?.start_date }} -
+    {{ userStatistics?.end_date }}
+  </h3>
+</div>
+
 <div class="row top-card-row">
   <div class="col-lg-2 col-sm-4 col-6">
     <mat-card class="example-card">
       <mat-card-header>
-        <mat-card-title>Card 1 </mat-card-title>
-        <mat-card-subtitle>Dog Breed</mat-card-subtitle>
+        <mat-card-title>Total watch time</mat-card-title>
+        <mat-card-subtitle>{{
+          userStatistics?.watch_time_in_hours
+        }}</mat-card-subtitle>
       </mat-card-header>
-      <mat-card-content>
-        <p>This card indeterminates progress bar.</p>
-        <p>bla</p>
-      </mat-card-content>
     </mat-card>
   </div>
   <div class="col-lg-2 col-sm-4 col-6">
     <mat-card class="example-card">
       <mat-card-header>
-        <mat-card-title>Card 2 </mat-card-title>
-        <mat-card-subtitle>Dog Breed</mat-card-subtitle>
+        <mat-card-title>Total Videos Watched</mat-card-title>
+        <mat-card-subtitle>{{
+          userStatistics?.videos_watched
+        }}</mat-card-subtitle>
       </mat-card-header>
-      <mat-card-content>
-        <p>This card indeterminates progress bar.</p>
-        <p>bla</p>
-      </mat-card-content>
     </mat-card>
   </div>
   <div class="col-lg-2 col-sm-4 col-6">
     <mat-card class="example-card">
       <mat-card-header>
-        <mat-card-title>Card 3</mat-card-title>
-        <mat-card-subtitle>Dog Breed</mat-card-subtitle>
+        <mat-card-title>Most Active Month </mat-card-title>
+        <mat-card-subtitle>(hours watched)</mat-card-subtitle>
+        <mat-card-subtitle>{{
+          userStatistics?.most_viewed_month
+        }}</mat-card-subtitle>
       </mat-card-header>
-      <mat-card-content>
-        <p>This card indeterminates progress bar.</p>
-        <p>bla</p>
-      </mat-card-content>
     </mat-card>
   </div>
   <div class="col-lg-2 col-sm-4 col-6">
     <mat-card class="example-card">
       <mat-card-header>
-        <mat-card-title>Card 4 </mat-card-title>
-        <mat-card-subtitle>Dog Breed</mat-card-subtitle>
+        <mat-card-title>Favourite Creator</mat-card-title>
+        <mat-card-subtitle>By number of videos watched</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <p>This card indeterminates progress bar.</p>
-        <p>bla</p>
+        {{ userStatistics?.fav_creator_by_videos }}
       </mat-card-content>
     </mat-card>
   </div>
@@ -89,7 +90,6 @@
             <mat-card-subtitle>Dog Breed</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content>
-            <p>This card indeterminates progress bar.</p>
             <p>bla</p>
           </mat-card-content>
         </mat-card>

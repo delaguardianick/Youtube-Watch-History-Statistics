@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { TimeRangeAverageChartComponent } from '../time-range-average-chart/time-range-average-chart.component';
 import { FormsModule } from '@angular/forms';
-import { PlotsData } from '../../../state/models/models';
+import { PlotsData, Stats } from '../../../state/models/models';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { DataStateService } from '../../../state/data-state.service';
@@ -29,7 +29,9 @@ export class PlotsMainComponent implements OnInit {
     this.updateChart();
   }
   plotData$: Observable<PlotsData | undefined> | undefined;
+  userStatistics$: Observable<Stats | undefined> | undefined;
   allPlotsData: PlotsData | undefined;
+  userStatistics: Stats | undefined;
   selectedPlot = 'weekday';
   chartOptions: any;
   @ViewChild(TimeRangeAverageChartComponent) timeRangeAverageChartComponent:
@@ -43,6 +45,10 @@ export class PlotsMainComponent implements OnInit {
     this.plotData$.subscribe((plotsData) => {
       this.allPlotsData = plotsData;
       this.updateChart();
+    });
+    this.userStatistics$ = this.dataStateService.getUserStatistics();
+    this.userStatistics$.subscribe((userStatistics) => {
+      this.userStatistics = userStatistics;
     });
   }
 

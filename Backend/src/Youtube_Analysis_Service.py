@@ -1,3 +1,4 @@
+import datetime
 import sqlite3
 import io
 import base64
@@ -35,14 +36,14 @@ class PlotsService:
 
     def fetch_watch_history(self, local=False):
         sql_query = """
-            SELECT 
+            SELECT
                 tv.watch_date,
                 v.*
-            FROM 
+            FROM
                 (SELECT * FROM "TakeoutVideos" WHERE takeout_id = %s) AS tv
-            LEFT JOIN 
-                "Videos" AS v 
-            ON 
+            LEFT JOIN
+                "Videos" AS v
+            ON
                 tv.video_id = v.video_id;
             """
 
@@ -99,13 +100,18 @@ class PlotsService:
         return json.dumps(stats, default=self.default_serialization)
 
     def _most_viewed_month(self, df) -> tuple:
-        monthly_hours = df.groupby("month_date")[
-            "video_length_secs"].sum() / 3600
+        df['date_'] = pd.to_datetime(df['date_'])
+        df['month'] = df['date_'].dt.month
 
-        # Map month number to name
+        # Group by month and sum video lengths, then convert to hours
+        monthly_hours = df.groupby("month")["video_length_secs"].sum() / 3600
+
+        # Map month number to month name using a custom month mapping
+        month_mapping = self.get_mappings("months")
         monthly_hours.index = monthly_hours.index.map(
-            self.get_mappings("months"))
+            lambda x: month_mapping[x])
 
+        # Find the month with the maximum hours watched
         most_watched_month = monthly_hours.idxmax()
         most_watched_month_count = round(monthly_hours.max(), 1)
 
@@ -563,7 +569,11 @@ class PlotsService:
         return chart_data
 
     # function to convert np.int64 to int
-    def default_serialization(self, o):
-        if isinstance(o, np.int64):
-            return int(o)
+    def default_serialization(self, obj):
+        if isinstance(obj, np.int64):
+            return int(obj)
+        elif isinstance(obj, pd.Timestamp):
+            return obj.isoformat()  # Convert Timestamp to ISO format string
+        elif isinstance(obj, (datetime.date, datetime.datetime)):
+            return obj.isoformat()  # Handle datetime objects similarly
         raise TypeError

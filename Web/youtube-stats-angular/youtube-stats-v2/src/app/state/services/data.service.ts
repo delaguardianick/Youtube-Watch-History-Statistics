@@ -51,4 +51,18 @@ export class DataService {
       })
     );
   }
+
+  getStats(): void {
+    this.http
+      .get<Stats>('http://localhost:8000/stats')
+      .pipe(
+        map((statsApiResponse) => {
+          const stats = StatsFactory.fromApiResponse(statsApiResponse);
+          this.dataStateService.updateStatistics(stats);
+        })
+      )
+      .subscribe({
+        error: (err) => console.error('Error fetching stats data:', err),
+      });
+  }
 }
