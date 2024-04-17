@@ -29,6 +29,13 @@ export class DataStateService {
       .pipe(map((state) => state.plotsData));
   }
 
+  // Method to get userStatistics as an Observable
+  getUserStatistics(): Observable<Stats | undefined> {
+    return this.stateSubject
+      .asObservable()
+      .pipe(map((state) => state.userStatistics));
+  }
+
   // Method to update the takeoutId in the state
   updateTakeoutId(takeoutId: string): void {
     const currentState = this.stateSubject.value;

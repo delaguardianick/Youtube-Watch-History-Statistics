@@ -25,6 +25,7 @@ export class MainDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.plotsService.getAllPlots();
+    this.dataService.getStats();
   }
 
   public async uploadTakeout(event: any) {
