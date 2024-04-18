@@ -193,28 +193,36 @@ class PlotsService:
         return plot
 
     def plot_daily_avg(self, wh_df, date_ranges):
+        # Ensure 'watch_date' is in datetime format
         wh_df['watch_date'] = pd.to_datetime(
             wh_df['watch_date'], errors='coerce')
+
+        # Extract the year and day of the year from 'watch_date'
         wh_df['day_of_year'] = wh_df['watch_date'].dt.dayofyear
+        wh_df['year'] = wh_df['watch_date'].dt.year
 
         # Group data by day of the year and sum the video lengths
-        days_count_df = wh_df[["video_length_secs", "day_of_year"]]
-        days_count_df = days_count_df.groupby(
-            "day_of_year").sum().reset_index()
+        days_count_df = wh_df.groupby(["day_of_year", "year"])[
+            "video_length_secs"].sum().reset_index()
 
         # Calculate the average hours watched per day
-        days_count_df["hours_watched_avg"] = days_count_df[
-            "video_length_secs"].apply(lambda x: x / (60 * 60 * date_ranges.get("years")))
+        days_count_df["hours_watched_avg"] = days_count_df["video_length_secs"] / 3600
+
+        # Convert 'day_of_year' and 'year' back to actual date, ensuring types are correct
+        days_count_df['date'] = days_count_df.apply(
+            lambda row: pd.Timestamp(year=int(row['year']),
+                                     month=1, day=1) + pd.Timedelta(days=int(row['day_of_year']) - 1),
+            axis=1)
 
         title = f"Average Hours Watched per Day in the Last {
             date_ranges.get('days')} Days"
 
-        # Prepare the data for plotting (assumes implementation of plots_to_json)
+        # Prepare the data for plotting
         chart_data = self.plots_to_json(
             days_count_df,
-            "day_of_year",  # Use 'date' for better readability in the plot
+            "date",  # Use actual date for x-axis
             "hours_watched_avg",
-            title,
+            title
         )
 
         # Assemble the plot dictionary
