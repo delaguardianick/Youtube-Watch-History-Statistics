@@ -96,8 +96,26 @@ class PlotsService:
         stats["videos_watched"] = df.shape[0]
         stats["most_viewed_month"] = self._most_viewed_month(df)
         stats["fav_creator_by_videos"] = self._fav_creator_by_videos(df)
+        stats["short_video_count"] = self.count_shorts_watched(df)
 
         return json.dumps(stats, default=self.default_serialization)
+
+    def count_shorts_watched(self, df):
+        # Ensure 'date_' is in datetime format
+        df['date_'] = pd.to_datetime(df['date_'])
+
+        # Get the current date for reference
+        current_date = pd.Timestamp.now()
+
+        # Filter videos from the last year and videos under 120 seconds
+        # Assuming 'video_length_secs' represents the length of the video in seconds
+        filtered_df = df[(df['date_'] >= current_date -
+                          pd.DateOffset(years=1)) & (df['video_length_secs'] <= 60)]
+
+        # Count the number of such videos
+        number_of_short_videos = filtered_df.shape[0]
+
+        return number_of_short_videos
 
     def _most_viewed_month(self, df) -> tuple:
         df['date_'] = pd.to_datetime(df['date_'])
