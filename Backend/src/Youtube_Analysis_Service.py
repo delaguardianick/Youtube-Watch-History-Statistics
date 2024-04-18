@@ -129,10 +129,10 @@ class PlotsService:
         wh_df, date_ranges = self.filtered_watch_history_df, self.date_ranges
 
         plots = {
-            "daily_avg": self.plot_daily_avg(wh_df, date_ranges),
             "weekly_avg": self.plot_weekly_avg(wh_df, date_ranges),
             "hourly_avg": self.plot_hour_avg(wh_df, date_ranges),
             "monthly_avg": self.plot_monthly_avg(wh_df, date_ranges),
+            "daily_avg": self.plot_daily_avg(wh_df, date_ranges),
             "top_channels": self.plot_top_viewed_channels(wh_df),
             "top_genres": self.plot_top_genres(wh_df),
         }
@@ -210,8 +210,8 @@ class PlotsService:
 
         # Convert 'day_of_year' and 'year' back to actual date, ensuring types are correct
         days_count_df['date'] = days_count_df.apply(
-            lambda row: pd.Timestamp(year=int(row['year']),
-                                     month=1, day=1) + pd.Timedelta(days=int(row['day_of_year']) - 1),
+            lambda row: (pd.Timestamp(year=int(row['year']), month=1, day=1) +
+                         pd.Timedelta(days=int(row['day_of_year']) - 1)).strftime('%b %dth, %Y'),
             axis=1)
 
         title = f"Average Hours Watched per Day in the Last {
