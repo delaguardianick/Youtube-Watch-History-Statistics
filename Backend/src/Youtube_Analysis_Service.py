@@ -136,10 +136,6 @@ class PlotsService:
 
         return (most_watched_month, most_watched_month_count)
 
-    import pandas as pd
-
-    import pandas as pd
-
     def _fav_creator_by_videos(self, df) -> tuple:
         # Filter out rows where 'channel_name' is empty or any other invalid data you might have
         valid_df = df[df['channel_name'].str.strip() != '']
