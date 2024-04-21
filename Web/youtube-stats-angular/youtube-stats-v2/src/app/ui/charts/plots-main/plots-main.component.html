@@ -27,14 +27,16 @@
     </mat-card>
   </div>
   <div class="col-lg-2 col-sm-4 col-6">
-    <mat-card class="example-card">
+    <mat-card class="most-active-month-card">
       <mat-card-header>
-        <mat-card-title>Most Active Month </mat-card-title>
-        <mat-card-subtitle>(hours watched)</mat-card-subtitle>
-        <mat-card-subtitle>{{
-          userStatistics?.most_viewed_month
-        }}</mat-card-subtitle>
+        <mat-card-title>Top Month</mat-card-title>
       </mat-card-header>
+      <mat-card-content>
+        <p *ngIf="userStatistics?.most_viewed_month; else noData">
+          {{ "April" }} with {{ "30" }} hours watched.
+        </p>
+        <ng-template #noData>No data available</ng-template>
+      </mat-card-content>
     </mat-card>
   </div>
   <div class="col-lg-2 col-sm-4 col-6">
@@ -51,7 +53,7 @@
   <div class="col-lg-2 col-sm-4 col-6">
     <mat-card class="example-card">
       <mat-card-header>
-        <mat-card-title>Card 5 </mat-card-title>
+        <mat-card-title>Total Shorts Watched</mat-card-title>
         <mat-card-subtitle>Dog Breed</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>

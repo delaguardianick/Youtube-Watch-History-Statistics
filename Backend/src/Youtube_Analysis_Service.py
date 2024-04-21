@@ -137,12 +137,31 @@ class PlotsService:
         return (most_watched_month, most_watched_month_count)
 
     def _fav_creator_by_videos(self, df) -> tuple:
-        channel_counts = df.groupby("channel_name").size()
+        # Filter out rows where 'channel_name' is empty or any other invalid data you might have
+        valid_df = df[df['channel_name'].str.strip() != '']
 
-        most_viewed_channel = channel_counts.idxmax()
-        most_viewed_channel_count = round(channel_counts.max(), 1)
+        # Group by 'channel_name' and aggregate both count and sum of video lengths
+        channel_aggregates = valid_df.groupby("channel_name").agg(
+            # Count of videos per channel
+            video_count=('channel_name', 'size'),
+            # Sum of video lengths per channel
+            total_video_length=('video_length_secs', 'sum')
+        )
 
-        return (most_viewed_channel, most_viewed_channel_count)
+        # Check if the resulting DataFrame is empty after filtering
+        if channel_aggregates.empty:
+            return ("No valid data", 0, 0)
+
+        # Find the channel with the maximum number of videos
+        most_viewed_channel = channel_aggregates['video_count'].idxmax()
+        most_viewed_channel_count = channel_aggregates.loc[most_viewed_channel, 'video_count']
+        total_length = channel_aggregates.loc[most_viewed_channel,
+                                              'total_video_length']
+
+        # Converts seconds to hours and rounds to two decimals
+        total_length_in_hours = round(total_length / 3600, 2)
+
+        return (most_viewed_channel, most_viewed_channel_count, total_length_in_hours)
 
     def get_all_plots(self):
         wh_df, date_ranges = self.filtered_watch_history_df, self.date_ranges

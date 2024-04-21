@@ -6,10 +6,19 @@ import { CommonModule } from '@angular/common';
 import { PlotsMainComponent } from '../charts/plots-main/plots-main.component';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MaterialModule } from '../../material.module';
+import { MatCardModule } from '@angular/material/card';
 @Component({
   selector: 'main-dashboard',
   standalone: true,
-  imports: [CommonModule, PlotsMainComponent, FormsModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    PlotsMainComponent,
+    FormsModule,
+    MatButtonModule,
+    MaterialModule,
+    MatCardModule,
+  ],
   styleUrls: ['./main-dashboard.component.scss'],
   templateUrl: './main-dashboard.component.html',
   providers: [PlotService, DataService],
@@ -27,6 +36,14 @@ export class MainDashboardComponent implements OnInit {
     this.plotsService.getAllPlots();
     this.dataService.getStats();
   }
+
+  topcard = {
+    id: 1,
+    color: 'primary',
+    img: '/YTStats.png',
+    title: 'Employees',
+    subtitle: '96',
+  };
 
   public async uploadTakeout(event: any) {
     console.log('uploading');

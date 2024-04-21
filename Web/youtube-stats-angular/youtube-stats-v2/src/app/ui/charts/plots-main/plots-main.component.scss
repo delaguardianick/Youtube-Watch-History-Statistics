@@ -6,3 +6,17 @@
 .side-panel {
   margin-bottom: 2em;
 }
+
+.most-active-month-card {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Soft shadow for depth
+
+  mat-card-title {
+    color: #1976d2; // Theme primary color for the title
+    font-size: 18px; // Larger font size for the title
+  }
+
+  mat-card-content {
+    font-size: 16px; // Readable text size
+    color: #333; // Darker text for better readability
+  }
+}
