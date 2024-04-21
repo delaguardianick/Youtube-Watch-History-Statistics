@@ -1,3 +1,4 @@
+from dataclasses import asdict
 import datetime
 import sqlite3
 import io
@@ -8,6 +9,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from datetime import timedelta
+from models.StatsModels import FavCreator, GlobalStats, MostViewedMonth, ShortsWatched, Stats
 from YoutubeVideo import YoutubeVideo
 from database.DBHandler import DBHandler
 import json
@@ -85,22 +87,39 @@ class PlotsService:
 
         return w_history_df, date_ranges
 
-    def get_df_stats(self) -> dict:
+    def get_df_stats(self) -> Stats:
         df = self.filtered_watch_history_df
-        stats = {}
-        stats["start_date"] = df["date_"].min()
-        stats["end_date"] = df["date_"].max()
+        stats = Stats(
+            start_date=df["date_"].min(),
+            end_date=df["date_"].max(),
+            watch_time_in_hours=round(df["video_length_secs"].sum() / 3600, 1),
+            videos_watched=df.shape[0],
+            most_viewed_month=self._most_viewed_month(df),
+            fav_creator=self._fav_creator_by_videos(df),
+            shorts_watched=self.count_shorts_watched(df),
+            global_stats=self.compute_global_stats(df)
+        )
 
-        stats["watch_time_in_hours"] = round(
-            df["video_length_secs"].sum() / 3600, 1)
-        stats["videos_watched"] = df.shape[0]
-        stats["most_viewed_month"] = self._most_viewed_month(df)
-        stats["fav_creator_by_videos"] = self._fav_creator_by_videos(df)
-        stats["short_video_count"] = self.count_shorts_watched(df)
+        # Use asdict to convert dataclass instance to dictionary for serialization
+        return json.dumps(asdict(stats), default=self.default_serialization)
 
-        return json.dumps(stats, default=self.default_serialization)
+    def compute_global_stats(self, df: pd.DataFrame) -> GlobalStats:
+        # Ensure 'video_length_secs' is present in DataFrame
+        if 'video_length_secs' not in df.columns:
+            raise ValueError(
+                "DataFrame must include 'video_length_secs' column.")
 
-    def count_shorts_watched(self, df):
+        # Calculate total hours watched
+        total_seconds_watched = df['video_length_secs'].sum()
+        # Convert seconds to hours and round
+        hours_watched = round(total_seconds_watched / 3600, 1)
+
+        # Count total videos watched
+        videos_watched = df.shape[0]
+
+        return GlobalStats(hours_watched=hours_watched, videos_watched=videos_watched)
+
+    def count_shorts_watched(self, df) -> ShortsWatched:
         # Ensure 'date_' is in datetime format
         df['date_'] = pd.to_datetime(df['date_'])
         current_date = pd.Timestamp.now()
@@ -116,9 +135,12 @@ class PlotsService:
         # This will be in seconds
         total_duration_in_hours = filtered_df['video_length_secs'].sum() / 3600
 
-        return number_of_short_videos, total_duration_in_hours
+        return ShortsWatched(
+            videos_watched=number_of_short_videos,
+            hours_watched=total_duration_in_hours
+        )
 
-    def _most_viewed_month(self, df) -> tuple:
+    def _most_viewed_month(self, df) -> MostViewedMonth:
         df['date_'] = pd.to_datetime(df['date_'])
         df['month'] = df['date_'].dt.month
 
@@ -134,9 +156,12 @@ class PlotsService:
         most_watched_month = monthly_hours.idxmax()
         most_watched_month_count = round(monthly_hours.max(), 1)
 
-        return (most_watched_month, most_watched_month_count)
+        return MostViewedMonth(
+            top_month_name=most_watched_month,
+            videos_watched=None,  # Adjust this according to actual available data
+            hours_watched=most_watched_month_count)
 
-    def _fav_creator_by_videos(self, df) -> tuple:
+    def _fav_creator_by_videos(self, df) -> FavCreator:
         # Filter out rows where 'channel_name' is empty or any other invalid data you might have
         valid_df = df[df['channel_name'].str.strip() != '']
 
@@ -161,7 +186,11 @@ class PlotsService:
         # Converts seconds to hours and rounds to two decimals
         total_length_in_hours = round(total_length / 3600, 2)
 
-        return (most_viewed_channel, most_viewed_channel_count, total_length_in_hours)
+        return FavCreator(
+            creator=most_viewed_channel,
+            videos_watched=most_viewed_channel_count,
+            hours_watched=total_length_in_hours
+        )
 
     def get_all_plots(self):
         wh_df, date_ranges = self.filtered_watch_history_df, self.date_ranges

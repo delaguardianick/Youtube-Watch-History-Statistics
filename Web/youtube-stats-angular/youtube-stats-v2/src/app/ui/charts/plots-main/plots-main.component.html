@@ -9,10 +9,12 @@
   <div class="col-lg-2 col-sm-4 col-6">
     <mat-card class="example-card">
       <mat-card-header>
-        <mat-card-title>Total watch time</mat-card-title>
-        <mat-card-subtitle>{{
-          userStatistics?.watch_time_in_hours
-        }}</mat-card-subtitle>
+        <mat-card-title>Total Hours Watched (aprox)</mat-card-title>
+        <mat-card-subtitle>
+          <p *ngIf="userStatistics?.global_stats?.hours_watched; else noData">
+            {{ userStatistics?.global_stats?.hours_watched }}
+          </p>
+        </mat-card-subtitle>
       </mat-card-header>
     </mat-card>
   </div>
@@ -20,9 +22,11 @@
     <mat-card class="example-card">
       <mat-card-header>
         <mat-card-title>Total Videos Watched</mat-card-title>
-        <mat-card-subtitle>{{
-          userStatistics?.videos_watched
-        }}</mat-card-subtitle>
+        <mat-card-subtitle>
+          <p *ngIf="userStatistics?.global_stats?.videos_watched; else noData">
+            {{ userStatistics?.global_stats?.videos_watched }}
+          </p>
+        </mat-card-subtitle>
       </mat-card-header>
     </mat-card>
   </div>
@@ -33,7 +37,10 @@
       </mat-card-header>
       <mat-card-content>
         <p *ngIf="userStatistics?.most_viewed_month; else noData">
-          {{ "April" }} with {{ "30" }} hours watched.
+          {{ userStatistics?.most_viewed_month?.top_month_name }} with
+          {{ userStatistics?.most_viewed_month?.videos_watched }} videos
+          watched, amounting to approximately
+          {{ userStatistics?.most_viewed_month?.hours_watched }}.
         </p>
         <ng-template #noData>No data available</ng-template>
       </mat-card-content>
@@ -43,22 +50,28 @@
     <mat-card class="example-card">
       <mat-card-header>
         <mat-card-title>Favourite Creator</mat-card-title>
-        <mat-card-subtitle>By number of videos watched</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        {{ userStatistics?.fav_creator_by_videos }}
+        <p *ngIf="userStatistics?.fav_creator; else noData">
+          {{ userStatistics?.fav_creator?.creator }} with
+          {{ userStatistics?.fav_creator?.videos_watched }} videos watched,
+          amounting to approximately
+          {{ userStatistics?.fav_creator?.hours_watched }}.
+        </p>
       </mat-card-content>
     </mat-card>
   </div>
   <div class="col-lg-2 col-sm-4 col-6">
     <mat-card class="example-card">
       <mat-card-header>
-        <mat-card-title>Total Shorts Watched</mat-card-title>
-        <mat-card-subtitle>Dog Breed</mat-card-subtitle>
+        <mat-card-title>Shorts</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <p>This card indeterminates progress bar.</p>
-        <p>bla</p>
+        <p *ngIf="userStatistics?.shorts_watched; else noData">
+          {{ userStatistics?.shorts_watched?.videos_watched }} shorts watched,
+          amounting to approximately
+          {{ userStatistics?.shorts_watched?.hours_watched }}.
+        </p>
       </mat-card-content>
     </mat-card>
   </div>

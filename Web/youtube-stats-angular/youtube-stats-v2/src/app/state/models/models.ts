@@ -19,10 +19,24 @@ export interface Stats {
   takeout_id: string | undefined;
   start_date: string | undefined;
   end_date: string | undefined;
-  watch_time_in_hours: number | undefined;
-  videos_watched: number | undefined;
-  most_viewed_month: string | undefined;
-  fav_creator_by_videos: string | undefined;
+  global_stats: {
+    hours_watched: number | undefined;
+    videos_watched: number | undefined;
+  };
+  most_viewed_month: {
+    top_month_name: string | undefined;
+    videos_watched: number | undefined;
+    hours_watched: number | undefined;
+  };
+  fav_creator: {
+    creator: string | undefined;
+    videos_watched: number | undefined;
+    hours_watched: number | undefined;
+  };
+  shorts_watched: {
+    videos_watched: number | undefined;
+    hours_watched: number | undefined;
+  };
 }
 
 export class StatsFactory {
@@ -31,15 +45,28 @@ export class StatsFactory {
       takeout_id: data.takeout_id || undefined,
       start_date: data.start_date || undefined,
       end_date: data.end_date || undefined,
-      watch_time_in_hours: data.watch_time_in_hours || undefined,
-      videos_watched: data.videos_watched || undefined,
-      most_viewed_month: data.most_viewed_month || undefined,
-      fav_creator_by_videos: data.fav_creator_by_videos || undefined,
+      global_stats: {
+        hours_watched: data.global_stats?.hours_watched || undefined,
+        videos_watched: data.global_stats?.videos_watched || undefined,
+      },
+      most_viewed_month: {
+        top_month_name: data.most_viewed_month?.top_month_name || undefined,
+        videos_watched: data.most_viewed_month?.videos_watched || undefined,
+        hours_watched: data.most_viewed_month?.hours_watched || undefined,
+      },
+      fav_creator: {
+        creator: data.fav_creator?.creator || undefined,
+        videos_watched: data.fav_creator?.videos_watched || undefined,
+        hours_watched: data.fav_creator?.hours_watched || undefined,
+      },
+      shorts_watched: {
+        videos_watched: data.shorts_watched?.videos_watched || undefined,
+        hours_watched: data.shorts_watched?.hours_watched || undefined,
+      },
     };
     return stats;
   }
 }
-
 export interface Plot {
   plot_id: string | undefined;
   title: string;
