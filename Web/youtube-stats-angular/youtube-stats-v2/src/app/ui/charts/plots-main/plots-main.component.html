@@ -1,7 +1,7 @@
 <div>
   <h3>
-    Date Range: {{ userStatistics?.start_date }} -
-    {{ userStatistics?.end_date }}
+    Date Range: {{ getFormattedDate(userStatistics?.start_date) }} -
+    {{ getFormattedDate(userStatistics?.end_date) }}
   </h3>
 </div>
 
@@ -78,22 +78,24 @@
 </div>
 <div class="row">
   <div class="col-lg-8">
-    <div class="plot-selector">
-      <select
-        class="form-control"
-        [(ngModel)]="selectedPlot"
-        (change)="updateChart()"
-      >
-        <option value="hourOfDay">Hour of Day</option>
-        <option value="month">Month</option>
-        <option value="dayOfYear">Day of Year</option>
-        <option value="weekday">Weekday</option>
-        <option value="topChannels">Top Channels</option>
-        <option value="topGenres">Top Genres</option>
-      </select>
-    </div>
-    <div>
-      <app-time-range-average-chart></app-time-range-average-chart>
+    <div class="chart-container">
+      <div class="chart-toolbar">
+        <select
+          class="form-control chart-select"
+          [(ngModel)]="selectedPlot"
+          (change)="updateChart()"
+        >
+          <option value="hourOfDay">Hour of Day</option>
+          <option value="month">Month</option>
+          <option value="dayOfYear">Day of Year</option>
+          <option value="weekday">Weekday</option>
+          <option value="topChannels">Top Channels</option>
+          <option value="topGenres">Top Genres</option>
+        </select>
+        <div>
+          <app-time-range-average-chart></app-time-range-average-chart>
+        </div>
+      </div>
     </div>
   </div>
   <div class="col-lg-4">

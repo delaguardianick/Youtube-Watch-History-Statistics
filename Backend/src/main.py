@@ -68,17 +68,27 @@ async def process_upload(file: UploadFile = File(...)):
 
 @app.get("/plots/all")
 async def get_all_plots():
-    s.analysis_service = Analysis()
-    s.analysis_service.fetch_watch_history()
-    plots = s.analysis_service.get_all_plots()
-    return JSONResponse(content=json.loads(plots))
+    try:
+        s.analysis_service = Analysis()
+        s.analysis_service.fetch_watch_history()
+        plots = s.analysis_service.get_all_plots()
+        return JSONResponse(content=json.loads(plots))
+    except Exception as e:
+        print(f"Failed to retrieve plots: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to retrieve plots: {e}")
 
 
 @app.get("/stats")
 async def get_takeout_stats():
-    s.analysis_service.fetch_watch_history()
-    df_stats = s.analysis_service.get_df_stats()
-    return JSONResponse(content=json.loads(df_stats))
+    try:
+        s.analysis_service.fetch_watch_history()
+        df_stats = s.analysis_service.get_df_stats()
+        return JSONResponse(content=json.loads(df_stats))
+    except Exception as e:
+        print(f"Failed to retrieve statistics: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to retrieve statistics: {e}")
 
 if __name__ == "__main__":
     print("Starting API")
