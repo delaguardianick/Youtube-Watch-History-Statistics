@@ -3,7 +3,7 @@ import { TimeRangeAverageChartComponent } from '../time-range-average-chart/time
 import { FormsModule } from '@angular/forms';
 import { PlotsData, Stats } from '../../../state/models/models';
 import { Observable } from 'rxjs';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { DataStateService } from '../../../state/data-state.service';
 import { MaterialModule } from '../../../material.module';
 import { MatCardModule } from '@angular/material/card';
@@ -22,6 +22,7 @@ import { MatButtonModule } from '@angular/material/button';
   ],
   templateUrl: './plots-main.component.html',
   styleUrl: './plots-main.component.scss',
+  providers: [DatePipe],
 })
 export class PlotsMainComponent implements OnInit {
   @Input() set plotsData(plotsData: PlotsData | undefined) {
@@ -38,7 +39,10 @@ export class PlotsMainComponent implements OnInit {
     | TimeRangeAverageChartComponent
     | undefined;
 
-  constructor(private dataStateService: DataStateService) {}
+  constructor(
+    private dataStateService: DataStateService,
+    private datePipe: DatePipe
+  ) {}
 
   ngOnInit() {
     this.plotData$ = this.dataStateService.getPlotsData();
@@ -106,5 +110,10 @@ export class PlotsMainComponent implements OnInit {
     this.chartOptions = this.timeRangeAverageChartComponent?.configureCharts(
       this.allPlotsData?.topGenres
     );
+  }
+
+  getFormattedDate(date: string | undefined): string {
+    if (!date) return 'N/A';
+    return this.datePipe.transform(date, 'MMMM d, y, HH:mm') || '';
   }
 }
