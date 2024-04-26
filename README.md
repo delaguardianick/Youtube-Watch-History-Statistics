@@ -2,11 +2,14 @@
 #### Analyze your youtube statistics.
 
 ### Description
-Given a Google Takeout (https://takeout.google.com/settings/takeout), it will analyze your watch history and display a datadashboard.
-Input: `watch_history.json` file inside the Google Takeout. Can be found in `Takeout\YouTube and YouTube Music\history` inside the takeout file.
-
 Youtube gives very rudamentary statistics about a user's watch time and viewer trends, their efforts are focused more on statistics for creators.
 The end goal of this project is to give a Yotube viewer full control and details into their own watching habits, perhaps exploring global trends on youtube and how videos are watched.
+
+Given a Google Takeout (https://takeout.google.com/settings/takeout), it will analyze your watch history and display a data dashboard.
+Input: `watch_history.json` file inside the Google Takeout. Can be found in `Takeout\YouTube and YouTube Music\history` inside the takeout file.
+
+The python script then takes every video and queries the Youtube API for extra information. All of that is then stored in a PostgreSQL DB organized like the schema below.
+The data is analyzed with pandas and through FastAPI, we send the information to an Angular app which displays the plots and relevant information.
 
 ## Installation
 - Run `git clone https://github.com/delaguardianick/YT-Watch-History-Stats.git` in desired folder
