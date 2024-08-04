@@ -78,5 +78,5 @@ Todo:
 - Google takeout is not as much of a bottleneck. User can request only youtube -> only videos -> only watch history. Is instant and lighweight
 
 
-### MVP (updated 4/27/2023)
-![image](https://user-images.githubusercontent.com/52568848/234989496-0c6cb714-83a0-4818-b209-5bb53bec03cc.png)
+### MVP (updated 4/8/2024)
+![image](https://github.com/user-attachments/assets/b3acc1c7-5600-4047-9575-1beb555cd4e3)
