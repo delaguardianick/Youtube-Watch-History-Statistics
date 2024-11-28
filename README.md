@@ -1,4 +1,4 @@
-# Youtube Stats Plus
+# Youtube Stats
 #### Analyze your youtube statistics.
 
 ### Description
