@@ -41,7 +41,7 @@ The data is analyzed with pandas, and through FastAPI, we send the information t
     - `.\venv\Scripts\activate`
   - `cd Web\youtube-stats-angular\youtube-stats-v2`
   - `npm start`
-  - `http://localhost:3000/` should open, if not paste URL in browser
+  - `http://localhost:4200/` should open, if not paste URL in browser
 - In another terminal: run the API server
   - `cd \Backend\src`
   - `uvicorn main:app --reload --host 0.0.0.0 --port 8000`
