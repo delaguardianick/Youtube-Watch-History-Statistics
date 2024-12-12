@@ -39,7 +39,7 @@ The data is analyzed with pandas, and through FastAPI, we send the information t
 - In one terminal: Run the web server
   - Activate virtual environment
     - `.\venv\Scripts\activate`
-  - `cd \Web\youtube-stats`
+  - `cd Web\youtube-stats-angular\youtube-stats-v2`
   - `npm start`
   - `http://localhost:3000/` should open, if not paste URL in browser
 - In another terminal: run the API server
