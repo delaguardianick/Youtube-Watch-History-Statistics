@@ -37,7 +37,9 @@
     "@tabler/icons": "^3.1.0",
     "apexcharts": "^3.48.0",
     "bootstrap": "^5.3.3",
+    "echarts": "^6.0.0",
     "ng-apexcharts": "^1.9.0",
+    "ngx-echarts": "^17.2.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"

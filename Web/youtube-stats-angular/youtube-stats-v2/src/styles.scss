@@ -1,4 +1,113 @@
-/* You can add global styles to this file, and also import other style files */
+/* NDG Design System tokens */
+:root {
+  /* Surfaces */
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --elevated: #1a1a1a;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.12);
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+  /* Text */
+  --fg-1: #f0f0f0;
+  --fg-2: #888888;
+  --fg-3: #555555;
+
+  /* Accent */
+  --accent: #FF3621;
+  --accent-ink: #ffffff;
+
+  /* Semantic (charts, badges, status) */
+  --teal: #4ecdc4;
+  --yellow: #ffe66d;
+  --purple: #a78bfa;
+  --green: #34d399;
+  --pink: #f472b6;
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Spacing */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+  --s-10: 128px;
+  --s-11: 160px;
+
+  /* Radius */
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 10px;
+  --r-xl: 12px;
+
+  /* Motion */
+  --dur: 160ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Buttons */
+  --btn-primary-bg: #ffffff;
+  --btn-primary-fg: #0a0a0a;
+}
+
+/* Light section tokens */
+.section-light {
+  --bg: #F5F5F5;
+  --surface: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --fg-1: #0a0a0a;
+  --fg-2: #666666;
+  --fg-3: #999999;
+  --btn-primary-bg: #0a0a0a;
+  --btn-primary-fg: #ffffff;
+}
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg-1);
+  font: 400 16px/1.7 var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: inherit; text-decoration: none; }
+a:hover { opacity: 0.78; transition: opacity var(--dur) var(--ease); }
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+/* Label utility */
+.label {
+  font: 600 11px/1.2 var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+
+.label-sm {
+  font: 500 10px/1.2 var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+
+/* Section base */
+.section {
+  padding: var(--s-11) 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: var(--s-5);
+  padding-right: var(--s-5);
+}
+
+.section-full {
+  padding: var(--s-11) var(--s-5);
+}
