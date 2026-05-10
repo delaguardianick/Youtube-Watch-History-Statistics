@@ -9,6 +9,20 @@
     "test": "ng test"
   },
   "private": true,
+  "overrides": {
+    "postcss": "^8.5.10",
+    "serialize-javascript": "^7.0.5",
+    "ip-address": "^10.1.1",
+    "tar": "^7.5.11",
+    "ws": "^8.18.0",
+    "picomatch": "^4.0.4",
+    "esbuild": "^0.25.0",
+    "ajv": "^8.17.2",
+    "webpack": "^5.105.0",
+    "webpack-dev-server": "^5.2.1",
+    "tmp": "^0.2.4",
+    "http-proxy-middleware": "^3.0.0"
+  },
   "dependencies": {
     "@angular/animations": "^17.3.0",
     "@angular/cdk": "^17.3.1",
