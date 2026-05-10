@@ -2,10 +2,13 @@
 
 @if (wrapped$ | async; as wrapped) {
   <app-carousel [data]="wrapped">
-    <div class="carousel-card" style="text-align: center;">
-      <span class="label">LOADING CARDS</span>
-      <p style="color: var(--fg-2); margin-top: var(--s-4);">Cards will be added in the next task.</p>
-    </div>
+    <app-card-overview class="carousel-card" [data]="wrapped"></app-card-overview>
+    <app-card-personality class="carousel-card" [data]="wrapped.watch_personality"></app-card-personality>
+    <app-card-creators class="carousel-card" [data]="wrapped.top_creators"></app-card-creators>
+    <app-card-genres class="carousel-card" [data]="wrapped.genre_journey"></app-card-genres>
+    <app-card-binges class="carousel-card" [data]="wrapped.binges"></app-card-binges>
+    <app-card-shorts class="carousel-card" [data]="wrapped.shorts"></app-card-shorts>
+    <app-card-graveyard class="carousel-card" [data]="wrapped.graveyard"></app-card-graveyard>
   </app-carousel>
 } @else if (loading$ | async) {
   <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding-top: 64px;">
