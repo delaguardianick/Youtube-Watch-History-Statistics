@@ -1,0 +1,14 @@
+<div class="carousel-wrapper">
+  <div class="carousel-track" #track>
+    <ng-content></ng-content>
+  </div>
+  <div class="carousel-dots">
+    @for (i of dots; track i) {
+      <button
+        class="dot"
+        [class.active]="activeIndex === i"
+        (click)="scrollTo(i)"
+      ></button>
+    }
+  </div>
+</div>

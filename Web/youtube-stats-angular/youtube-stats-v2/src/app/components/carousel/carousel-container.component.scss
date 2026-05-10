@@ -1,0 +1,55 @@
+.carousel-wrapper {
+  padding-top: 64px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.carousel-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 calc(50vw - 300px);
+  gap: var(--s-5);
+  padding: var(--s-7) var(--s-5);
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+:host ::ng-deep .carousel-card {
+  scroll-snap-align: center;
+  flex: 0 0 600px;
+  max-width: 90vw;
+  min-height: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: var(--s-7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--s-2);
+  padding: var(--s-5) 0;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: var(--fg-3);
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--dur) var(--ease);
+
+  &.active { background: var(--fg-1); }
+  &:hover { background: var(--fg-2); }
+}
