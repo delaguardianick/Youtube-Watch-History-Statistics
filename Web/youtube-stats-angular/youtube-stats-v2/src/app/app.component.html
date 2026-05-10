@@ -10,6 +10,12 @@
     <app-card-shorts class="carousel-card" [data]="wrapped.shorts"></app-card-shorts>
     <app-card-graveyard class="carousel-card" [data]="wrapped.graveyard"></app-card-graveyard>
   </app-carousel>
+
+  <app-transition-band></app-transition-band>
+
+  @if (deepDive$ | async; as deepDive) {
+    <app-deep-dive [data]="deepDive"></app-deep-dive>
+  }
 } @else if (loading$ | async) {
   <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding-top: 64px;">
     <span class="label">LOADING</span>
@@ -19,3 +25,5 @@
     <p style="color: var(--fg-2);">Upload your YouTube takeout to get started.</p>
   </div>
 }
+
+<app-footer></app-footer>

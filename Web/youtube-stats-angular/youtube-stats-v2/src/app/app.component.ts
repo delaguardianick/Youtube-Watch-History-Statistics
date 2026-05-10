@@ -10,6 +10,9 @@ import { CardGenresComponent } from './components/carousel/cards/card-genres.com
 import { CardBingesComponent } from './components/carousel/cards/card-binges.component';
 import { CardShortsComponent } from './components/carousel/cards/card-shorts.component';
 import { CardGraveyardComponent } from './components/carousel/cards/card-graveyard.component';
+import { TransitionBandComponent } from './components/transition-band/transition-band.component';
+import { DeepDiveContainerComponent } from './components/deep-dive/deep-dive-container.component';
+import { FooterComponent } from './components/footer/footer.component';
 import { AnalyticsService } from './services/analytics.service';
 import { DashboardStateService } from './state/dashboard-state.service';
 import { WrappedResponse } from './models/wrapped.models';
@@ -31,6 +34,9 @@ import { Observable } from 'rxjs';
     CardBingesComponent,
     CardShortsComponent,
     CardGraveyardComponent,
+    TransitionBandComponent,
+    DeepDiveContainerComponent,
+    FooterComponent,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
