@@ -3,6 +3,11 @@ import { CommonModule } from '@angular/common';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import { EChartsOption } from 'echarts';
 import { GenreJourney } from '../../../models/wrapped.models';
+import {
+  CHART, baseChart, categoryAxis, valueAxis, hexA,
+} from '../../../shared/chart-theme';
+
+const MAX_GENRES = 5;
 
 @Component({
   selector: 'app-card-genres',
@@ -10,51 +15,104 @@ import { GenreJourney } from '../../../models/wrapped.models';
   imports: [CommonModule, NgxEchartsDirective],
   providers: [provideEchartsCore({ echarts: () => import('echarts') })],
   template: `
-    <span class="label">GENRE JOURNEY</span>
-    <div class="top-genre" *ngIf="data?.top_genre">
-      <span class="genre-name">{{ data!.top_genre.name }}</span>
-      <span class="genre-pct">{{ data!.top_genre.pct }}% of your content</span>
+    <header class="top">
+      <span class="label">Genre Journey</span>
+      <span class="badge-accent" *ngIf="data?.top_genre">
+        {{ data!.top_genre.pct }}% {{ data!.top_genre.name }}
+      </span>
+    </header>
+
+    <p class="headline" *ngIf="headlineText">{{ headlineText }}</p>
+
+    <div class="chart-wrap">
+      <div echarts [options]="chartOptions" style="height:100%; width:100%;"></div>
     </div>
-    <div echarts [options]="chartOptions" style="height: 250px;"></div>
-    <div class="shift" *ngIf="data?.biggest_shift">
-      <span class="label">BIGGEST SHIFT</span>
-      <span class="shift-text">
-        {{ data!.biggest_shift!.from_genre }} to {{ data!.biggest_shift!.to_genre }}
-        in {{ data!.biggest_shift!.month }}
+
+    <!-- Legend pills -->
+    <div class="legend" *ngIf="legendItems.length">
+      <span class="legend-pill" *ngFor="let item of legendItems"
+            [style.--dot]="item.color">
+        <span class="dot"></span>{{ item.name }}
       </span>
     </div>
+
+    <footer class="foot" *ngIf="data?.biggest_shift">
+      <span class="label-sm">Biggest shift</span>
+      <span class="shift-text">
+        <span class="hl">{{ data!.biggest_shift!.from_genre }}</span>
+        &rarr;
+        <span class="hl">{{ data!.biggest_shift!.to_genre }}</span>
+        &nbsp;in {{ shiftMonthLabel }}
+      </span>
+    </footer>
   `,
   styles: [`
     :host {
       display: flex;
       flex-direction: column;
-      gap: var(--s-4);
+      height: 100%;
+      gap: var(--s-3);
     }
-    .top-genre {
+
+    /* --- top row --- */
+    .top {
       display: flex;
-      flex-direction: column;
-      gap: 2px;
-      margin-top: var(--s-2);
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
     }
-    .genre-name {
-      font: 800 28px/1.2 var(--font-sans);
-      letter-spacing: -0.02em;
-      color: #a78bfa;
+
+    /* --- headline --- */
+    .headline {
+      font: 700 22px/1.25 var(--font-sans);
+      color: var(--fg-1);
+      letter-spacing: -0.01em;
+      margin: 0;
+      flex-shrink: 0;
+      max-width: 26ch;
     }
-    .genre-pct {
-      font: 400 14px/1.4 var(--font-sans);
+    .hl { color: var(--accent); }
+
+    /* --- chart fills remaining space --- */
+    .chart-wrap {
+      flex: 1 1 0;
+      min-height: 0;
+    }
+
+    /* --- legend --- */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--s-2);
+      flex-shrink: 0;
+    }
+    .legend-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font: 600 11px/1 var(--font-sans);
       color: var(--fg-2);
+      letter-spacing: 0.02em;
     }
-    .shift {
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--dot);
+      flex-shrink: 0;
+    }
+
+    /* --- footer shift --- */
+    .foot {
+      border-top: 1px solid var(--border);
+      padding-top: var(--s-3);
       display: flex;
       flex-direction: column;
       gap: var(--s-1);
-      margin-top: auto;
-      padding-top: var(--s-4);
-      border-top: 1px solid var(--border);
+      flex-shrink: 0;
     }
     .shift-text {
-      font: 400 14px/1.4 var(--font-sans);
+      font: 500 13px/1.4 var(--font-sans);
       color: var(--fg-2);
     }
   `],
@@ -63,68 +121,184 @@ export class CardGenresComponent implements OnChanges {
   @Input() data: GenreJourney | null = null;
 
   chartOptions: EChartsOption = {};
-
-  private readonly genreColors = [
-    '#a78bfa', '#4ecdc4', '#ffe66d', '#f472b6', '#FF3621',
-    '#34d399', '#888888', '#555555',
-  ];
+  headlineText = '';
+  shiftMonthLabel = '';
+  legendItems: { name: string; color: string }[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data'] && this.data) {
+      this.buildHeadline();
       this.buildChart();
     }
   }
 
+  private buildHeadline(): void {
+    if (!this.data) return;
+    const { top_genre, biggest_shift } = this.data;
+    const parts: string[] = [];
+    if (top_genre) {
+      parts.push(`${top_genre.name} ruled your year — ${top_genre.pct}%`);
+    }
+    this.headlineText = parts.join(' · ');
+
+    this.shiftMonthLabel = biggest_shift
+      ? this.formatMonth(biggest_shift.month)
+      : '';
+  }
+
   private buildChart(): void {
-    if (!this.data || !this.data.monthly_stacks?.length) return;
+    if (!this.data?.monthly_stacks?.length) return;
 
-    const months = this.data.monthly_stacks.map(m => m.month);
-    const allGenres = new Set<string>();
-    this.data.monthly_stacks.forEach(m => {
-      Object.keys(m.genres).forEach(g => allGenres.add(g));
-    });
+    const stacks = this.data.monthly_stacks;
 
-    const genreList = Array.from(allGenres);
-    const series: EChartsOption['series'] = genreList.map((genre, i) => ({
-      name: genre,
-      type: 'line' as const,
-      stack: 'total',
-      areaStyle: { opacity: 0.6 },
-      emphasis: { focus: 'series' as const },
-      showSymbol: false,
-      lineStyle: { width: 1 },
-      itemStyle: { color: this.genreColors[i % this.genreColors.length] },
-      data: this.data!.monthly_stacks.map(m => m.genres[genre] || 0),
+    // --- aggregate total hours per genre across all months ---
+    const totals: Record<string, number> = {};
+    for (const entry of stacks) {
+      for (const [genre, hours] of Object.entries(entry.genres)) {
+        totals[genre] = (totals[genre] ?? 0) + hours;
+      }
+    }
+
+    // keep TOP N genres by total hours, collapse rest into "Other"
+    const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+    const topGenres = sorted.slice(0, MAX_GENRES).map(([name]) => name);
+    const hasOther = sorted.length > MAX_GENRES;
+
+    // build per-genre data arrays
+    const genreNames = hasOther ? [...topGenres, 'Other'] : topGenres;
+    const dataMap: Record<string, number[]> = {};
+    for (const g of genreNames) dataMap[g] = [];
+
+    for (const entry of stacks) {
+      let otherSum = 0;
+      const seenTop = new Set<string>();
+      for (const [genre, hours] of Object.entries(entry.genres)) {
+        if (topGenres.includes(genre)) {
+          seenTop.add(genre);
+          dataMap[genre].push(hours);
+        } else {
+          otherSum += hours;
+        }
+      }
+      // fill genres absent this month
+      for (const g of topGenres) {
+        if (!seenTop.has(g)) dataMap[g].push(0);
+      }
+      if (hasOther) dataMap['Other'].push(otherSum);
+    }
+
+    // formatted x-axis labels
+    const xLabels = stacks.map(m => this.formatMonth(m.month));
+
+    // build legend items
+    this.legendItems = genreNames.map((name, i) => ({
+      name,
+      color: CHART.palette[i % CHART.palette.length],
     }));
 
+    // markLine for biggest shift
+    const shift = this.data.biggest_shift;
+    const shiftIdx = shift
+      ? stacks.findIndex(m => m.month === shift.month)
+      : -1;
+
+    const series: any[] = genreNames.map((genre, i) => {
+      const color = CHART.palette[i % CHART.palette.length];
+      const s: any = {
+        name: genre,
+        type: 'line',
+        stack: 'total',
+        areaStyle: {
+          color: {
+            type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+            colorStops: [
+              { offset: 0, color: hexA(color, 0.72) },
+              { offset: 1, color: hexA(color, 0.18) },
+            ],
+          },
+        },
+        emphasis: { focus: 'series' },
+        showSymbol: false,
+        smooth: 0.35,
+        lineStyle: { width: 1.5, color },
+        itemStyle: { color },
+        data: dataMap[genre],
+      };
+
+      // annotate the shift month on the first/primary series only
+      if (i === 0 && shiftIdx >= 0 && shift) {
+        s.markLine = {
+          silent: true,
+          symbol: ['none', 'none'],
+          label: {
+            formatter: `${this.formatMonth(shift.month)}: genre shift`,
+            fontSize: 10,
+            color: CHART.muted,
+            fontFamily: CHART.font,
+          },
+          lineStyle: { color: CHART.border, type: 'dashed', width: 1 },
+          data: [{ xAxis: shiftIdx }],
+        };
+      }
+
+      return s;
+    });
+
     this.chartOptions = {
-      backgroundColor: 'transparent',
-      textStyle: { color: '#888', fontFamily: 'Inter' },
+      ...baseChart(),
+      color: CHART.palette,
       tooltip: {
         trigger: 'axis',
-        backgroundColor: '#1a1a1a',
-        borderColor: 'rgba(255,255,255,0.06)',
-        textStyle: { color: '#f0f0f0', fontSize: 12 },
+        backgroundColor: CHART.surface,
+        borderColor: CHART.border,
+        borderWidth: 1,
+        padding: [8, 12],
+        textStyle: { color: CHART.text, fontFamily: CHART.font, fontSize: 12 },
+        extraCssText: 'box-shadow: 0 8px 24px rgba(0,0,0,0.4); border-radius: 8px;',
+        formatter: (params: any) => {
+          if (!Array.isArray(params) || !params.length) return '';
+          const label = params[0].axisValueLabel ?? params[0].name;
+          const rows = (params as any[])
+            .filter((p: any) => p.value > 0)
+            .map((p: any) =>
+              `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${p.color};margin-right:5px;"></span>` +
+              `${p.seriesName}: <b>${(p.value as number).toFixed(1)}h</b>`
+            )
+            .join('<br/>');
+          return `<div style="font:600 11px/1.4 ${CHART.font};color:${CHART.muted};margin-bottom:4px">${label}</div>${rows}`;
+        },
       },
-      grid: {
-        left: 40,
-        right: 16,
-        top: 16,
-        bottom: 32,
-      },
+      legend: { show: false }, // we use our own CSS legend
+      grid: { left: 8, right: 8, top: 8, bottom: 4, containLabel: true },
       xAxis: {
-        type: 'category',
-        data: months,
-        axisLine: { lineStyle: { color: '#333' } },
-        axisLabel: { color: '#555', fontSize: 10 },
+        ...categoryAxis({ data: xLabels }),
+        axisLabel: {
+          color: CHART.muted,
+          fontFamily: CHART.font,
+          fontSize: 10,
+          interval: 'auto',
+        },
+        boundaryGap: false,
       },
       yAxis: {
-        type: 'value',
-        axisLine: { show: false },
-        splitLine: { lineStyle: { color: '#222' } },
-        axisLabel: { color: '#555', fontSize: 10 },
+        ...valueAxis({ showSplit: true }),
+        axisLabel: {
+          color: CHART.muted,
+          fontFamily: CHART.font,
+          fontSize: 10,
+          formatter: (v: number) => v >= 1 ? `${Math.round(v)}h` : '',
+        },
       },
       series,
     };
+  }
+
+  /** Format 'YYYY-MM' -> "Jul '25" */
+  private formatMonth(ym: string): string {
+    if (!ym || ym.length < 7) return ym;
+    const [year, month] = ym.split('-').map(Number);
+    const date = new Date(year, month - 1, 1);
+    if (isNaN(date.getTime())) return ym;
+    return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
   }
 }
