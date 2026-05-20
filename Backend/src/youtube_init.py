@@ -41,8 +41,17 @@ class YoutubeStats:
 
         time_enhance_s = time.time()
         if enhanced:
-            all_videos_dict: dict[str, YoutubeVideo] = self.enhance_video_data(
-                all_videos_dict, transcript_flag)
+            # Skip videos already in DB
+            existing_ids = self.db_actions.get_existing_video_ids(
+                list(all_videos_dict.keys())
+            )
+            new_ids = [vid for vid in all_videos_dict.keys() if vid not in existing_ids]
+            print(f"Skipping {len(existing_ids)} existing videos, enriching {len(new_ids)} new ones")
+
+            if new_ids:
+                all_videos_dict = self.enhance_video_data_parallel(
+                    all_videos_dict, new_ids, transcript_flag
+                )
 
         self.db_actions.insert_many_records(
             self.takeout_id, list(all_videos_dict.values())
@@ -98,7 +107,7 @@ class YoutubeStats:
         all_video_ids = list(all_videos_dict.keys())
 
         time_enhance_s = time.time()
-        batch_size = 49
+        batch_size = 50
         for i in range(0, len(all_video_ids), batch_size):
             batch_videos_ids = all_video_ids[i: i + batch_size]
 
@@ -106,12 +115,29 @@ class YoutubeStats:
                 self.youtube_api.api_get_video_details(batch_videos_ids)
             ).get("items")
 
-            # Update video objects with the information from the API response
             all_videos_dict: dict[str, YoutubeVideo] = self.update_videos_with_api_info(
                 extra_info_for_batch, all_videos_dict, transcript_flag
             )
 
         print(f"API calls took {format(time.time() - time_enhance_s, '.1f')}")
+        return all_videos_dict
+
+    def enhance_video_data_parallel(
+        self, all_videos_dict: dict[str, YoutubeVideo], video_ids_to_enrich: list[str],
+        transcript_flag: bool = False
+    ) -> dict[str, YoutubeVideo]:
+        print(f"Getting additional video information for {len(video_ids_to_enrich)} videos (parallel)")
+
+        time_enhance_s = time.time()
+        all_items = self.youtube_api.api_get_video_details_parallel(
+            video_ids_to_enrich, batch_size=50, max_workers=10
+        )
+
+        all_videos_dict = self.update_videos_with_api_info(
+            all_items, all_videos_dict, transcript_flag
+        )
+
+        print(f"Parallel API calls took {format(time.time() - time_enhance_s, '.1f')}")
         return all_videos_dict
 
     def update_videos_with_api_info(
@@ -133,15 +159,26 @@ class YoutubeStats:
                 video_length_secs,
             ) = self.data_modifier.video_length_to_seconds(duration)
 
+            snippet = video_details.get("snippet") or {}
+
             video: YoutubeVideo = all_videos_dict[video_id]
             video.set_duration(duration)
-            video.set_description(video_details.get(
-                "snippet").get("description"))
-            video.set_category_id(video_details.get(
-                "snippet").get("categoryId"))
-            video.set_tags(repr(video_details.get("snippet").get("tags")))
+            video.set_description(snippet.get("description"))
+            video.set_category_id(snippet.get("categoryId"))
+            video.set_tags(repr(snippet.get("tags")))
             video.set_transcript(transcript)
             video.set_video_length(video_length_str, video_length_secs)
+
+            # Backfill channel from the API when the HTML takeout had no channel link.
+            # (Google omits the channel <a> for some entries even though the video is live.)
+            if not (video.get_channel_name() or "").strip():
+                channel_title = snippet.get("channelTitle")
+                channel_id = snippet.get("channelId")
+                if channel_title:
+                    video.channel_name = channel_title
+                if channel_id:
+                    video.channel_url = f"https://www.youtube.com/channel/{channel_id}"
+
             all_videos_dict[video_id] = video
 
         return all_videos_dict
@@ -225,6 +262,23 @@ class DatabaseActions:
         # Index for performance
         c.execute(
             """CREATE INDEX idx_takeout_id ON "TakeoutVideos"("takeout_id");""")
+
+    def get_existing_video_ids(self, video_ids: list[str]) -> set[str]:
+        """Return the subset of video_ids that already exist in the Videos table."""
+        conn = self.db_handler.connect()
+        existing = set()
+        try:
+            with conn.cursor() as c:
+                c.execute(
+                    'SELECT "video_id" FROM "Videos" WHERE "video_id" = ANY(%s)',
+                    (video_ids,)
+                )
+                existing = {row[0] for row in c.fetchall()}
+        except Exception as e:
+            print(f"Error checking existing videos: {e}")
+        finally:
+            conn.close()
+        return existing
 
     def check_if_table_exists(self, table_name: str, conn):
         c = conn.cursor()

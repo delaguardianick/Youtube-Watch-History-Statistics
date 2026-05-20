@@ -59,8 +59,14 @@ class DeepDiveService:
         monthly["hours"] = (monthly["total_secs"] / 3600).round(1)
         monthly["month"] = monthly["month_period"].astype(str)
 
+        current_month = pd.Timestamp.now().to_period("M").strftime("%Y-%m")
         trends = [
-            MonthlyTrend(month=row["month"], hours=float(row["hours"]), video_count=int(row["video_count"]))
+            MonthlyTrend(
+                month=row["month"],
+                hours=float(row["hours"]),
+                video_count=int(row["video_count"]),
+                is_partial=(row["month"] == current_month),
+            )
             for _, row in monthly.iterrows()
         ]
         return WatchTrends(monthly=trends)
@@ -83,13 +89,20 @@ class DeepDiveService:
 
         return DurationDistribution(buckets=buckets)
 
+    # Tags that carry no signal: parser artifacts ("None" from repr(None)) and
+    # ultra-generic noise that drowns out interesting tags.
+    _TAG_STOPWORDS = {
+        "none", "nan", "null", "na", "n/a", "-", "video", "videos", "youtube",
+        "yt", "shorts", "short", "vlog", "funny", "viral", "music", "new",
+    }
+
     def compute_tag_cloud(self) -> TagCloud:
         tag_counter: Counter = Counter()
         tag_channels: dict[str, Counter] = {}
 
         for _, row in self.df.iterrows():
             raw_tags = row.get("tags", "")
-            if not raw_tags or pd.isna(raw_tags):
+            if not raw_tags or pd.isna(raw_tags) or raw_tags == "None":
                 continue
 
             try:
@@ -97,10 +110,13 @@ class DeepDiveService:
             except (ValueError, SyntaxError):
                 tags = raw_tags.split(",")
 
+            if not isinstance(tags, (list, tuple)):
+                continue
+
             channel = row.get("channel_name", "")
             for tag in tags:
-                tag = tag.strip().lower()
-                if tag:
+                tag = str(tag).strip().lower()
+                if tag and tag not in self._TAG_STOPWORDS and len(tag) > 1:
                     tag_counter[tag] += 1
                     if tag not in tag_channels:
                         tag_channels[tag] = Counter()
@@ -118,11 +134,15 @@ class DeepDiveService:
         return TagCloud(tags=entries)
 
     def compute_channel_diversity(self) -> ChannelDiversity:
-        channel_secs = self.df.groupby("channel_name")["video_length_secs"].sum().sort_values(ascending=False)
+        # Exclude videos with no resolved channel (deleted/private) so they don't
+        # distort the channel counts and concentration curve.
+        named = self.df[self.df["channel_name"].fillna("").str.strip() != ""]
+
+        channel_secs = named.groupby("channel_name")["video_length_secs"].sum().sort_values(ascending=False)
         total_secs = channel_secs.sum()
         total_channels = len(channel_secs)
 
-        channel_counts = self.df["channel_name"].value_counts()
+        channel_counts = named["channel_name"].value_counts()
         watched_once = int((channel_counts == 1).sum())
         watched_10_plus = int((channel_counts >= 10).sum())
 

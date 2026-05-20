@@ -127,6 +127,7 @@ class MonthlyTrend(BaseModel):
     month: str
     hours: float
     video_count: int
+    is_partial: bool = False  # True for the in-progress current month
 
 
 class WatchTrends(BaseModel):

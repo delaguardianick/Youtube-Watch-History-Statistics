@@ -120,10 +120,14 @@ class WrappedService:
 
     def compute_top_creators(self) -> TopCreators:
         df = self._df
-        total_secs = df["video_length_secs"].sum()
+        total_videos = len(df)
+
+        # Exclude videos with no resolved channel (deleted/private videos) so they
+        # don't aggregate into a phantom "creator".
+        named = df[df["channel_name"].fillna("").str.strip() != ""]
 
         channel_stats = (
-            df.groupby("channel_name")
+            named.groupby("channel_name")
             .agg(
                 videos=("video_id", "count"),
                 channel_secs=("video_length_secs", "sum"),
@@ -136,7 +140,9 @@ class WrappedService:
 
         top_3: list[CreatorEntry] = []
         for _, row in top3_rows.iterrows():
-            loyalty_pct = round(row["channel_secs"] / total_secs * 100, 2) if total_secs > 0 else 0.0
+            # "loyalty" = share of all videos you watched that came from this channel,
+            # so the metric tracks the (video-count) ranking shown next to it.
+            loyalty_pct = round(int(row["videos"]) / total_videos * 100, 2) if total_videos > 0 else 0.0
             hours = round(row["channel_secs"] / 3600, 2)
             top_3.append(CreatorEntry(
                 channel=row["channel_name"],
@@ -216,6 +222,10 @@ class WrappedService:
 
         sessions = detect_sessions(videos, max_gap_secs=120, min_videos=3)
 
+        # A "marathon" is the longest by elapsed time, so rank by duration (the
+        # detector returns sessions ordered by video_count, which is not the same).
+        sessions = sorted(sessions, key=lambda s: s.duration_hours, reverse=True)
+
         top_5_sessions: list[SessionSummary] = [
             SessionSummary(
                 duration_hours=s.duration_hours,
@@ -258,7 +268,7 @@ class WrappedService:
         longform_df = self._longform_df
 
         total_count = len(shorts_df)
-        total_hours = round(shorts_df["video_length_secs"].sum() / 3600, 4)
+        total_hours = round(shorts_df["video_length_secs"].sum() / 3600, 1)
 
         # Binge detection
         shorts_videos = shorts_df[["watch_date", "video_length_secs", "title", "channel_name"]].to_dict("records")
@@ -269,7 +279,7 @@ class WrappedService:
             best = short_sessions[0]
             longest_binge = ShortsBinge(
                 count=best.video_count,
-                duration_minutes=round(best.duration_secs / 60, 2),
+                duration_minutes=round(best.duration_secs / 60, 1),
             )
 
         # vs longform

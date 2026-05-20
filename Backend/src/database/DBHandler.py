@@ -40,8 +40,10 @@ class DBHandler:
             params = config(file_path)
 
             # Construct the connection URL
-            db_url = f"postgresql://{params['user']}:{
-                params['password']}@{params['host']}:{params['port']}/{params['database']}"
+            db_url = f"postgresql://{params['user']}:{params['password']}@{params['host']}:{params['port']}/{params['database']}"
+            sslmode = params.get('sslmode')
+            if sslmode:
+                db_url += f"?sslmode={sslmode}"
 
             # Create an SQLAlchemy engine
             print("Connecting to the PostgreSQL database using SQLAlchemy...")

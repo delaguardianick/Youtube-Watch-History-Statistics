@@ -30,13 +30,26 @@ class PlotsService:
     watch_history_df = None
     filtered_watch_history_df = None
     date_ranges = None
-    # TODO: Change this to the takeout_id you want to analyze (watch out w sql injection)
-    takeout_id_to_query = "54cd1e4b-9fde-433f-be9d-2a7142b3e369"
 
     def __init__(self):
         self.db_handler = DBHandler()
 
+    def _get_latest_takeout_id(self):
+        """Get the most recent takeout_id from the database."""
+        conn = self.db_handler.connect()
+        try:
+            with conn.cursor() as c:
+                c.execute('SELECT "takeout_id" FROM "Takeouts" ORDER BY "upload_date" DESC LIMIT 1')
+                row = c.fetchone()
+                return row[0] if row else None
+        finally:
+            conn.close()
+
     def fetch_watch_history(self, local=False):
+        takeout_id = self._get_latest_takeout_id()
+        if not takeout_id:
+            raise ValueError("No takeout data found in database")
+
         sql_query = """
             SELECT
                 tv.watch_date,
@@ -49,20 +62,12 @@ class PlotsService:
                 tv.video_id = v.video_id;
             """
 
-        if local:
-            self.watch_history_df: pd.DataFrame = pd.read_sql_query(
-                sql_query,
-                sqlite3.connect(
-                    "your/local/path.sqlite"
-                ),
-            )
-        else:
-            engine = self.db_handler.connect_sqlalchemy()
-            self.watch_history_df: pd.DataFrame = pd.read_sql_query(
-                sql_query,
-                con=engine,
-                params=(self.takeout_id_to_query,)
-            )
+        engine = self.db_handler.connect_sqlalchemy()
+        self.watch_history_df: pd.DataFrame = pd.read_sql_query(
+            sql_query,
+            con=engine,
+            params=(takeout_id,)
+        )
 
         self.filtered_watch_history_df, self.date_ranges = self.analyze_data(
             self.watch_history_df)
@@ -204,11 +209,23 @@ class PlotsService:
             "top_genres": self.plot_top_genres(wh_df),
         }
 
-        return json.dumps(plots, default=self.default_serialization)
+        return json.dumps(self._sanitize_nans(plots), default=self.default_serialization)
+
+    def _sanitize_nans(self, obj):
+        """Replace NaN/Inf values with None for JSON serialization."""
+        if isinstance(obj, float) and (np.isnan(obj) or np.isinf(obj)):
+            return None
+        elif isinstance(obj, dict):
+            return {k: self._sanitize_nans(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [self._sanitize_nans(v) for v in obj]
+        return obj
 
     def __filter_df_year_range(self, wh_df, beginning_date):
-        wh_df["date_timestamp"] = pd.to_datetime(wh_df["date_"])
-        filtered_df = wh_df.loc[wh_df["date_timestamp"] >= beginning_date]
+        # Filter by when videos were actually watched, not by the row's DB insertion
+        # timestamp (`date_`), which is the same for every row and made this a no-op.
+        wh_df["watch_date"] = pd.to_datetime(wh_df["watch_date"], errors="coerce")
+        filtered_df = wh_df.loc[wh_df["watch_date"] >= beginning_date]
         return filtered_df
         # return watch_history_df[
         #     (year_range[0] <= watch_history_df.year_date)
@@ -216,11 +233,12 @@ class PlotsService:
         # ]
 
     def __get_last_12_months_dates(self, wh_df):
-        last_video_in_range = parser.parse(
-            wh_df["watch_date"].iloc[0].date().isoformat())
-        twelve_months_timedelta = timedelta(days=365)
-        first_video_in_range = last_video_in_range - twelve_months_timedelta
-        return (first_video_in_range, last_video_in_range)
+        # Rolling 12-month window anchored to the most recent watched video, so we keep
+        # the full most-recent year of data (the export ends a few days before "today").
+        wh_df["watch_date"] = pd.to_datetime(wh_df["watch_date"], errors="coerce")
+        end_date = wh_df["watch_date"].max()
+        start_date = end_date - timedelta(days=365)
+        return (start_date, end_date)
 
     def plot_weekly_avg(self, wh_df, date_ranges):
         wh_df['watch_date'] = pd.to_datetime(
