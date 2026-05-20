@@ -50,16 +50,22 @@ export class CarouselContainerComponent implements AfterViewInit, OnDestroy {
 
   scrollTo(index: number): void {
     const track = this.trackRef.nativeElement;
-    const cards = track.querySelectorAll('.carousel-card');
-    if (cards[index]) {
-      cards[index].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    }
+    const cards = track.querySelectorAll<HTMLElement>('.carousel-card');
+    const card = cards[index];
+    if (!card) return;
+    // Scroll the track horizontally only — scrollIntoView() also moved the whole
+    // page vertically, which made arrow-key nav feel broken.
+    const left = card.offsetLeft - (track.clientWidth - card.clientWidth) / 2;
+    track.scrollTo({ left, behavior: 'smooth' });
+    this.activeIndex = index;
   }
 
   private onKeydown = (e: KeyboardEvent): void => {
     if (e.key === 'ArrowRight' && this.activeIndex < this.totalCards - 1) {
+      e.preventDefault();
       this.scrollTo(this.activeIndex + 1);
     } else if (e.key === 'ArrowLeft' && this.activeIndex > 0) {
+      e.preventDefault();
       this.scrollTo(this.activeIndex - 1);
     }
   };

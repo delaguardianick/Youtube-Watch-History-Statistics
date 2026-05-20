@@ -1,70 +1,73 @@
-/* NDG Design System tokens */
+/* ============================================================================
+   Design tokens — Modernize (dark) + YouTube red accent
+   Dark surfaces from the Modernize template; single red accent replaces the old
+   per-card palette. Variable names are kept stable so components keep working.
+   ============================================================================ */
 :root {
-  /* Surfaces */
-  --bg: #0a0a0a;
-  --surface: #141414;
-  --elevated: #1a1a1a;
-  --border: rgba(255, 255, 255, 0.06);
-  --border-strong: rgba(255, 255, 255, 0.12);
+  /* Surfaces (Modernize dark) */
+  --bg: #1b2233;          /* page background (slightly below card) */
+  --surface: #2a3447;     /* card background */
+  --elevated: #323d54;    /* raised surface inside cards */
+  --border: #333f55;      /* card borders, dividers */
+  --border-strong: #465670;
 
   /* Text */
-  --fg-1: #f0f0f0;
-  --fg-2: #888888;
-  --fg-3: #555555;
+  --fg-1: #eaeff4;        /* primary text */
+  --fg-2: #8d9bb5;        /* secondary / muted */
+  --fg-3: #5f6e8a;        /* faint */
 
-  /* Accent */
-  --accent: #FF3621;
+  /* Accent — YouTube red / vermillion (the ONLY accent; no per-card colors) */
+  --accent: #ff3621;
+  --accent-2: #ff6a52;    /* lighter step for gradients / second series */
+  --accent-soft: rgba(255, 54, 33, 0.16); /* tinted badge / fill bg */
   --accent-ink: #ffffff;
 
-  /* Semantic (charts, badges, status) */
-  --teal: #4ecdc4;
-  --yellow: #ffe66d;
-  --purple: #a78bfa;
-  --green: #34d399;
-  --pink: #f472b6;
+  /* Supporting semantics — use sparingly (trend up/down only) */
+  --success: #13deb9;
+  --success-soft: rgba(19, 222, 185, 0.15);
+  --error: #fa896b;
+  --error-soft: rgba(250, 137, 107, 0.15);
+  --warning: #ffae1f;
 
-  /* Typography */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Back-compat: old semantic names now resolve to the accent so nothing renders
+     off-brand before a component is reskinned. */
+  --teal: var(--accent);
+  --yellow: var(--accent);
+  --purple: var(--accent);
+  --green: var(--success);
+  --pink: var(--accent);
+
+  /* Typography — Plus Jakarta Sans (Modernize) */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
   /* Spacing */
-  --s-1: 4px;
-  --s-2: 8px;
-  --s-3: 12px;
-  --s-4: 16px;
-  --s-5: 24px;
-  --s-6: 32px;
-  --s-7: 48px;
-  --s-8: 64px;
-  --s-9: 96px;
-  --s-10: 128px;
-  --s-11: 160px;
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px; --s-5: 24px;
+  --s-6: 32px; --s-7: 48px; --s-8: 64px; --s-9: 96px; --s-10: 128px; --s-11: 160px;
 
-  /* Radius */
-  --r-sm: 6px;
-  --r-md: 8px;
-  --r-lg: 10px;
-  --r-xl: 12px;
+  /* Radius (Modernize 7px base, softened for cards) */
+  --r-sm: 7px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 21px;
+  --r-pill: 9999px;
+
+  /* Elevation (Modernize dual-layer, tuned for dark) */
+  --shadow: 0 0 2px rgba(0, 0, 0, 0.35), 0 12px 24px -6px rgba(0, 0, 0, 0.35);
 
   /* Motion */
-  --dur: 160ms;
-  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur: 200ms;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Buttons */
-  --btn-primary-bg: #ffffff;
-  --btn-primary-fg: #0a0a0a;
+  --btn-primary-bg: var(--accent);
+  --btn-primary-fg: #ffffff;
 }
 
-/* Light section tokens */
+/* Deep-dive section rhythm: subtle dark alternation (no white sections) */
 .section-light {
-  --bg: #F5F5F5;
-  --surface: #ffffff;
-  --border: rgba(0, 0, 0, 0.08);
-  --fg-1: #0a0a0a;
-  --fg-2: #666666;
-  --fg-3: #999999;
-  --btn-primary-bg: #0a0a0a;
-  --btn-primary-fg: #ffffff;
+  --bg: #222c3e;
+  --surface: #2f3a4f;
 }
 
 /* Reset */
@@ -75,7 +78,7 @@ html, body {
   margin: 0;
   background: var(--bg);
   color: var(--fg-1);
-  font: 400 16px/1.7 var(--font-sans);
+  font: 400 15px/1.55 var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -84,30 +87,53 @@ a { color: inherit; text-decoration: none; }
 a:hover { opacity: 0.78; transition: opacity var(--dur) var(--ease); }
 ::selection { background: var(--accent); color: var(--accent-ink); }
 
-/* Label utility */
+/* ----------------------------------------------------------------------------
+   Card — Modernize cardWithShadow (dark variant)
+   ---------------------------------------------------------------------------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow);
+  padding: var(--s-5);
+}
+.card-hover { transition: transform var(--dur) var(--ease); }
+.card-hover:hover { transform: scale(1.01); }
+
+/* Eyebrow label (Plus Jakarta Sans, uppercase) — replaces the mono label */
 .label {
-  font: 600 11px/1.2 var(--font-mono);
-  letter-spacing: 0.14em;
+  font: 700 11px/1.2 var(--font-sans);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--fg-2);
 }
-
 .label-sm {
-  font: 500 10px/1.2 var(--font-mono);
-  letter-spacing: 0.14em;
+  font: 600 10px/1.2 var(--font-sans);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--fg-3);
 }
 
-/* Section base */
-.section {
-  padding: var(--s-11) 0;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-left: var(--s-5);
-  padding-right: var(--s-5);
+/* Editorial headline — states the insight (used on every viz) */
+.headline {
+  font: 700 22px/1.25 var(--font-sans);
+  color: var(--fg-1);
+  letter-spacing: -0.01em;
+  margin: 0;
 }
 
-.section-full {
-  padding: var(--s-11) var(--s-5);
+/* Tinted icon/stat badge (Modernize bg-light-* pattern) */
+.badge-accent {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--accent-soft); color: var(--accent);
+  border-radius: var(--r-sm); padding: 2px 8px;
+  font: 700 12px/1.4 var(--font-sans);
 }
+
+/* Section base */
+.section {
+  padding: var(--s-9) var(--s-5);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.section-full { padding: var(--s-9) var(--s-5); }
