@@ -276,51 +276,70 @@ class TestTopCreators:
         assert result.top_3[0].videos == 40
 
 
+def _make_graveyard_df() -> pd.DataFrame:
+    """A channel that was watched a lot ~10 months ago then dropped ('Gone'),
+    one still active ('Active'), and a rarely-watched one ('Rare')."""
+    now = datetime(2026, 5, 1, 20, 0, 0)
+    rows = []
+
+    def add(channel, when, k):
+        for j in range(k):
+            rows.append({
+                "watch_date": when + timedelta(minutes=15 * j),
+                "video_id": f"{channel}_{when:%Y%m%d}_{j}",
+                "channel_name": channel,
+                "video_length_secs": 600,
+                "category_id": 24,
+                "video_status": "Available",
+                "tags": "tag1,tag2",
+                "title": "t", "video_description": "d",
+                "date_": when.strftime("%Y-%m-%d"),
+            })
+
+    add("Gone", now - timedelta(days=300), 6)      # heavy, long ago -> abandoned
+    add("Active", now - timedelta(days=5), 5)        # recent -> not abandoned
+    add("Active", now - timedelta(days=250), 3)      # also has old history
+    add("Rare", now - timedelta(days=280), 1)        # too few -> not abandoned
+    return pd.DataFrame(rows)
+
+
 class TestGraveyard:
-    def test_removed_count_matches_non_available(self):
-        df = _make_df(n=100, seed=42)
-        service = WrappedService(df)
+    def test_returns_graveyard(self):
+        service = WrappedService(_make_graveyard_df())
         result = service.compute_graveyard()
-
-        expected_removed = int((df["video_status"] != "Available").sum())
         assert isinstance(result, Graveyard)
-        assert result.removed_count == expected_removed
 
-    def test_removed_pct_correct(self):
-        df = _make_df(n=100, seed=42)
-        service = WrappedService(df)
+    def test_abandoned_channel_detected(self):
+        service = WrappedService(_make_graveyard_df())
         result = service.compute_graveyard()
+        channels = [c.channel for c in result.top_channels]
+        assert "Gone" in channels
+        assert result.abandoned_count >= 1
 
-        expected_pct = round((df["video_status"] != "Available").sum() / len(df) * 100, 2)
-        assert abs(result.removed_pct - expected_pct) < 0.01
-
-    def test_top_channels_non_empty_when_removed_exist(self):
-        df = _make_df(n=100, seed=42)
-        service = WrappedService(df)
+    def test_active_channel_excluded(self):
+        service = WrappedService(_make_graveyard_df())
         result = service.compute_graveyard()
+        assert "Active" not in [c.channel for c in result.top_channels]
 
-        # We have 5 removed videos from _make_df
-        assert result.removed_count == 5
-        assert len(result.top_channels) > 0
-
-    def test_monthly_timeline_has_entries(self):
-        df = _make_df(n=100, seed=42)
-        service = WrappedService(df)
+    def test_rarely_watched_excluded(self):
+        # 'Rare' has only 1 video -> below the min-videos threshold
+        service = WrappedService(_make_graveyard_df())
         result = service.compute_graveyard()
+        assert "Rare" not in [c.channel for c in result.top_channels]
 
-        # Should return a list (may be empty if removed items grouped)
-        assert isinstance(result.monthly_timeline, list)
-
-    def test_no_removed_videos(self):
-        df = _make_df(n=50, seed=42)
-        df["video_status"] = "Available"  # override all to Available
-        service = WrappedService(df)
+    def test_channel_fields_populated(self):
+        service = WrappedService(_make_graveyard_df())
         result = service.compute_graveyard()
+        gone = next(c for c in result.top_channels if c.channel == "Gone")
+        assert gone.videos == 6
+        assert gone.months_since >= 6
+        assert len(gone.last_watched) == 10  # YYYY-MM-DD
 
-        assert result.removed_count == 0
-        assert result.removed_pct == 0.0
+    def test_no_abandoned_when_all_recent(self):
+        df = _make_df(n=50, seed=42)  # spans only a few days -> nothing is "abandoned"
+        result = WrappedService(df).compute_graveyard()
+        assert result.abandoned_count == 0
         assert result.top_channels == []
-        assert result.monthly_timeline == []
 
 
 class TestGenreJourney:

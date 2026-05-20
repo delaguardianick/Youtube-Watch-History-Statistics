@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Graveyard } from '../../../models/wrapped.models';
 
@@ -7,85 +7,86 @@ import { Graveyard } from '../../../models/wrapped.models';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <span class="label">THE GRAVEYARD</span>
-    <div class="hero">
-      <span class="removed-count">{{ data?.removed_count }}</span>
-      <span class="removed-label">videos removed</span>
-    </div>
-    <span class="removed-pct">{{ data?.removed_pct }}% of what you opened no longer exists</span>
+    <header class="top">
+      <span class="label">The graveyard</span>
+      <span class="badge-accent" *ngIf="hasData">{{ data!.abandoned_count }} ghosted</span>
+    </header>
 
-    <div class="channels" *ngIf="data?.top_channels?.length">
-      <span class="label">MOST REMOVED BY CHANNEL</span>
-      <div class="channel-list">
-        @for (ch of data!.top_channels; track ch.channel) {
-          <div class="channel-row">
-            <span class="channel-name">{{ ch.channel }}</span>
-            <span class="channel-count">{{ ch.count }}</span>
-          </div>
-        }
+    <h2 class="headline" *ngIf="hasData">{{ headline }}</h2>
+
+    <div class="list" *ngIf="hasData; else empty">
+      <div class="row" *ngFor="let ch of data!.top_channels">
+        <div class="info">
+          <span class="name">{{ ch.channel }}</span>
+          <span class="meta">{{ ch.videos }} videos · last seen {{ sinceLabel(ch.months_since) }}</span>
+        </div>
+        <div class="bar"><span [style.width.%]="barWidth(ch.videos)"></span></div>
       </div>
     </div>
+
+    <ng-template #empty>
+      <div class="empty">
+        <span class="empty-num">0</span>
+        <p class="empty-msg">Your graveyard is empty — you never really ghost a channel.</p>
+      </div>
+    </ng-template>
+
+    <footer class="foot" *ngIf="hasData">
+      <span class="label-sm">Watched often, then drifted away</span>
+    </footer>
   `,
   styles: [`
-    :host {
-      display: flex;
-      flex-direction: column;
-      gap: var(--s-4);
+    :host { display: flex; flex-direction: column; height: 100%; }
+    .top { display: flex; justify-content: space-between; align-items: center; }
+
+    .headline { margin: var(--s-4) 0 var(--s-5); font: 700 22px/1.25 var(--font-sans); color: var(--fg-1); letter-spacing: -0.01em; }
+    .headline .hl { color: var(--accent); }
+
+    .list { display: flex; flex-direction: column; gap: var(--s-4); }
+    .row { display: flex; flex-direction: column; gap: 8px; }
+    .info { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); }
+    .name {
+      font: 600 16px/1.3 var(--font-sans); color: var(--fg-1);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
     }
-    .hero {
-      display: flex;
-      align-items: baseline;
-      gap: var(--s-3);
-      margin-top: var(--s-2);
+    .meta { font: 500 12px/1.3 var(--font-sans); color: var(--fg-3); flex-shrink: 0; }
+    .bar { height: 4px; border-radius: var(--r-pill); background: var(--elevated); overflow: hidden; }
+    /* decaying fade — full at the left, fading to nothing: the channel's last embers */
+    .bar span {
+      display: block; height: 100%; border-radius: var(--r-pill);
+      background: linear-gradient(90deg, var(--accent), rgba(255,54,33,0.15));
     }
-    .removed-count {
-      font: 800 56px/1 var(--font-sans);
-      letter-spacing: -0.02em;
-      color: #555;
-    }
-    .removed-label {
-      font: 400 18px/1 var(--font-sans);
-      color: var(--fg-3);
-    }
-    .removed-pct {
-      font: 400 14px/1.4 var(--font-sans);
-      color: var(--fg-3);
-    }
-    .channels {
-      display: flex;
-      flex-direction: column;
-      gap: var(--s-3);
-      margin-top: auto;
-      padding-top: var(--s-4);
-      border-top: 1px solid var(--border);
-    }
-    .channel-list {
-      display: flex;
-      flex-direction: column;
-      gap: var(--s-2);
-    }
-    .channel-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .channel-name {
-      font: 400 14px/1.4 var(--font-sans);
-      color: var(--fg-2);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      flex: 1;
-      min-width: 0;
-    }
-    .channel-count {
-      font: 600 13px/1 var(--font-mono);
-      color: #555;
-      flex-shrink: 0;
-      margin-left: var(--s-3);
-    }
+
+    .empty { margin: auto 0; display: flex; flex-direction: column; gap: var(--s-3); }
+    .empty-num { font: 800 72px/1 var(--font-sans); color: var(--fg-3); }
+    .empty-msg { margin: 0; font: 500 16px/1.4 var(--font-sans); color: var(--fg-2); max-width: 22ch; }
+
+    .foot { margin-top: auto; padding-top: var(--s-4); border-top: 1px solid var(--border); }
   `],
 })
-export class CardGraveyardComponent {
+export class CardGraveyardComponent implements OnChanges {
   @Input() data: Graveyard | null = null;
+
+  hasData = false;
+  headline = '';
+  private maxVideos = 1;
+
+  ngOnChanges(): void {
+    const list = this.data?.top_channels ?? [];
+    this.hasData = list.length > 0;
+    if (this.hasData) {
+      this.maxVideos = Math.max(...list.map((c) => c.videos), 1);
+      this.headline = `You moved on from ${this.data!.abandoned_count} channels you once binged.`;
+    }
+  }
+
+  barWidth(videos: number): number {
+    return Math.max(12, Math.round((videos / this.maxVideos) * 100));
+  }
+
+  sinceLabel(months: number): string {
+    if (months <= 1) return 'a month ago';
+    if (months < 12) return `${months} months ago`;
+    return 'over a year ago';
+  }
 }

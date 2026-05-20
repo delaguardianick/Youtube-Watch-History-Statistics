@@ -79,14 +79,15 @@ class ShortsData(BaseModel):
 
 class GraveyardChannel(BaseModel):
     channel: str
-    count: int
+    videos: int          # videos watched from this channel in the window
+    last_watched: str    # 'YYYY-MM-DD'
+    months_since: int    # whole months since last watched (relative to window end)
 
 
 class Graveyard(BaseModel):
-    removed_count: int
-    removed_pct: float
+    """Channels you used to watch a lot but have since stopped."""
+    abandoned_count: int
     top_channels: list[GraveyardChannel]
-    monthly_timeline: list[dict]  # [{"month": str, "count": int}]
 
 
 class WrappedResponse(BaseModel):

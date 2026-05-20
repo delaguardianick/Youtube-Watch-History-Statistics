@@ -315,53 +315,41 @@ class WrappedService:
         )
 
     # -------------------------------------------------------------------------
-    # 7. Graveyard (removed videos)
+    # 7. Graveyard (channels you abandoned)
     # -------------------------------------------------------------------------
 
+    # A channel is "abandoned" if you watched it MIN_VIDEOS+ times in the window but
+    # nothing in the last RECENT_DAYS — i.e. it used to be a habit and then stopped.
+    GRAVEYARD_MIN_VIDEOS = 3
+    GRAVEYARD_RECENT_DAYS = 90
+
     def compute_graveyard(self) -> Graveyard:
-        df = self._df
-        removed_df = df[df["video_status"] != "Available"]
+        named = self._df[self._df["channel_name"].fillna("").str.strip() != ""]
+        if named.empty:
+            return Graveyard(abandoned_count=0, top_channels=[])
 
-        removed_count = len(removed_df)
-        removed_pct = round(removed_count / len(df) * 100, 2) if len(df) > 0 else 0.0
+        window_end = named["watch_date"].max()
+        recent_cutoff = window_end - pd.Timedelta(days=self.GRAVEYARD_RECENT_DAYS)
 
-        if removed_count == 0:
-            return Graveyard(
-                removed_count=0,
-                removed_pct=0.0,
-                top_channels=[],
-                monthly_timeline=[],
-            )
-
-        # Top channels with most removed videos
-        channel_removed = (
-            removed_df.groupby("channel_name")
-            .size()
-            .reset_index(name="count")
-            .sort_values("count", ascending=False)
+        stats = (
+            named.groupby("channel_name")
+            .agg(videos=("video_id", "count"), last_watched=("watch_date", "max"))
+            .reset_index()
         )
+
+        abandoned = stats[
+            (stats["videos"] >= self.GRAVEYARD_MIN_VIDEOS)
+            & (stats["last_watched"] <= recent_cutoff)
+        ].sort_values("videos", ascending=False)
+
         top_channels = [
-            GraveyardChannel(channel=row["channel_name"], count=int(row["count"]))
-            for _, row in channel_removed.head(10).iterrows()
+            GraveyardChannel(
+                channel=row["channel_name"],
+                videos=int(row["videos"]),
+                last_watched=str(row["last_watched"].date()),
+                months_since=max(1, int((window_end - row["last_watched"]).days // 30)),
+            )
+            for _, row in abandoned.head(6).iterrows()
         ]
 
-        # Monthly timeline
-        removed_df = removed_df.copy()
-        removed_df["month"] = removed_df["watch_date"].dt.to_period("M").astype(str)
-        monthly = (
-            removed_df.groupby("month")
-            .size()
-            .reset_index(name="count")
-            .sort_values("month")
-        )
-        monthly_timeline = [
-            {"month": row["month"], "count": int(row["count"])}
-            for _, row in monthly.iterrows()
-        ]
-
-        return Graveyard(
-            removed_count=removed_count,
-            removed_pct=removed_pct,
-            top_channels=top_channels,
-            monthly_timeline=monthly_timeline,
-        )
+        return Graveyard(abandoned_count=int(len(abandoned)), top_channels=top_channels)

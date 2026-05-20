@@ -75,14 +75,14 @@ export interface ShortsData {
 
 export interface GraveyardChannel {
   channel: string;
-  count: number;
+  videos: number;
+  last_watched: string;   // 'YYYY-MM-DD'
+  months_since: number;
 }
 
 export interface Graveyard {
-  removed_count: number;
-  removed_pct: number;
+  abandoned_count: number;
   top_channels: GraveyardChannel[];
-  monthly_timeline: { month: string; count: number }[];
 }
 
 export interface WrappedResponse {
