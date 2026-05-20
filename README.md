@@ -1,12 +1,15 @@
-# Youtube Stats Plus
+# Youtube Stats
 #### Analyze your youtube statistics.
 
 ### Description
-Given a Google Takeout (https://takeout.google.com/settings/takeout), it will analyze your watch history and display a datadashboard.
-Input: `watch_history.json` file inside the Google Takeout. Can be found in `Takeout\YouTube and YouTube Music\history` inside the takeout file.
-
 Youtube gives very rudamentary statistics about a user's watch time and viewer trends, their efforts are focused more on statistics for creators.
 The end goal of this project is to give a Yotube viewer full control and details into their own watching habits, perhaps exploring global trends on youtube and how videos are watched.
+
+Given a Google Takeout (https://takeout.google.com/settings/takeout), it will analyze your watch history and display a data dashboard.
+Input: `watch_history.json` file inside the Google Takeout. Can be found in `Takeout\YouTube and YouTube Music\history` inside the takeout file.
+
+The python script then takes every video and queries the Youtube API for extra information. All of that is then stored in a PostgreSQL DB organized like the schema below.
+The data is analyzed with pandas, and through FastAPI, we send the information to an Angular app which displays the plots and relevant information.
 
 ## Installation
 - Run `git clone https://github.com/delaguardianick/YT-Watch-History-Stats.git` in desired folder
@@ -36,9 +39,9 @@ The end goal of this project is to give a Yotube viewer full control and details
 - In one terminal: Run the web server
   - Activate virtual environment
     - `.\venv\Scripts\activate`
-  - `cd \Web\youtube-stats`
+  - `cd Web\youtube-stats-angular\youtube-stats-v2`
   - `npm start`
-  - `http://localhost:3000/` should open, if not paste URL in browser
+  - `http://localhost:4200/` should open, if not paste URL in browser
 - In another terminal: run the API server
   - `cd \Backend\src`
   - `uvicorn main:app --reload --host 0.0.0.0 --port 8000`
@@ -75,5 +78,5 @@ Todo:
 - Google takeout is not as much of a bottleneck. User can request only youtube -> only videos -> only watch history. Is instant and lighweight
 
 
-### MVP (updated 4/27/2023)
-![image](https://user-images.githubusercontent.com/52568848/234989496-0c6cb714-83a0-4818-b209-5bb53bec03cc.png)
+### MVP (updated 4/8/2024)
+![image](https://github.com/user-attachments/assets/b3acc1c7-5600-4047-9575-1beb555cd4e3)
