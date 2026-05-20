@@ -23,6 +23,7 @@ export interface MonthlyTrend {
   month: string;
   hours: number;
   video_count: number;
+  is_partial?: boolean;
 }
 
 export interface WatchTrends {
