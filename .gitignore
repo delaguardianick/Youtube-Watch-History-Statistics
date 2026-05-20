@@ -33,3 +33,6 @@ Backend/experiments/website-redesigns/tabler
 Backend/experiments/website-redesigns/tabler
 
 Web/youtube-stats-angular/youtube-stats-v2/.vscode/
+# Python
+__pycache__/
+*.pyc
