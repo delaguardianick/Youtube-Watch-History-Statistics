@@ -281,9 +281,11 @@ export class ActivityHeatmapComponent implements OnChanges {
           type: 'scatter',
           symbol: 'rect',
           // symbolSize will be set via a function so cells are square and gap-spaced
-          symbolSize: [13, 13],
+          symbolSize: [16, 16],
           itemStyle: {
             borderRadius: 2,
+            borderWidth: 2,
+            borderColor: CHART.surface,
           },
           data: scatterData,
           large: true,

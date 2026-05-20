@@ -231,7 +231,8 @@ export class CardGenresComponent implements OnChanges {
           silent: true,
           symbol: ['none', 'none'],
           label: {
-            formatter: `${this.formatMonth(shift.month)}: genre shift`,
+            formatter: `→ genre shift`,
+            position: 'insideEndTop',
             fontSize: 10,
             color: CHART.muted,
             fontFamily: CHART.font,
@@ -269,7 +270,7 @@ export class CardGenresComponent implements OnChanges {
         },
       },
       legend: { show: false }, // we use our own CSS legend
-      grid: { left: 8, right: 8, top: 8, bottom: 4, containLabel: true },
+      grid: { left: 8, right: 72, top: 8, bottom: 4, containLabel: true },
       xAxis: {
         ...categoryAxis({ data: xLabels }),
         axisLabel: {

@@ -122,14 +122,30 @@ class DeepDiveService:
                         tag_channels[tag] = Counter()
                     tag_channels[tag][channel] += 1
 
-        top_50 = tag_counter.most_common(50)
+        # Merge near-duplicate tags that differ only by spacing/punctuation
+        # (e.g. "justin guitar" and "justinguitar") into one entry, keeping the most
+        # common surface form and summing counts.
+        import re as _re
+        merged_counts: Counter = Counter()
+        merged_channels: dict[str, Counter] = {}
+        norm_to_surface: dict[str, Counter] = {}
+        for tag, count in tag_counter.items():
+            key = _re.sub(r"[^a-z0-9]", "", tag)
+            if not key:
+                continue
+            merged_counts[key] += count
+            norm_to_surface.setdefault(key, Counter())[tag] += count
+            ch = merged_channels.setdefault(key, Counter())
+            ch.update(tag_channels.get(tag, Counter()))
+
+        top_50 = merged_counts.most_common(50)
         entries = [
             TagEntry(
-                tag=tag,
+                tag=norm_to_surface[key].most_common(1)[0][0],
                 count=count,
-                top_channels=[ch for ch, _ in tag_channels[tag].most_common(3)],
+                top_channels=[c for c, _ in merged_channels[key].most_common(3)],
             )
-            for tag, count in top_50
+            for key, count in top_50
         ]
         return TagCloud(tags=entries)
 

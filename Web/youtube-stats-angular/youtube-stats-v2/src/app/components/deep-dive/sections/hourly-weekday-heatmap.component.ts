@@ -183,6 +183,7 @@ export class HourlyWeekdayHeatmapComponent implements OnChanges {
           itemStyle: { color: 'transparent' },
           label: {
             show: true,
+            position: 'inside',
             formatter: `${peakHours.toFixed(1)}h`,
             color: '#ffffff',
             fontFamily: CHART.font,
@@ -200,7 +201,7 @@ export class HourlyWeekdayHeatmapComponent implements OnChanges {
       grid: {
         left: 52,
         right: 16,
-        top: 8,
+        top: 36,
         bottom: 8,
         containLabel: false,
       },

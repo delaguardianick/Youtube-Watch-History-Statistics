@@ -49,7 +49,7 @@ import {
     <div class="chart-section" *ngIf="data?.hourly_comparison">
       <div class="chart-header">
         <span class="label-sm">Hourly activity</span>
-        <span class="chart-note">You scroll Shorts hardest after noon</span>
+        <span class="chart-note">{{ peakSubtitle }}</span>
       </div>
       <div echarts [options]="chartOptions" class="chart"></div>
       <div class="chart-legend">
@@ -179,6 +179,7 @@ export class CardShortsComponent implements OnChanges {
   roundedHours = 0;
   roundedBingeMinutes = 0;
   roundedShortsPct = 0;
+  peakSubtitle = '';
 
   private readonly hourLabels = [
     '12A','1A','2A','3A','4A','5A','6A','7A','8A','9A','10A','11A',
@@ -194,8 +195,25 @@ export class CardShortsComponent implements OnChanges {
       this.roundedShortsPct = this.data.vs_longform
         ? Math.round(this.data.vs_longform.shorts_pct_videos)
         : 0;
+      this.peakSubtitle = this.computePeakSubtitle(this.data.hourly_comparison?.shorts ?? []);
       this.buildChart();
     }
+  }
+
+  private computePeakSubtitle(hourly: number[]): string {
+    if (!hourly.length) return 'You scroll Shorts throughout the day';
+    const peak = hourly.indexOf(Math.max(...hourly));
+    let period: string;
+    if ([22, 23, 0, 1, 2, 3, 4].includes(peak)) {
+      period = 'late at night';
+    } else if (peak >= 5 && peak <= 11) {
+      period = 'in the morning';
+    } else if (peak >= 12 && peak <= 16) {
+      period = 'in the afternoon';
+    } else {
+      period = 'in the evening';
+    }
+    return 'You scroll Shorts hardest ' + period;
   }
 
   private buildChart(): void {
